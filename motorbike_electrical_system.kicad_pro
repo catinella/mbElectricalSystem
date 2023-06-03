@@ -367,7 +367,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "centralina_smistamento-4.4.kicad_pro",
+    "filename": "motorbike_electrical_system.kicad_pro",
     "version": 1
   },
   "net_settings": {
@@ -399,7 +399,7 @@
     "last_paths": {
       "gencad": "",
       "idf": "",
-      "netlist": "centralina_smistamento-4.4.net",
+      "netlist": "motorbike_electrical_system.net",
       "specctra_dsn": "",
       "step": "",
       "vrml": ""
