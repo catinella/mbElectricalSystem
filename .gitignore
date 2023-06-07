@@ -1,2 +1,4 @@
 fp-info-cache
 *.net
+\#auto_saved_files\#
+_autosave-*
