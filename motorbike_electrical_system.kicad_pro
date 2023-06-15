@@ -140,7 +140,8 @@
         "use_height_for_length_calcs": true
       },
       "track_widths": [
-        0.0
+        0.0,
+        0.75
       ],
       "via_dimensions": [
         {
@@ -439,6 +440,18 @@
     [
       "709d0967-afe5-49d3-92a5-d2bb94550bdb",
       ""
+    ],
+    [
+      "44e17612-9f2f-476d-8e41-268bb036a54a",
+      "MB Electrical System - front outputs"
+    ],
+    [
+      "0b22d592-b723-42a2-89dd-bec665c2bd26",
+      "MB Electrical System - inputs"
+    ],
+    [
+      "937463ea-d3fe-417a-91f3-c7891b585b2f",
+      "MB Electrical System - rear side connector"
     ]
   ],
   "text_variables": {}
