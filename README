@@ -6,3 +6,72 @@
     |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
                                                                                                     |___/                       
 #-----------------------------------------------------------------------------------------------------------------------------------
+
+Description:
+	This project (MBES) aims to realize a generic motorbike electric system you can use on any old motorbike.
+	The system manages the following devices:
+		- High light and down light
+		- Left and right turn indicators
+		- Additional (high power) light
+		- Horn
+		- Neutral, left/right indicators, high/down light... LEDs
+		- STOP light
+		- Engine start button
+		- Motorbike (and engine) OFF switch
+		- Decompressor
+
+	The system provides the following services:
+		- 5V generator for USB devices
+		- Square electric wave for blinking light
+		- Resistors key locker
+
+	This release is based on MCU ATmega16L chip. It allowed me to add the resistors key management and keep the PCB size small
+	enough. Also about the total price, it looks like a good solution. In fact the MCU costs 20$ (more or less) but the resistors
+	key locker (git@github.com:catinella/rKey.git) device costs 30$-40$.
+
+	Fuses and electric protections:
+		The old motorbikes (like my DR-Big) have just one single fuse to protect the battery by short-circuits. It can be a
+		disturbing trouble when you have multiple electric problems and/or you can continue without that particular service
+		(eg. turn signals). It can happen in critical situation when you fording a river, or after you fall down in the middle
+		of nowhere.
+		MBES allows you to use upo to 5 fuses, almost one for service. It means, if you get falldown and you get horn damage
+		and it make a short-circuit event, then you can continue without stop your motorbike.
+		The resistors-key is protected by "unintentional" short-circuits
+
+
+Internals:
+
+	+------------+-----+-------+------------+
+	| Transistor | HFE |  VCE  |   Wasted   |
+	|            |(min)| (max) |    PWR     |
+	+------------+-----+-------+------------+
+	| D45VH10    | 50  | 0.4V  | 3.33% (12V)|
+	| BDX34C     | 750 | 2.5V  | 20.8% (12V)|
+	| BC337      | 100 | 0.2V  | 4% (5V)    |
+	+------------+-----+-------+------------+
+
+
+	Configuration for motorbikes with high power lights (5A). Consider that BDX34C is very useful to reduce the resistors size
+	but it waste a lot of energy (VCE=3-4v!!!): 20%. At the end, if you are using LED lights, is till better then the old lights.
+	+-------------+--------+---------+-------+-----------+-----------+
+	|   Service   | Ic max |   TR2   |  Ib   | wasted Ic | wasted Ib |
+	+-------------+--------+---------+-------+-----------+-----------+
+	| add_light   |   5A   | D45VH10 | 100mA | 2W        |  500mW    |
+	| up_light    |   5A   | D45VH10 | 100mA | 2W        |  500mW    |
+	| down_light  |   2A   | BDX34C  | 3mA   | 5W        |  15mW     |
+	| horn        |   2A   | BDX34C  | 3mA   | 5W        |  15mW     |
+	| left_arrow  |   1A   | BDX34C  | 1.5mA | 2.5W      |  7.5mW    |
+	| right_arrow |   1A   | BDX34C  | 1.5mA | 2.5W      |  7.5mW    |
+	+-------------+--------+---------+-------+-----------+-----------+
+
+	Configuration for a normal motorbike with common led lights.
+	+-------------+--------+---------+-------+------------+-----------+
+	|   Service   | Ic max |   TR2   |  Ib   | wasted Ic  | wasted Ib |
+	+-------------+--------+---------+-------+------------+-----------+
+	| add_light   |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
+	| up_light    |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
+	| down_light  |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
+	| horn        |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
+	| left_arrow  |   1A   | BDX34C  | 1.5mA | 2.5W       |   7.5mW   |
+	| right_arrow |   1A   | BDX34C  | 1.5mA | 2.5W       |   7.5mW   |
+	+-------------+--------+---------+-------+------------+-----------+
