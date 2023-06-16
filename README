@@ -39,39 +39,3 @@ Description:
 		The resistors-key is protected by "unintentional" short-circuits
 
 
-Internals:
-
-	+------------+-----+-------+------------+
-	| Transistor | HFE |  VCE  |   Wasted   |
-	|            |(min)| (max) |    PWR     |
-	+------------+-----+-------+------------+
-	| D45VH10    | 50  | 0.4V  | 3.33% (12V)|
-	| BDX34C     | 750 | 2.5V  | 20.8% (12V)|
-	| BC337      | 100 | 0.2V  | 4% (5V)    |
-	+------------+-----+-------+------------+
-
-
-	Configuration for motorbikes with high power lights (5A). Consider that BDX34C is very useful to reduce the resistors size
-	but it waste a lot of energy (VCE=3-4v!!!): 20%. At the end, if you are using LED lights, is till better then the old lights.
-	+-------------+--------+---------+-------+-----------+-----------+
-	|   Service   | Ic max |   TR2   |  Ib   | wasted Ic | wasted Ib |
-	+-------------+--------+---------+-------+-----------+-----------+
-	| add_light   |   5A   | D45VH10 | 100mA | 2W        |  500mW    |
-	| up_light    |   5A   | D45VH10 | 100mA | 2W        |  500mW    |
-	| down_light  |   2A   | BDX34C  | 3mA   | 5W        |  15mW     |
-	| horn        |   2A   | BDX34C  | 3mA   | 5W        |  15mW     |
-	| left_arrow  |   1A   | BDX34C  | 1.5mA | 2.5W      |  7.5mW    |
-	| right_arrow |   1A   | BDX34C  | 1.5mA | 2.5W      |  7.5mW    |
-	+-------------+--------+---------+-------+-----------+-----------+
-
-	Configuration for a normal motorbike with common led lights.
-	+-------------+--------+---------+-------+------------+-----------+
-	|   Service   | Ic max |   TR2   |  Ib   | wasted Ic  | wasted Ib |
-	+-------------+--------+---------+-------+------------+-----------+
-	| add_light   |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
-	| up_light    |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
-	| down_light  |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
-	| horn        |   2A   | D45VH10 | 50mA  | 0.8W       |   250mW   |
-	| left_arrow  |   1A   | BDX34C  | 1.5mA | 2.5W       |   7.5mW   |
-	| right_arrow |   1A   | BDX34C  | 1.5mA | 2.5W       |   7.5mW   |
-	+-------------+--------+---------+-------+------------+-----------+
