@@ -1,15 +1,27 @@
-//-------------------------------------------------------------------------------------------------------------------------------
+/*-------------------------------------------------------------------------------------------------------------------------------
+//
+//   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+//  |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+//  | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+//  | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+//  |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+//                                                                                                  |___/                       
+//
 // File:   mbElectricalSystem.c
 //
 // Author: Silvano Catinella
 //
+// Description:
 //
 //	Symbol description:
 //		+---------------+------------------+-----------------------------------------------------+
-//		|     Symbol    |       Plug       |      Description                                    |
+//		|     Symbol    |    Plug/link     |      Description                                    |
 //		+---------------+------------------+-----------------------------------------------------+
-//		| i_VX1         | resistors-key    | first voltage reference                             |
-//		| i_VX2         |                  | second  "         "                                 |
+//		| i_VX1         | resistors-key    | first voltage value                                 |
+//		| i_VX2         |                  | second  "       "                                   |
+//		+---------------+------------------+-----------------------------------------------------+
+//		| i_VY1         |  internal link   | first voltage reference                             |
+//		| i_VY2         |                  | second  "         "                                 |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| i_NEUTRAL     | from gearbox     | it is 0 when the gear is in neutral position        |
 //		+---------------+------------------+-----------------------------------------------------+
@@ -46,14 +58,8 @@
 //		| o_HORN        |                  |                                                     |
 //		+---------------+------------------+-----------------------------------------------------+
 //
-//-------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------------------------------------------------------*/
 
-// DDRA |= (1 << DDA1); // Imposta il pin PA1 come uscita
-// DDRA &= ~(1 << DDA1); // Imposta il pin PA1 come ingresso
-
-// Otional:
-//  PORTA |= (1 << PA1); // Abilita la resistenza di pull-up
-//  PORTA |= (0 << PA1); // Abilita la resistenza di pull-down
 
 #include <xc.h>
 
@@ -92,62 +98,94 @@
 
 
 
+#define V_TOLERANCE     100
+
+
+
+uint8_t loop = 1;
+//-------------------------------------------------------------------------------------------------------------------------------
+//                                                      M A I N
+//-------------------------------------------------------------------------------------------------------------------------------
+
 void main(void) {
 	
 	//
 	// Data Direction Registers (DDR) setting
+	//	TRISBbits.TRIS<PIN> = 0;  // PIN is set as output
+	//	TRISBbits.TRIS<PIN> = 1;  // PIN is set as input
 	//
 	// Port A
-	DDRA &= ~(1 << DD_i_NEUTRAL);
+	TRISBbits.TRIS_i_NEUTRAL = 1;
 	// Port B
-	DDRB &= ~(1 << DD_i_LEFTARROW);
-	DDRB &= ~(1 << DD_i_DOWNLIGHT);
-	DDRB &= ~(1 << DD_i_UPLIGHT);
-	DDRB &= ~(1 << DD_i_RIGHTARROW);
-	DDRB &= ~(1 << DD_i_HORN);
-	DDRB &= ~(1 << DD_i_BIKESTAND);
-	DDRB |=  (1 << DD_o_ENGINEREADY);
-	DDRB |=  (1 << DD_o_NEUTRAL);
+	TRISBbits.TRIS_i_LEFTARROW   = 1;
+	TRISBbits.TRIS_i_DOWNLIGHT   = 1;
+	TRISBbits.TRIS_i_UPLIGHT     = 1;
+	TRISBbits.TRIS_i_RIGHTARROW  = 1;
+	TRISBbits.TRIS_i_HORN        = 1;
+	TRISBbits.TRIS_i_BIKESTAND   = 1;
+	TRISBbits.TRIS_o_ENGINEREADY = 0;
+	TRISBbits.TRIS_o_NEUTRAL     = 0;
 	// Port C
-	DDRC &= ~(1 << DD_i_BRAKESWITCH);
-	DDRC &= ~(1 << DD_i_STARTBUTTON);
-	DDRC &= ~(1 << DD_i_ENGINEON);
-	DDRC &= ~(1 << DD_i_DECOMPRESS);
-	DDRC |=  (1 << DD_o_STOPLIGHT);
-	DDRC &= ~(1 << DD_i_ADDLIGHT);
-	DDRC &= ~(1 << DD_i_LIGHTONOFF);
+	TRISBbits.TRIS_i_BRAKESWITCH = 1;
+	TRISBbits.TRIS_i_STARTBUTTON = 1;
+	TRISBbits.TRIS_i_ENGINEON    = 1;
+	TRISBbits.TRIS_i_DECOMPRESS  = 1;
+	TRISBbits.TRIS_o_STOPLIGHT   = 0;
+	TRISBbits.TRIS_i_ADDLIGHT    = 1;
+	TRISBbits.TRIS_i_LIGHTONOFF  = 1;
 	// Port D
-	DDRD |=  (1 << DD_o_RIGHTARROW);
-	DDRD |=  (1 << DD_o_LEFTARROW);
-	DDRD |=  (1 << DD_o_DOWNLIGHT);
-	DDRD |=  (1 << DD_o_UPLIGHT);
-	DDRD |=  (1 << DD_o_ADDLIGHT);
-	DDRD |=  (1 << DD_o_HORN);
-	DDRD |=  (1 << DD_o_KEEPALIVE);
-	DDRD |=  (1 << DD_o_STARTENGINE);
+	TRISBbits.TRIS_o_RIGHTARROW  = 0;
+	TRISBbits.TRIS_o_LEFTARROW   = 0;
+	TRISBbits.TRIS_o_DOWNLIGHT   = 0;
+	TRISBbits.TRIS_o_UPLIGHT     = 0;
+	TRISBbits.TRIS_o_ADDLIGHT    = 0;
+	TRISBbits.TRIS_o_HORN        = 0;
+	TRISBbits.TRIS_o_KEEPALIVE   = 0;
+	TRISBbits.TRIS_o_STARTENGINE = 0;
 	
 	
 	//
 	// Pull-up/down resistors setting
-	//
-	PORTA |= (1 << P_i_NEUTRAL);
+	//	CNPUBbits.CNPU<PIN> = 1;    // Pull-up resistors on the PIN
+	//	CNPUBbits.CNPD<PIN> = 1;    // Pull-down resistors on the PIN
+
+	CNPUBbits.CNPU
+	CNPUBbits.CNPU_i_NEUTRAL     = 1;
 	// Port B
-	PORTB |= (1 << P_i_LEFTARROW);
-	PORTB |= (1 << P_i_DOWNLIGHT);
-	PORTB |= (1 << P_i_UPLIGHT);
-	PORTB |= (1 << P_i_RIGHTARROW);
-	PORTB |= (1 << P_i_HORN);
-	PORTB |= (1 << P_i_BIKESTAND);
+	CNPUBbits.CNPU_i_LEFTARROW   = 1;
+	CNPUBbits.CNPU_i_DOWNLIGHT   = 1;
+	CNPUBbits.CNPU_i_UPLIGHT     = 1;
+	CNPUBbits.CNPU_i_RIGHTARROW  = 1;
+	CNPUBbits.CNPU_i_HORN        = 1;
+	CNPUBbits.CNPU_i_BIKESTAND   = 1;
 	// Port C
-	PORTC |= (1 << P_i_BRAKESWITCH);
-	PORTC |= (1 << P_i_STARTBUTTON);
-	PORTC |= (1 << P_i_ENGINEON);
-	PORTC |= (1 << P_i_DECOMPRESS);
-	PORTC |= (1 << P_i_ADDLIGHT);
-	PORTC |= (1 << P_i_LIGHTONOFF);
+	CNPUBbits.CNPU_i_BRAKESWITCH = 1;
+	CNPUBbits.CNPU_i_STARTBUTTON = 1;
+	CNPUBbits.CNPU_i_ENGINEON    = 1;
+	CNPUBbits.CNPU_i_DECOMPRESS  = 1;
+	CNPUBbits.CNPU_i_ADDLIGHT    = 1;
+	CNPUBbits.CNPU_i_LIGHTONOFF  = 1;
 	
 	
 	// Starting conditions
-    
-    return;
+	LATBbits.LAT
+	LATBbits.LAT_o_RIGHTARROW  = 0;
+	LATBbits.LAT_o_LEFTARROW   = 0;
+	LATBbits.LAT_o_DOWNLIGHT   = 0;
+	LATBbits.LAT_o_UPLIGHT     = 0;
+	LATBbits.LAT_o_ADDLIGHT    = 0;
+	LATBbits.LAT_o_HORN        = 0;
+	LATBbits.LAT_o_KEEPALIVE   = 0;  // [!] IMPORTANT!
+	LATBbits.LAT_o_STARTENGINE = 0;
+
+	while (loop) {
+		//
+		// Resistor keys evaluation
+		//
+
+
+
+	}
+
+	return;
 }
