@@ -19,6 +19,7 @@ Description:
 		- Engine start button
 		- Motorbike (and engine) OFF switch
 		- Decompressor
+		- External cockpit power-connector
 
 	The system provides the following services:
 		- 5V generator for USB devices
