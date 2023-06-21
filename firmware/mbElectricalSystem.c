@@ -1,11 +1,11 @@
-/*-------------------------------------------------------------------------------------------------------------------------------
+/*------------------------------------------------------------------------------------------------------------------------------
 //
 //   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
-//  |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
-//  | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
-//  | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
-//  |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
-//                                                                                                  |___/                       
+// |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+// | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+// |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+//                                                                                                 |___/                       
 //
 // File:   mbElectricalSystem.c
 //
@@ -58,71 +58,87 @@
 //		| o_HORN        |                  |                                                     |
 //		+---------------+------------------+-----------------------------------------------------+
 //
--------------------------------------------------------------------------------------------------------------------------------*/
+------------------------------------------------------------------------------------------------------------------------------*/
 
 
-#include <xc.h>
+#include <avr/io.h>
 #include <stdlib.h>
 
 
 //
 // PINs declaration
 //
-#define _i_VX1          A1
-#define _i_VX2          A2
-#define _i_VY1          A3
-#define _i_VY2          A4
-// === availablre ===   A5
-// === availablre ===   A6
-#define _o_ENGINEOFF    A7
-#define _i_NEUTRAL      A8
+#define i_VX1           0
+#define i_VX2           1
+#define i_VY1           2
+#define i_VY2           3
+// === availablre ===  "A4"
+// === availablre ===  "A5"
+#define o_ENGINEOFF    "A6"
+#define i_NEUTRAL      "A7"
 
-#define _i_LEFTARROW    B1
-#define _i_DOWNLIGHT    B2
-#define _i_UPLIGHT      B3
-#define _i_RIGHTARROW   B4
-#define _i_HORN         B5
-#define _i_BIKESTAND    B6
-#define _o_ENGINEREADY  B7
-#define _o_NEUTRAL      B8
+#define i_LEFTARROW    "B0"
+#define i_DOWNLIGHT    "B1"
+#define i_UPLIGHT      "B2"
+#define i_RIGHTARROW   "B3"
+#define i_HORN         "B4"
+#define i_BIKESTAND    "B5"
+#define o_ENGINEREADY  "B6"
+#define o_NEUTRAL      "B7"
 
-#define _i_BRAKESWITCH  C1
-#define _i_STARTBUTTON  C2
-#define _i_ENGINEON     C3
-#define _i_DECOMPRESS   C4
-#define _i_POWEROFF     C5
-#define _o_STOPLIGHT    C6
-#define _i_ADDLIGHT     C7
-#define _i_LIGHTONOFF   C8
+#define i_BRAKESWITCH  "C0"
+#define i_STARTBUTTON  "C1"
+#define i_ENGINEON     "C2"
+#define i_DECOMPRESS   "C3"
+#define i_POWEROFF     "C4"
+#define o_STOPLIGHT    "C5"
+#define i_ADDLIGHT     "C6"
+#define i_LIGHTONOFF   "C7"
 
-#define _o_RIGHTARROW   D1
-#define _o_LEFTARROW    D2
-#define _o_DOWNLIGHT    D3
-#define _o_UPLIGHT      D4
-#define _o_ADDLIGHT     D5
-#define _o_HORN         D6
-#define _o_KEEPALIVE    D7
-#define _o_STARTENGINE  D8
+#define o_RIGHTARROW   "D0"
+#define o_LEFTARROW    "D1"
+#define o_DOWNLIGHT    "D2"
+#define o_UPLIGHT      "D3"
+#define o_ADDLIGHT     "D4"
+#define o_HORN         "D5"
+#define o_KEEPALIVE    "D6"
+#define o_STARTENGINE  "D7"
 
 
 #define BLINK_DELAY     4000000
 #define V_TOLERANCE     100
 #define BUTTON_DEBOUNC  10000
 
+typedef enum _mbesPinDir {
+	INPUT,
+	OUTPUT
+} mbesPinDir;
+
+//------------------------------------------------------------------------------------------------------------------------------
+//                                                 F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+void _codeConverter (const char *code, char *port, uint8_t pinNumber) {
+	char tmp[2];
+	uint8_t pinNum;
+	
+	*port = *code;
+	tmp[0] = *(code + 1);
+	tmp[1] = '\0';
+	*pinNumber = atoi(tmp);
+	
+	return;
+}
+
+
 uint16_t ADC_read(uint8_t channel) {
-	//
-	// Description:
-	//	It allows you to read the voltage value of the argument defined PIN
-	//
-	uint16_t out = 0;
+	ADMUX &= 0x0F;                  // Cancella i bit precedenti del canale
+	ADMUX |= channel;              // Analog channel selection
+	
+	ADCSRA |= (1 << ADSC);         // Convertion starting...
 
-	ADCON0bits.CHS = channel;     // Seleziona il canale di ingresso analogico
-	ADCON0bits.GO = 1;            // Avvia la conversione
+	while (ADCSRA & (1 << ADSC));  // Waiting for convertion operation
 
-	while (ADCON0bits.GO);        // Attendi il completamento della conversione
-	out = (ADRESH << 8) | ADRESL;
-
-	return(out);
+	return ADC;
 }
 
 
@@ -145,6 +161,101 @@ uint8_t blink() {
 }
 
 
+void pinDirectionRegister (const char *code, mbesPinDir dir) {
+	//
+	// Description:
+	//	Data Direction Registers (DDR) setting
+	//
+	char port;
+	uint8_t pinNum;
+	
+	_codeConverter(code, &port, &pinNum);
+
+	if      (port == 'A' && dir == OUTPUT)  DDRA |=  (1 << pinNum);
+	else if (port == 'A')                   DDRA &= ~(1 << pinNum);
+	else if (port == 'B' && dir == OUTPUT)  DDRB |=  (1 << pinNum);
+	else if (port == 'B')                   DDRB &= ~(1 << pinNum);
+	else if (port == 'C' && dir == OUTPUT)  DDRC |=  (1 << pinNum);
+	else if (port == 'C')                   DDRC &= ~(1 << pinNum);
+	else if (port == 'D' && dir == OUTPUT)  DDRD |=  (1 << pinNum);
+	else if (port == 'D')                   DDRD &= ~(1 << pinNum);
+	else {
+		// ERROR!
+	}
+
+	return;
+}
+
+
+void pullUpEnabling (const char *code) {
+	//
+	// Description
+	//	It enable the pull-up resistor for the argument defined input pin
+	//
+	char port;
+	uint8_t pinNum;
+	
+	_codeConverter(code, &port, &pinNum);
+
+	if      (port == 'A') PORTA |= (1 << pinNum);
+	else if (port == 'B') PORTB |= (1 << pinNum);
+	else if (port == 'C') PORTC |= (1 << pinNum);
+	else if (port == 'D') PORTD |= (1 << pinNum);
+	else {
+		// ERROR!
+	}
+
+	return;
+}
+
+
+uint8_t getPinValue (const char *code) {
+	//
+	// Description
+	//	It returns the input pin's current value
+	//
+	char port;
+	uint8_t pinNum, out;
+	
+	_codeConverter(code, &port, &pinNum);
+
+	if      (port == 'A') out = (PINA & (1 << pinNum));
+	else if (port == 'B') out = (PINB & (1 << pinNum));
+	else if (port == 'C') out = (PINC & (1 << pinNum));
+	else if (port == 'D') out = (PIND & (1 << pinNum));
+	else {
+		// ERROR!
+	}
+
+	return((out > 0) ? out : 1);
+}
+
+
+void setPinValue (const char *code, uint8_t value) {
+	//
+	// Description
+	//	It returns the input pin's current value
+	//
+	char port;
+	uint8_t pinNum, out;
+	
+	_codeConverter(code, &port, &pinNum);
+
+	if      (port == 'A' && value) PORTA |=  (1 << pinNum);
+	if      (port == 'A')          PORTA &= ~(1 << pinNum);
+	else if (port == 'B' && value) PORTB |=  (1 << pinNum);
+	else if (port == 'B')          PORTB &= ~(1 << pinNum);
+	else if (port == 'C' && value) PORTC |=  (1 << pinNum);
+	else if (port == 'C')          PORTC &= ~(1 << pinNum);
+	else if (port == 'D' && value) PORTD |=  (1 << pinNum);
+	else if (port == 'D')          PORTD &= ~(1 << pinNum);
+	else {
+		// ERROR!
+	}
+
+	return((out > 0) ? out : 1);
+}
+
 //-------------------------------------------------------------------------------------------------------------------------------
 //                                                      M A I N
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -155,96 +266,85 @@ void main(void) {
 	uint8_t  decompress_flag       = 0; // It is set when the decompressor lever has been pulled
 	uint8_t  engstart_flag         = 1; // It means the driver is pushing the start button and the electric engine is running
 	uint16_t startButtonDebouncing = 0; // It is the counter used to manage the start button bebouncing event
-
+	
 	//
-	// Data Direction Registers (DDR) and analog setting
-	//	TRISBbits.TRIS<PIN> = 0;  // PIN is set as output
-	//	TRISBbits.TRIS<PIN> = 1;  // PIN is set as input
-	//	ANSELbits.ANS<PIN> = 1:   // PIN is set as analog input
+	// PINs direction setting
 	//
 
-	// Port A
 	ANSELbits.ANS_i_VX1          = 1;
 	ANSELbits.ANS_i_VX2          = 1;
 	ANSELbits.ANS_i_VY1          = 1;
 	ANSELbits.ANS_i_VY2          = 1;
-	ANSELbits.ANS_o_ENGINEOFF    = 0;
-	TRISBbits.TRIS_i_NEUTRAL     = 1;
-	// Port B
-	TRISBbits.TRIS_i_LEFTARROW   = 1;
-	TRISBbits.TRIS_i_DOWNLIGHT   = 1;
-	TRISBbits.TRIS_i_UPLIGHT     = 1;
-	TRISBbits.TRIS_i_RIGHTARROW  = 1;
-	TRISBbits.TRIS_i_HORN        = 1;
-	TRISBbits.TRIS_i_BIKESTAND   = 1;
-	TRISBbits.TRIS_o_ENGINEREADY = 0;
-	TRISBbits.TRIS_o_NEUTRAL     = 0;
-	// Port C
-	TRISBbits.TRIS_i_BRAKESWITCH = 1;
-	TRISBbits.TRIS_i_STARTBUTTON = 1;
-	TRISBbits.TRIS_i_ENGINEON    = 1;
-	TRISBbits.TRIS_i_DECOMPRESS  = 1;
-	TRISBbits.TRIS_i_POWEROFF    = 1;
-	TRISBbits.TRIS_o_STOPLIGHT   = 0;
-	TRISBbits.TRIS_i_ADDLIGHT    = 1;
-	TRISBbits.TRIS_i_LIGHTONOFF  = 1;
-	// Port D
-	TRISBbits.TRIS_o_RIGHTARROW  = 0;
-	TRISBbits.TRIS_o_LEFTARROW   = 0;
-	TRISBbits.TRIS_o_DOWNLIGHT   = 0;
-	TRISBbits.TRIS_o_UPLIGHT     = 0;
-	TRISBbits.TRIS_o_ADDLIGHT    = 0;
-	TRISBbits.TRIS_o_HORN        = 0;
-	TRISBbits.TRIS_o_KEEPALIVE   = 0;
-	TRISBbits.TRIS_o_STARTENGINE = 0;
+
+	pinDirectionRegister(i_NEUTRAL,     INPUT);
+	pinDirectionRegister(i_LEFTARROW,   INPUT);
+	pinDirectionRegister(i_DOWNLIGHT,   INPUT);
+	pinDirectionRegister(i_UPLIGHT,     INPUT);
+	pinDirectionRegister(i_RIGHTARROW,  INPUT);
+	pinDirectionRegister(i_HORN,        INPUT);
+	pinDirectionRegister(i_BIKESTAND,   INPUT);
+	pinDirectionRegister(i_BRAKESWITCH, INPUT);
+	pinDirectionRegister(i_STARTBUTTON, INPUT);
+	pinDirectionRegister(i_ENGINEON,    INPUT);
+	pinDirectionRegister(i_DECOMPRESS,  INPUT);
+	pinDirectionRegister(i_POWEROFF,    INPUT);
+	pinDirectionRegister(i_ADDLIGHT,    INPUT);
+	pinDirectionRegister(i_LIGHTONOFF,  INPUT);
+
+	pinDirectionRegister(o_ENGINEOFF,   OUTPUT);
+	pinDirectionRegister(o_ENGINEREADY, OUTPUT);
+	pinDirectionRegister(o_NEUTRAL,     OUTPUT);
+	pinDirectionRegister(o_STOPLIGHT,   OUTPUT);
+	pinDirectionRegister(o_RIGHTARROW,  OUTPUT);
+	pinDirectionRegister(o_LEFTARROW,   OUTPUT);
+	pinDirectionRegister(o_DOWNLIGHT,   OUTPUT);
+	pinDirectionRegister(o_UPLIGHT,     OUTPUT);
+	pinDirectionRegister(o_ADDLIGHT,    OUTPUT);
+	pinDirectionRegister(o_HORN,        OUTPUT);
+	pinDirectionRegister(o_KEEPALIVE,   OUTPUT);
+	pinDirectionRegister(o_STARTENGINE, OUTPUT);
 	
 	
 	//
 	// Pull-up/down resistors setting
-	//	CNPUBbits.CNPU<PIN> = 1;    // Pull-up resistors on the PIN
-	//	CNPUBbits.CNPD<PIN> = 1;    // Pull-down resistors on the PIN
+	//
 
-	CNPUBbits.CNPU
-	CNPUBbits.CNPU_i_NEUTRAL     = 1;
-	// Port B
-	CNPUBbits.CNPU_i_LEFTARROW   = 1;
-	CNPUBbits.CNPU_i_DOWNLIGHT   = 1;
-	CNPUBbits.CNPU_i_UPLIGHT     = 1;
-	CNPUBbits.CNPU_i_RIGHTARROW  = 1;
-	CNPUBbits.CNPU_i_HORN        = 1;
-	CNPUBbits.CNPU_i_BIKESTAND   = 1;
-	// Port C
-	CNPUBbits.CNPU_i_BRAKESWITCH = 1;
-	CNPUBbits.CNPU_i_STARTBUTTON = 1;
-	CNPUBbits.CNPU_i_ENGINEON    = 1;
-	CNPUBbits.CNPU_i_DECOMPRESS  = 1;
-	CNPUBbits.CNPU_i_POWEROFF    = 1;
-	CNPUBbits.CNPU_i_ADDLIGHT    = 1;
-	CNPUBbits.CNPU_i_LIGHTONOFF  = 1;
+	pullUpEnabling(i_NEUTRAL);
+	pullUpEnabling(i_LEFTARROW);
+	pullUpEnabling(i_DOWNLIGHT);
+	pullUpEnabling(i_UPLIGHT);
+	pullUpEnabling(i_RIGHTARROW);
+	pullUpEnabling(i_HORN);
+	pullUpEnabling(i_BIKESTAND);
+	pullUpEnabling(i_BRAKESWITCH);
+	pullUpEnabling(i_STARTBUTTON);
+	pullUpEnabling(i_ENGINEON);
+	pullUpEnabling(i_DECOMPRESS);
+	pullUpEnabling(i_POWEROFF);
+	pullUpEnabling(i_ADDLIGHT);
+	pullUpEnabling(i_LIGHTONOFF);
 	
 	
 	//
 	// A/D converter settings....
 	//
-	ADCON0bits.ADON = 1;          // ADC enabling
-	ADCON1bits.ADCS = 0b111;      // Prescaler set to 128 for an adequate scan frequency
-	ADCON1bits.ADFM = 1;          // Right data alingment. A/D returns 10-bit integer
-	ADCON1bits.VCFG0 = 0;         // Imposta la tensione di riferimento bassa su Vss
-	ADCON1bits.VCFG1 = 0;         // Imposta la tensione di riferimento alta su Vdd
+	ADMUX  = (1 << REFS0);   // Voltage reference to AVCC
+	ADCSRA = (1 << ADEN);    // A/D converter enabling
 
 	
 	//
 	// Starting conditions
 	//
-	LATBbits.LAT_o_RIGHTARROW  = 0;
-	LATBbits.LAT_o_LEFTARROW   = 0;
-	LATBbits.LAT_o_DOWNLIGHT   = 0;
-	LATBbits.LAT_o_UPLIGHT     = 0;
-	LATBbits.LAT_o_ADDLIGHT    = 0;
-	LATBbits.LAT_o_HORN        = 0;
-	LATBbits.LAT_o_KEEPALIVE   = 0;  // [!] IMPORTANT!
-	LATBbits.LAT_o_STARTENGINE = 0;
-	LATBbits.LAT_o_ENGINEOFF   = 1;
+	setPinValue
+	setPinValue(o_RIGHTARROW,  0);
+	setPinValue(o_LEFTARROW,   0);
+	setPinValue(o_DOWNLIGHT,   0);
+	setPinValue(o_UPLIGHT,     0);
+	setPinValue(o_ADDLIGHT,    0);
+	setPinValue(o_HORN,        0);
+	setPinValue(o_KEEPALIVE,   0); // IMPORTANT!!
+	setPinValue(o_STARTENGINE, 0);
+	setPinValue(o_ENGINEOFF,   1);
 
 
 
@@ -258,73 +358,80 @@ void main(void) {
 				abs(ADC_read(_i_VX2) - ADC_read(_i_VY2)) < V_TOLERANCE 
 			) {
 				// The keyword has been authenicated, you can unplug it
-				LATBbits.LAT_o_KEEPALIVE = 1;
+				setPinValue(o_KEEPALIVE, 1);
 				ready_flag = 1;
 			}
 		
-		} else if (LATBbits.LAT_i_POWEROFF == 0) {
+		} else if (getPinValue(i_POWEROFF) == 0) {
 			//
 			// Security POWER-OFF
 			//
-			LATBbits.LAT_o_KEEPALIVE = 0;
-			ready_flag = 0;
-			decompress_flag = 0;
-			LATBbits.LAT_o_ENGINEOFF = 1;
+			setPinValue(o_ENGINEOFF, 1); // Stop the motorbike's engine
+			setPinValue(o_KEEPALIVE, 0); // Turn off myself (paranoide solution)
+			ready_flag = 0;              // If the turning off op failed (ultra paranoide)
+			decompress_flag = 0;         //  ""
 		
 		} else {
 			//
 			// Lights and horn
 			//
-			LATBbits.LAT_o_UPLIGHT     = ! LATBbits.LAT_i_UPLIGHT;
-			LATBbits.LAT_o_DOWNLIGHT   = ! LATBbits.LAT_i_DOWNLIGHT;
-			LATBbits.LAT_o_HORN        = ! LATBbits.LAT_i_HORN;
-			LATBbits.LAT_o_ADDLIGHT    = ! LATBbits.LAT_i_ADDLIGHT;
-			LATBbits.LAT_o_BRAKESWITCH = ! LATBbits.LAT_i_BRAKESWITCH;
-			LATBbits.LAT_o_NEUTRAL     = ! LATBbits.LAT_i_NEUTRAL;
+			setPinValue(o_UPLIGHT,     getPinValue(i_UPLIGHT));
+			setPinValue(o_DOWNLIGHT,   getPinValue(i_DOWNLIGHT));
+			setPinValue(o_HORN,        getPinValue(i_HORN));
+			setPinValue(o_ADDLIGHT,    getPinValue(i_ADDLIGHT));
+			setPinValue(o_BRAKESWITCH, getPinValue(i_BRAKESWITCH));
+			setPinValue(o_NEUTRAL,     getPinValue(i_NEUTRAL));
 
+
+			//
+			// Blinking lights
+			//
 			if (LATBbits.LAT_i_LEFTARROW  == 0) {
-				LATBbits.LAT_o_LEFTARROW = blink();
-				LATBbits.LAT_o_RIGHTARROW = 0;
+				setPinValue(o_LEFTARROW,  blink());
+				setPinValue(o_RIGHTARROW, 0);
 
 			} else if (LATBbits.LAT_i_RIGHTARROW == 0) {
-				LATBbits.LAT_o_RIGHTARROW = blink();
-				LATBbits.LAT_o_LEFTARROW = 0;
+				setPinValue(o_RIGHTARROW, blink());
+				setPinValue(o_LEFTARROW,  0);
 
 			else {
-				LATBbits.LAT_o_RIGHTARROW = 0;
-				LATBbits.LAT_o_LEFTARROW = 0;
+				setPinValue(o_RIGHTARROW, 0);
+				setPinValue(o_LEFTARROW,  0);
 			}
 			
-			// Is the gearbox in neutral position?
-			if (LATBbits.LAT_i_NEUTRAL == 0) neutral_flag = 1;
 
-			if (LATBbits.LAT_i_ENGINEON == 0) {
+			if (getPinValue(i_ENGINEON) == 0) {
 				//
 				// "_i_ENGINEON" is enablen (0) when the switch placed in the right hand-bar is set to "RUN".
 				// In different case, It stop the engine and does not allow the motorbike engine to start or
 				// re-start.
 				//
-
-				LATBbits.LAT_o_ENGINEOFF = 0;
+				
+				// Disabling CDI blocking
+				setPinValue(o_ENGINEOFF, 0);
 
 				// Decompressor sensor management
-				if (LATBbits.LAT_i_DECOMPRESS  == 0) decompress_flag = 1;
+				if (getPinValue(i_DECOMPRESS) == 0) decompress_flag = 1;
 				
-				if (decompress_flag && neutral_flag && LATBbits.LAT_i_STARTBUTTON == 0)
+				if (
+					decompress_flag &&
+					getPinValue(i_NEUTRAL) == 0 && 
+					getPinValue(i_STARTBUTTON) == 0
+				)
 					engstart_flag = 1;
 					decompress_flag = 0;
-					LATBbits.LAT_o_STARTENGINE = 1; // START!!
+					setPinValue(o_STARTENGINE, 1); // The electric starter motor is rounding!!
 				}
 
 			} else {
-				decompress_flag = 0;            // reset decompressor status
-				LATBbits.LAT_o_ENGINEREADY = 0; // turn-off the led indicator
-				LATBbits.LAT_o_ENGINEOFF = 1;   // STOP the motorbike engine using CDI
+				decompress_flag = 0;             // it resets decompressor status
+				setPinValue(o_ENGINEREADY, 0);   // it turns-off the led indicator
+				setPinValue(o_ENGINEOFF,   1);   // it stops the motorbike engine using CDI. (paranoide option)
 			}
 
 			if (engstart_flag) {
 				// The electric starter is running...
-				if (LATBbits.LAT_i_STARTBUTTON == 0)
+				if (getPinValue(i_STARTBUTTON) == 0)
 					// The button is still pressed
 					startButtonDebouncing = BUTTON_DEBOUNC;
 				else
@@ -333,7 +440,7 @@ void main(void) {
 
 				if (startButtonDebouncing == 0) {
 					// OK the start button has been released
-					LATBbits.LAT_o_STARTENGINE = 0;
+					setPinValue(o_STARTENGINE, 0);
 					engstart_flag = 0;
 				}
 			}
