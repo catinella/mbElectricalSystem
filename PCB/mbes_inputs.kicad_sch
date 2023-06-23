@@ -378,7 +378,6 @@
     )
   )
 
-
   (junction (at 64.516 135.89) (diameter 0) (color 0 0 0 0)
     (uuid 03ce563e-9a6a-4731-a2db-6d0d4ffb059e)
   )
@@ -1053,8 +1052,8 @@
     (property "Reference" "R1" (id 0) (at 72.136 129.54 90)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Value" "500" (id 1) (at 72.136 135.89 90))
-    (property "Footprint" "Resistor_THT:R_Axial_DIN0309_L9.0mm_D3.2mm_P12.70mm_Horizontal" (id 2) (at 72.136 134.112 90)
+    (property "Value" "1K" (id 1) (at 72.136 135.89 90))
+    (property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P10.16mm_Horizontal" (id 2) (at 72.136 134.112 90)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 72.136 135.89 0)
