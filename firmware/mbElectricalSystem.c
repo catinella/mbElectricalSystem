@@ -45,8 +45,7 @@
 //		+---------------+------------------+-----------------------------------------------------+
 //		| i_LIGHTONOFF  | from ext. switch | it turns on the normal lights (low/dazzling beam)   |
 //		+---------------+------------------+-----------------------------------------------------+
-//		| o_STOPLIGHT   |  rear mtb. side  | it turns on the rear STOP light                     |
-//		| o_STARTENGINE |                  | it activates the (NO) engine-relay                  |
+//		| o_STARTENGINE | rear mtb. side   | it activates the (NO) engine-relay                  |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| o_ENGINEREADY |                  |                                                     |
 //		| o_NEUTRAL     |                  |                                                     |
@@ -57,6 +56,14 @@
 //		| o_ADDLIGHT    |                  |                                                     |
 //		| o_HORN        |                  |                                                     |
 //		+---------------+------------------+-----------------------------------------------------+
+//
+//
+//		Settings:
+//		=========
+//		BLINK_DELAY     4000000
+//		V_TOLERANCE     2       // 1 = 19mV
+//		BUTTON_DEBOUNC  10000
+//
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 
@@ -72,8 +79,8 @@
 #define i_VX2           1
 #define i_VY1           2
 #define i_VY2           3
-// === availablre ===  {'A', 4}
-// === availablre ===  {'A', 5}
+// ==== available ==== {'A', 4}
+// ==== available ==== {'A', 5}
 #define o_ENGINEOFF    {'A', 6}
 #define i_NEUTRAL      {'A', 7}
 
@@ -86,12 +93,12 @@
 #define o_ENGINEREADY  {'B', 6}
 #define o_NEUTRAL      {'B', 7}
 
-#define i_BRAKESWITCH  {'C', 0}
+// ==== available ==== {'C', 0}
 #define i_STARTBUTTON  {'C', 1}
 #define i_ENGINEON     {'C', 2}
 #define i_DECOMPRESS   {'C', 3}
-#define i_POWEROFF     {'C', 4}
-#define o_STOPLIGHT    {'C', 5}
+// ==== available ==== {'C', 4}
+// ==== available ==== {'C', 5}
 #define i_ADDLIGHT     {'C', 6}
 #define i_LIGHTONOFF   {'C', 7}
 
@@ -106,8 +113,9 @@
 
 
 #define BLINK_DELAY     4000000
-#define V_TOLERANCE     100
+#define V_TOLERANCE     10
 #define BUTTON_DEBOUNC  10000
+#define ACHANS_NUMBER   4
 
 struct avrPin {
 	char port;
@@ -124,12 +132,27 @@ typedef enum _mbesPinDir {
 //------------------------------------------------------------------------------------------------------------------------------
 
 uint16_t ADC_read(uint8_t channel) {
-	ADMUX &= 0x0F;                  // Cancella i bit precedenti del canale
-	ADMUX |= channel;              // Analog channel selection
+	//
+	// Description:
+	//	It selects the argument defined channel and converts the voltage analog-value on that channel
+	//
+	//	ADMUX register:
+	//		+-------+-------+-------+------+------+------+------+------+
+	//		| REFS1 | REFS0 | ADLAR | MUX4 | MUX3 | MUX2 | MUX1 | MUX0 |
+	//		+-------+-------+-------+------+------+------+------+------+
+	//		|   0   |   0   |   1   |   0  |   0  |   0  |   0  |   0  |  Reset
+	//		+-------+-------+-------+------+------+------+------+------+
+	//		REFS1==0 & REFS0==0 ---> external volt ref
+	//		ADLAR==1            ---> left giustified result
+	//
+	if (channel < ACHANS_NUMBER) {
+		ADMUX &= 0x20;                 // ADMUX register initialization
+		ADMUX |= channel;              // Analog channel selection
 	
-	ADCSRA |= (1 << ADSC);         // Convertion starting...
+		ADCSRA |= (1 << ADSC);         // Convertion starting...
 
-	while (ADCSRA & (1 << ADSC));  // Waiting for convertion operation
+		while (ADCSRA & (1 << ADSC));  // Waiting for convertion operation
+	}
 
 	return ADC;
 }
@@ -157,7 +180,20 @@ uint8_t blink() {
 void pinDirectionRegister (struct avrPin pin, mbesPinDir dir) {
 	//
 	// Description:
-	//	Data Direction Registers (DDR) setting
+	//	It sets the MCU's pin to function as input or output
+	//
+	//	AVR Data Direction Registers (DDR) registers:
+	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
+	//		| Register | pin7  | pin6  | pin5  | pin4  | pin3  | pin2  | pin1  | pin0  |
+	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
+	//		|   DDRA   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
+	//		|   DDRB   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
+	//		|   DDRC   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
+	//		|   DDRD   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
+	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
+	//
+	//		bitN == 1 --> pinN = output
+	//		bitN == 0 --> pinN = input
 	//
 
 	if      (pin.port == 'A' && dir == OUTPUT)  DDRA |=  (1 << pin.number);
@@ -178,7 +214,7 @@ void pinDirectionRegister (struct avrPin pin, mbesPinDir dir) {
 
 void pullUpEnabling (struct avrPin pin) {
 	//
-	// Description
+	// Description:
 	//	It enable the pull-up resistor for the argument defined input pin
 	//
 
@@ -196,8 +232,8 @@ void pullUpEnabling (struct avrPin pin) {
 
 uint8_t getPinValue (struct avrPin pin) {
 	//
-	// Description
-	//	It returns the input pin's current value
+	// Description:
+	//	It returns the argument defined input pin's value
 	//
 	uint8_t out = 0;
 
@@ -215,8 +251,8 @@ uint8_t getPinValue (struct avrPin pin) {
 
 void setPinValue (struct avrPin pin, uint8_t value) {
 	//
-	// Description
-	//	It returns the input pin's current value
+	// Description:
+	//	It set the argument defined boolean value to the output pin
 	//
 
 	if      (pin.port == 'A' && value) PORTA |=  (1 << pin.number);
@@ -231,7 +267,7 @@ void setPinValue (struct avrPin pin, uint8_t value) {
 		// ERROR!
 	}
 
-	return((out > 0) ? out : 1);
+	return;
 }
 
 //-------------------------------------------------------------------------------------------------------------------------------
@@ -248,12 +284,6 @@ void main(void) {
 	//
 	// PINs direction setting
 	//
-
-	ANSELbits.ANS_i_VX1          = 1;
-	ANSELbits.ANS_i_VX2          = 1;
-	ANSELbits.ANS_i_VY1          = 1;
-	ANSELbits.ANS_i_VY2          = 1;
-
 	pinDirectionRegister(i_NEUTRAL,     INPUT);
 	pinDirectionRegister(i_LEFTARROW,   INPUT);
 	pinDirectionRegister(i_DOWNLIGHT,   INPUT);
@@ -261,18 +291,15 @@ void main(void) {
 	pinDirectionRegister(i_RIGHTARROW,  INPUT);
 	pinDirectionRegister(i_HORN,        INPUT);
 	pinDirectionRegister(i_BIKESTAND,   INPUT);
-	pinDirectionRegister(i_BRAKESWITCH, INPUT);
 	pinDirectionRegister(i_STARTBUTTON, INPUT);
 	pinDirectionRegister(i_ENGINEON,    INPUT);
 	pinDirectionRegister(i_DECOMPRESS,  INPUT);
-	pinDirectionRegister(i_POWEROFF,    INPUT);
 	pinDirectionRegister(i_ADDLIGHT,    INPUT);
 	pinDirectionRegister(i_LIGHTONOFF,  INPUT);
 
 	pinDirectionRegister(o_ENGINEOFF,   OUTPUT);
 	pinDirectionRegister(o_ENGINEREADY, OUTPUT);
 	pinDirectionRegister(o_NEUTRAL,     OUTPUT);
-	pinDirectionRegister(o_STOPLIGHT,   OUTPUT);
 	pinDirectionRegister(o_RIGHTARROW,  OUTPUT);
 	pinDirectionRegister(o_LEFTARROW,   OUTPUT);
 	pinDirectionRegister(o_DOWNLIGHT,   OUTPUT);
@@ -294,7 +321,6 @@ void main(void) {
 	pullUpEnabling(i_RIGHTARROW);
 	pullUpEnabling(i_HORN);
 	pullUpEnabling(i_BIKESTAND);
-	pullUpEnabling(i_BRAKESWITCH);
 	pullUpEnabling(i_STARTBUTTON);
 	pullUpEnabling(i_ENGINEON);
 	pullUpEnabling(i_DECOMPRESS);
@@ -306,10 +332,9 @@ void main(void) {
 	//
 	// A/D converter settings....
 	//
-	ADMUX  = (1 << REFS0);   // Voltage reference to AVCC
 	ADCSRA = (1 << ADEN);    // A/D converter enabling
-
 	
+
 	//
 	// Starting conditions
 	//
@@ -337,27 +362,20 @@ void main(void) {
 				// The keyword has been authenicated, you can unplug it
 				setPinValue(o_KEEPALIVE, 1);
 				ready_flag = 1;
+
+			} else {
+				// Waiting (1ms) to prevent brutal-force attack and for analog circuit re-initialization
 			}
-		
-		} else if (getPinValue(i_POWEROFF) == 0) {
-			//
-			// Security POWER-OFF
-			//
-			setPinValue(o_ENGINEOFF, 1); // Stop the motorbike's engine
-			setPinValue(o_KEEPALIVE, 0); // Turn off myself (paranoide solution)
-			ready_flag = 0;              // If the turning off op failed (ultra paranoide)
-			decompress_flag = 0;         //  ""
 		
 		} else {
 			//
 			// Lights and horn
 			//
-			setPinValue(o_UPLIGHT,     getPinValue(i_UPLIGHT));
-			setPinValue(o_DOWNLIGHT,   getPinValue(i_DOWNLIGHT));
-			setPinValue(o_HORN,        getPinValue(i_HORN));
-			setPinValue(o_ADDLIGHT,    getPinValue(i_ADDLIGHT));
-			//setPinValue(o_BRAKESWITCH, getPinValue(i_BRAKESWITCH));
-			setPinValue(o_NEUTRAL,     getPinValue(i_NEUTRAL));
+			setPinValue(o_UPLIGHT,     !(getPinValue(i_UPLIGHT)));
+			setPinValue(o_DOWNLIGHT,   !(getPinValue(i_DOWNLIGHT)));
+			setPinValue(o_HORN,        !(getPinValue(i_HORN)));
+			setPinValue(o_ADDLIGHT,    !(getPinValue(i_ADDLIGHT)));
+			setPinValue(o_NEUTRAL,     !(getPinValue(i_NEUTRAL)));
 
 
 			//
@@ -392,7 +410,7 @@ void main(void) {
 				
 				if (
 					decompress_flag &&
-					getPinValue(i_NEUTRAL) == 0 && 
+					getPinValue(i_NEUTRAL)     == 0 && 
 					getPinValue(i_STARTBUTTON) == 0
 				) {
 					engstart_flag = 1;
