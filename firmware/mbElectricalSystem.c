@@ -75,52 +75,47 @@
 //
 // PINs declaration
 //
-#define i_VX1           0
-#define i_VX2           1
-#define i_VY1           2
-#define i_VY2           3
-// ==== available ==== {'A', 4}
-// ==== available ==== {'A', 5}
-#define o_ENGINEOFF    {'A', 6}
-#define i_NEUTRAL      {'A', 7}
+#define i_VX1          "A0"
+#define i_VX2          "A1"
+#define i_VY1          "A2"
+#define i_VY2          "A3"
+// ==== available ==== "A4"
+// ==== available ==== "A5"
+#define o_ENGINEOFF    "A6"
+#define i_NEUTRAL      "A7"
 
-#define i_LEFTARROW    {'B', 0}
-#define i_DOWNLIGHT    {'B', 1}
-#define i_UPLIGHT      {'B', 2}
-#define i_RIGHTARROW   {'B', 3}
-#define i_HORN         {'B', 4}
-#define i_BIKESTAND    {'B', 5}
-#define o_ENGINEREADY  {'B', 6}
-#define o_NEUTRAL      {'B', 7}
+#define i_LEFTARROW    "B0"
+#define i_DOWNLIGHT    "B1"
+#define i_UPLIGHT      "B2"
+#define i_RIGHTARROW   "B3"
+#define i_HORN         "B4"
+#define i_BIKESTAND    "B5"
+#define o_ENGINEREADY  "B6"
+#define o_NEUTRAL      "B7"
 
-// ==== available ==== {'C', 0}
-#define i_STARTBUTTON  {'C', 1}
-#define i_ENGINEON     {'C', 2}
-#define i_DECOMPRESS   {'C', 3}
-// ==== available ==== {'C', 4}
-// ==== available ==== {'C', 5}
-#define i_ADDLIGHT     {'C', 6}
-#define i_LIGHTONOFF   {'C', 7}
+// ==== available ==== "C0"
+#define i_STARTBUTTON  "C1"
+#define i_ENGINEON     "C2"
+#define i_DECOMPRESS   "C3"
+// ==== available ==== "C4"
+// ==== available ==== "C5"
+#define i_ADDLIGHT     "C6"
+#define i_LIGHTONOFF   "C7"
 
-#define o_RIGHTARROW   {'D', 0}
-#define o_LEFTARROW    {'D', 1}
-#define o_DOWNLIGHT    {'D', 2}
-#define o_UPLIGHT      {'D', 3}
-#define o_ADDLIGHT     {'D', 4}
-#define o_HORN         {'D', 5}
-#define o_KEEPALIVE    {'D', 6}
-#define o_STARTENGINE  {'D', 7}
+#define o_RIGHTARROW   "D0"
+#define o_LEFTARROW    "D1"
+#define o_DOWNLIGHT    "D2"
+#define o_UPLIGHT      "D3"
+#define o_ADDLIGHT     "D4"
+#define o_HORN         "D5"
+#define o_KEEPALIVE    "D6"
+#define o_STARTENGINE  "D7"
 
 
 #define BLINK_DELAY     4000000
 #define V_TOLERANCE     10
 #define BUTTON_DEBOUNC  10000
 #define ACHANS_NUMBER   4
-
-struct avrPin {
-	char port;
-	uint8_t number;
-};
 
 typedef enum _mbesPinDir {
 	INPUT,
@@ -130,8 +125,15 @@ typedef enum _mbesPinDir {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                 F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
+void _codeConverter (const char *code, char *port, uint8_t *pinNumber) {
+	if (port      != NULL) *port      = code[0];
+	if (pinNumber != NULL) *pinNumber = code[1] - '0';
+	
+	return;
+}
 
-uint16_t ADC_read(uint8_t channel) {
+
+uint16_t ADC_read (const char *code) {
 	//
 	// Description:
 	//	It selects the argument defined channel and converts the voltage analog-value on that channel
@@ -145,9 +147,12 @@ uint16_t ADC_read(uint8_t channel) {
 	//		REFS1==0 & REFS0==0 ---> external volt ref
 	//		ADLAR==1            ---> left giustified result
 	//
-	if (channel < ACHANS_NUMBER) {
+	uint8_t pinNumber;
+	_codeConverter(code, NULL, &pinNumber);
+
+	if (pinNumber < ACHANS_NUMBER) {
 		ADMUX &= 0x20;                 // ADMUX register initialization
-		ADMUX |= channel;              // Analog channel selection
+		ADMUX |= pinNumber;              // Analog channel selection
 	
 		ADCSRA |= (1 << ADSC);         // Convertion starting...
 
@@ -177,7 +182,7 @@ uint8_t blink() {
 }
 
 
-void pinDirectionRegister (struct avrPin pin, mbesPinDir dir) {
+void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	//
 	// Description:
 	//	It sets the MCU's pin to function as input or output
@@ -195,15 +200,18 @@ void pinDirectionRegister (struct avrPin pin, mbesPinDir dir) {
 	//		bitN == 1 --> pinN = output
 	//		bitN == 0 --> pinN = input
 	//
+	char    port;
+	uint8_t pinNumber;
 
-	if      (pin.port == 'A' && dir == OUTPUT)  DDRA |=  (1 << pin.number);
-	else if (pin.port == 'A')                   DDRA &= ~(1 << pin.number);
-	else if (pin.port == 'B' && dir == OUTPUT)  DDRB |=  (1 << pin.number);
-	else if (pin.port == 'B')                   DDRB &= ~(1 << pin.number);
-	else if (pin.port == 'C' && dir == OUTPUT)  DDRC |=  (1 << pin.number);
-	else if (pin.port == 'C')                   DDRC &= ~(1 << pin.number);
-	else if (pin.port == 'D' && dir == OUTPUT)  DDRD |=  (1 << pin.number);
-	else if (pin.port == 'D')                   DDRD &= ~(1 << pin.number);
+	_codeConverter(code, &port, &pinNumber);
+	if      (port == 'A' && dir == OUTPUT)  DDRA |=  (1 << pinNumber);
+	else if (port == 'A')                   DDRA &= ~(1 << pinNumber);
+	else if (port == 'B' && dir == OUTPUT)  DDRB |=  (1 << pinNumber);
+	else if (port == 'B')                   DDRB &= ~(1 << pinNumber);
+	else if (port == 'C' && dir == OUTPUT)  DDRC |=  (1 << pinNumber);
+	else if (port == 'C')                   DDRC &= ~(1 << pinNumber);
+	else if (port == 'D' && dir == OUTPUT)  DDRD |=  (1 << pinNumber);
+	else if (port == 'D')                   DDRD &= ~(1 << pinNumber);
 	else {
 		// ERROR!
 	}
@@ -212,16 +220,19 @@ void pinDirectionRegister (struct avrPin pin, mbesPinDir dir) {
 }
 
 
-void pullUpEnabling (struct avrPin pin) {
+void pullUpEnabling (const char *code) {
 	//
 	// Description:
 	//	It enable the pull-up resistor for the argument defined input pin
 	//
+	char    port;
+	uint8_t pinNumber;
 
-	if      (pin.port == 'A') PORTA |= (1 << pin.number);
-	else if (pin.port == 'B') PORTB |= (1 << pin.number);
-	else if (pin.port == 'C') PORTC |= (1 << pin.number);
-	else if (pin.port == 'D') PORTD |= (1 << pin.number);
+	_codeConverter(code, &port, &pinNumber);
+	if      (port == 'A') PORTA |= (1 << pinNumber);
+	else if (port == 'B') PORTB |= (1 << pinNumber);
+	else if (port == 'C') PORTC |= (1 << pinNumber);
+	else if (port == 'D') PORTD |= (1 << pinNumber);
 	else {
 		// ERROR!
 	}
@@ -230,17 +241,21 @@ void pullUpEnabling (struct avrPin pin) {
 }
 
 
-uint8_t getPinValue (struct avrPin pin) {
+uint8_t getPinValue (const char *code) {
 	//
 	// Description:
 	//	It returns the argument defined input pin's value
 	//
+	char    port;
+	uint8_t pinNumber;
 	uint8_t out = 0;
 
-	if      (pin.port == 'A') out = (PINA & (1 << pin.number));
-	else if (pin.port == 'B') out = (PINB & (1 << pin.number));
-	else if (pin.port == 'C') out = (PINC & (1 << pin.number));
-	else if (pin.port == 'D') out = (PIND & (1 << pin.number));
+	_codeConverter(code, &port, &pinNumber);
+	
+	if      (port == 'A') out = (PINA & (1 << pinNumber));
+	else if (port == 'B') out = (PINB & (1 << pinNumber));
+	else if (port == 'C') out = (PINC & (1 << pinNumber));
+	else if (port == 'D') out = (PIND & (1 << pinNumber));
 	else {
 		// ERROR!
 	}
@@ -249,20 +264,24 @@ uint8_t getPinValue (struct avrPin pin) {
 }
 
 
-void setPinValue (struct avrPin pin, uint8_t value) {
+void setPinValue (const char *code, uint8_t value) {
 	//
 	// Description:
 	//	It set the argument defined boolean value to the output pin
 	//
+	char    port;
+	uint8_t pinNumber;
 
-	if      (pin.port == 'A' && value) PORTA |=  (1 << pin.number);
-	if      (pin.port == 'A')          PORTA &= ~(1 << pin.number);
-	else if (pin.port == 'B' && value) PORTB |=  (1 << pin.number);
-	else if (pin.port == 'B')          PORTB &= ~(1 << pin.number);
-	else if (pin.port == 'C' && value) PORTC |=  (1 << pin.number);
-	else if (pin.port == 'C')          PORTC &= ~(1 << pin.number);
-	else if (pin.port == 'D' && value) PORTD |=  (1 << pin.number);
-	else if (pin.port == 'D')          PORTD &= ~(1 << pin.number);
+	_codeConverter(code, &port, &pinNumber);
+
+	if      (port == 'A' && value) PORTA |=  (1 << pinNumber);
+	if      (port == 'A')          PORTA &= ~(1 << pinNumber);
+	else if (port == 'B' && value) PORTB |=  (1 << pinNumber);
+	else if (port == 'B')          PORTB &= ~(1 << pinNumber);
+	else if (port == 'C' && value) PORTC |=  (1 << pinNumber);
+	else if (port == 'C')          PORTC &= ~(1 << pinNumber);
+	else if (port == 'D' && value) PORTD |=  (1 << pinNumber);
+	else if (port == 'D')          PORTD &= ~(1 << pinNumber);
 	else {
 		// ERROR!
 	}
@@ -324,7 +343,6 @@ void main(void) {
 	pullUpEnabling(i_STARTBUTTON);
 	pullUpEnabling(i_ENGINEON);
 	pullUpEnabling(i_DECOMPRESS);
-	pullUpEnabling(i_POWEROFF);
 	pullUpEnabling(i_ADDLIGHT);
 	pullUpEnabling(i_LIGHTONOFF);
 	
@@ -356,8 +374,8 @@ void main(void) {
 			// Resistor keys evaluation
 			//
 			if (
-				abs(ADC_read(_i_VX1) - ADC_read(_i_VY1)) < V_TOLERANCE &&
-				abs(ADC_read(_i_VX2) - ADC_read(_i_VY2)) < V_TOLERANCE 
+				abs(ADC_read(i_VX1) - ADC_read(i_VY1)) < V_TOLERANCE &&
+				abs(ADC_read(i_VX2) - ADC_read(i_VY2)) < V_TOLERANCE 
 			) {
 				// The keyword has been authenicated, you can unplug it
 				setPinValue(o_KEEPALIVE, 1);
