@@ -9,9 +9,14 @@
 //
 // File:   mbElectricalSystem.c
 //
-// Author: Silvano Catinella
+// Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
+//	This file contains all software needed by the ATmega16 to manage your motorbike's services (eg. start, stop, lights...)
+//	In order to build the binary file I used XC-8 compiler, you can download it by the Microchip's website
+//
+//	[!] The Makefile has been created by MP-Lab-X (by Microchip) automatically. So, it is not exactly human readable
+//
 //
 //	Symbol description:
 //		+---------------+------------------+-----------------------------------------------------+
@@ -64,6 +69,20 @@
 //		V_TOLERANCE     2       // 1 = 19mV
 //		BUTTON_DEBOUNC  10000
 //
+// License:
+//	KiCad Schematics distributed under the GPL-3 License.
+//
+//	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
+//
+//	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+//	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+//	version.
+//
+//	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+//	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+//
+//	You should have received a copy of the GNU General Public License along with this program. If not, see
+//		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 
