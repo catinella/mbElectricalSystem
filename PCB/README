@@ -8,6 +8,18 @@
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 Description:
+	This folder contains all files you need to get you own PCB.
+
+
+Files:
+	LICENSE.txt                             This project is covered by the GPL-3. Please, read that file for further information
+	Makefile                                It allow you to create the files (es. Gebber) needed to produce the PCB (KiCAD-7)
+	mbes_front_outputs.kicad_sch            Electric schema component
+	mbes_inputs.kicad_sch                   Electric schema component
+	mbes_rear_connector.kicad_sch           Electric schema component
+	motorbike_electrical_system.kicad_pcb   The PCB
+	motorbike_electrical_system.kicad_pro   Kicad project's file
+	motorbike_electrical_system.kicad_sch   Electric schema component
 
 
 Internals:
