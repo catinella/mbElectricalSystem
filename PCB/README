@@ -20,6 +20,7 @@ Files:
 	motorbike_electrical_system.kicad_pcb   The PCB
 	motorbike_electrical_system.kicad_pro   Kicad project's file
 	motorbike_electrical_system.kicad_sch   Electric schema component
+	kicad_symbols                           This folder contains all components definitions not provided by KiCAD by default
 
 
 Internals:
