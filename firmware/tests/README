@@ -1,0 +1,24 @@
+#-----------------------------------------------------------------------------------------------------------------------------------
+     __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+    |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+    | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+    | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+    |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+                                                                                                    |___/                       
+#-----------------------------------------------------------------------------------------------------------------------------------
+
+Description:
+	This folder contains minimal tests for the firmware's components. All test executable files have the "test[0-n]-" prefix,
+	where the number defines the test type:
+		0 - Test to show the result on the terminal display
+		1 - Automated procedure test (unit-test)
+
+
+Files:
+	test0-mbesSerialConsole.c
+	test0-mbesUtilities.c
+
+
+Executable files building:
+	Because the tests runs usually on a PC, I have used GCC compiler and Make tool. Then to get all the executable files you can
+	use the following command: "make [all]". In the resulting binary code, all the (ARM) platform code will be mocked or stubbed
