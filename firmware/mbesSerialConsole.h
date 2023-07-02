@@ -36,9 +36,8 @@
 
 #define F_CPU 1000000UL // Default internal oscillator fequency: 1Mhz
 
-void USART_Init        (unsigned int);
-void USART_writeChar   (char);
-void USART_writeString (const char *);
-char USART_readChar    ();
+void USART_Init        (unsigned int baud_rate);
+void USART_writeChar   (char data);
+void USART_writeString (const char *msg);
 
 #endif
