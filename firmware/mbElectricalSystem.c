@@ -89,7 +89,8 @@
 
 #include <avr/io.h>
 #include <stdlib.h>
-
+#include "mbesUtilities.h"
+#include "mbesSerialConsole.h"
 
 //
 // PINs declaration
@@ -136,21 +137,9 @@
 #define BUTTON_DEBOUNC  10000
 #define ACHANS_NUMBER   4
 
-typedef enum _mbesPinDir {
-	INPUT,
-	OUTPUT
-} mbesPinDir;
-
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                 F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
-void _codeConverter (const char *code, char *port, uint8_t *pinNumber) {
-	if (port      != NULL) *port      = code[0];
-	if (pinNumber != NULL) *pinNumber = code[1] - '0';
-	
-	return;
-}
-
 
 uint16_t ADC_read (const char *code) {
 	//
@@ -198,88 +187,6 @@ uint8_t blink() {
 		counter++;
 
 	return(status);
-}
-
-
-void pinDirectionRegister (const char *code, mbesPinDir dir) {
-	//
-	// Description:
-	//	It sets the MCU's pin to function as input or output
-	//
-	//	AVR Data Direction Registers (DDR) registers:
-	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
-	//		| Register | pin7  | pin6  | pin5  | pin4  | pin3  | pin2  | pin1  | pin0  |
-	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
-	//		|   DDRA   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
-	//		|   DDRB   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
-	//		|   DDRC   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
-	//		|   DDRD   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
-	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
-	//
-	//		bitN == 1 --> pinN = output
-	//		bitN == 0 --> pinN = input
-	//
-	char    port;
-	uint8_t pinNumber;
-
-	_codeConverter(code, &port, &pinNumber);
-	if      (port == 'A' && dir == OUTPUT)  DDRA |=  (1 << pinNumber);
-	else if (port == 'A')                   DDRA &= ~(1 << pinNumber);
-	else if (port == 'B' && dir == OUTPUT)  DDRB |=  (1 << pinNumber);
-	else if (port == 'B')                   DDRB &= ~(1 << pinNumber);
-	else if (port == 'C' && dir == OUTPUT)  DDRC |=  (1 << pinNumber);
-	else if (port == 'C')                   DDRC &= ~(1 << pinNumber);
-	else if (port == 'D' && dir == OUTPUT)  DDRD |=  (1 << pinNumber);
-	else if (port == 'D')                   DDRD &= ~(1 << pinNumber);
-	else {
-		// ERROR!
-	}
-
-	return;
-}
-
-
-void pullUpEnabling (const char *code) {
-	//
-	// Description:
-	//	It enable the pull-up resistor for the argument defined input pin
-	//
-	char    port;
-	uint8_t pinNumber;
-
-	_codeConverter(code, &port, &pinNumber);
-	if      (port == 'A') PORTA |= (1 << pinNumber);
-	else if (port == 'B') PORTB |= (1 << pinNumber);
-	else if (port == 'C') PORTC |= (1 << pinNumber);
-	else if (port == 'D') PORTD |= (1 << pinNumber);
-	else {
-		// ERROR!
-	}
-
-	return;
-}
-
-
-uint8_t getPinValue (const char *code) {
-	//
-	// Description:
-	//	It returns the argument defined input pin's value
-	//
-	char    port;
-	uint8_t pinNumber;
-	uint8_t out = 0;
-
-	_codeConverter(code, &port, &pinNumber);
-	
-	if      (port == 'A') out = (PINA & (1 << pinNumber));
-	else if (port == 'B') out = (PINB & (1 << pinNumber));
-	else if (port == 'C') out = (PINC & (1 << pinNumber));
-	else if (port == 'D') out = (PIND & (1 << pinNumber));
-	else {
-		// ERROR!
-	}
-
-	return((out > 0) ? out : 1);
 }
 
 
@@ -347,25 +254,7 @@ void main(void) {
 	pinDirectionRegister(o_KEEPALIVE,   OUTPUT);
 	pinDirectionRegister(o_STARTENGINE, OUTPUT);
 	
-	
-	//
-	// Pull-up/down resistors setting
-	//
 
-	pullUpEnabling(i_NEUTRAL);
-	pullUpEnabling(i_LEFTARROW);
-	pullUpEnabling(i_DOWNLIGHT);
-	pullUpEnabling(i_UPLIGHT);
-	pullUpEnabling(i_RIGHTARROW);
-	pullUpEnabling(i_HORN);
-	pullUpEnabling(i_BIKESTAND);
-	pullUpEnabling(i_STARTBUTTON);
-	pullUpEnabling(i_ENGINEON);
-	pullUpEnabling(i_DECOMPRESS);
-	pullUpEnabling(i_ADDLIGHT);
-	pullUpEnabling(i_LIGHTONOFF);
-	
-	
 	//
 	// A/D converter settings....
 	//
@@ -385,6 +274,9 @@ void main(void) {
 	setPinValue(o_STARTENGINE, 0);
 	setPinValue(o_ENGINEOFF,   1);
 
+
+	// USART port initialization
+	USART_Init(9600);
 
 
 	while (loop) {
