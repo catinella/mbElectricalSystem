@@ -12,15 +12,20 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
+//	This module has been written to be used by the test0-mbesSelector.c testing procedure. As the file-name says
+//	virtualSelectors provide a set of configurable virtual selectors (switches or buttons) used to simulate the
+//	motorbike's controls.
 //
-//
-//
-//
-//
-//
-//
-//
-//
+//	+------------------+       _____       +--------------------+
+//	|                  |      /     \      |                    |
+//	| virtualSelectors +---->|\_____/|---->| test0-mbesSelector |
+//	|                  |     |       |     |                    |
+//	+------------------+     |       |     +--------------------+
+//	                         \_______/                    
+//	                  
+//	The read/write operation are performed asyncronousely, so flock() syscall is used to avoid data corruption
+//	
+//	
 // License:
 //	KiCad Schematics distributed under the GPL-3 License.
 //
@@ -43,6 +48,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <limits.h>
+#include <sys/file.h>
 
 typedef enum _selectorType {
 	VS_BUTTON,
@@ -80,7 +87,9 @@ int main(int argc, char *argv[]) {
 		char    pinName[4];
 		char    pinType[16];
 		uint8_t numOfRecs = 0;
+		char    filename[PATH_MAX];
 
+		filename[0] = '\0';
 		pinItem *pinsList = NULL;
 		pinItem *pinsTail = NULL;
 
@@ -139,16 +148,23 @@ int main(int argc, char *argv[]) {
 					}
 					
 				} else if (strcmp(key, "--file") == 0) {
+					strcpy(filename, value);
 
 				} else {
 					// ERROR!
 					usageMsg(argv[0]);
-					err = 78;
+					err = 72;
 					break;
 				}
 			}
 		}
-		
+	
+		// The data file MUST be defined as file's argument
+		if (strlen(filename) == 0) {
+			usageMsg(argv[0]);
+			err = 74;
+		}
+
 		if (err == 0) {
 			pinItem *ptr    = NULL;
 			pinItem *tgtPtr = NULL;
@@ -159,7 +175,7 @@ int main(int argc, char *argv[]) {
 			initscr();
 			keypad(stdscr, true);
 
-			while (answ != 'q') {
+			while (answ != 'q' && err == 0) {
 				erase();
 				ptr = pinsList;
 				t = 0;
@@ -195,6 +211,8 @@ int main(int argc, char *argv[]) {
 
 				// RETURN
 				else if (answ == 10) {
+					FILE *fh = NULL;
+
 					// Connecting the selector to GND
 					if (tgtPtr->type == VS_BUTTON)
 						tgtPtr->status = true;
@@ -202,24 +220,46 @@ int main(int argc, char *argv[]) {
 						tgtPtr->status = false;
 					else
 						tgtPtr->status = true;
-
-
-					// File locking
-
+				
 					// File opening
+					fh = fopen(filename, "w");
+					if (fh == NULL) {
+						// ERROR!
+						err = 92;
+						break;
+					
+					// File locking
+					} else if (flock(fileno(fh), LOCK_EX) < 0) {
+						// ERROR!
+						err = 94;
+						break;
 
-					// data writing
+					// Data writing
+					} else {
+						pinItem *ptr = pinsList;
+						while (ptr != NULL) {
+							// [!] Remember "true" means it is connected to GND and then 0
+							fprintf(fh, "%s:%d\n", ptr->pinName, ptr->status ? 0 : 1);
+							ptr = ptr->next;
+							t++;
+						}
+						
+						fflush(fh);
 
-					// File closing
-
-					// File unlocking
-
+						// File unlocking
+						if (flock(fileno(fh), LOCK_UN) < 0) {
+							// ERROR!
+							err = 96;
+							break;
+						}
+						
+						// File closing
+						fclose(fh);
+					}
 					// Button releasing...
 					if (tgtPtr->type == VS_BUTTON)
 						tgtPtr->status = false;
 				}
-
-				//printf("-------------->%d\n", answ); sleep(2); break;
 
 			}
 			endwin();		
