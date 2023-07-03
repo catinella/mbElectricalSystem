@@ -63,7 +63,11 @@ typedef struct _pinItem {
 	struct _pinItem *next;
 } pinItem;
 
+#define VS_PUSHEDTIME 200000
 
+//----------------------------------------------------------------------------------------------------------------------------------
+//                                                   F U N C T I O N S
+//----------------------------------------------------------------------------------------------------------------------------------
 void usageMsg (const char *filename) {
 	fprintf(stderr, "ERROR! use %s --file=<filename> --pin=<pin-name>:<pin-type>  [--pin=<pin-name>:<pin-type> ...]\n", filename);
 	fprintf(stderr, "       pin-type: {button|switch}\n");
@@ -72,6 +76,44 @@ void usageMsg (const char *filename) {
 }
 
 
+uint8_t dataDumping (const char *file, const pinItem *myList) {
+	//
+	// Description:
+	//
+	//
+	pinItem *ptr = (pinItem*)myList;
+	uint8_t  err = 0;
+	FILE     *fh = NULL;
+
+	// File opening
+	if ((fh = fopen(file, "w")) && fh == NULL)
+		err = 92;
+					
+	// File locking
+	else if (flock(fileno(fh), LOCK_EX) < 0)
+		err = 94;
+
+	// Data writing
+	else {
+		while (ptr != NULL) {
+			// [!] Remember "true" means it is connected to GND and then 0
+			fprintf(fh, "%s:%d\n", ptr->pinName, ptr->status ? 0 : 1);
+			ptr = ptr->next;
+		}
+		fflush(fh);
+
+		// File unlocking
+		if (flock(fileno(fh), LOCK_UN) < 0) err = 96;
+						
+		// File closing
+		fclose(fh);
+	}
+
+	return(err);
+}
+//----------------------------------------------------------------------------------------------------------------------------------
+//                                                           M A I N
+//----------------------------------------------------------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 	uint8_t err = 0;
 
@@ -211,54 +253,27 @@ int main(int argc, char *argv[]) {
 
 				// RETURN
 				else if (answ == 10) {
-					FILE *fh = NULL;
-
-					// Connecting the selector to GND
 					if (tgtPtr->type == VS_BUTTON)
 						tgtPtr->status = true;
-					else if (tgtPtr->status == true)
-						tgtPtr->status = false;
-					else
-						tgtPtr->status = true;
-				
-					// File opening
-					fh = fopen(filename, "w");
-					if (fh == NULL) {
-						// ERROR!
-						err = 92;
-						break;
+					else	
+						tgtPtr->status = !tgtPtr->status;
+
+					err = dataDumping(filename, pinsList);
 					
-					// File locking
-					} else if (flock(fileno(fh), LOCK_EX) < 0) {
-						// ERROR!
-						err = 94;
-						break;
+					if (err == 0) {
+						usleep(VS_PUSHEDTIME);
 
-					// Data writing
-					} else {
-						pinItem *ptr = pinsList;
-						while (ptr != NULL) {
-							// [!] Remember "true" means it is connected to GND and then 0
-							fprintf(fh, "%s:%d\n", ptr->pinName, ptr->status ? 0 : 1);
-							ptr = ptr->next;
-							t++;
-						}
-						
-						fflush(fh);
+						// Button releasing...
+						if (tgtPtr->type == VS_BUTTON)
+							tgtPtr->status = false;
 
-						// File unlocking
-						if (flock(fileno(fh), LOCK_UN) < 0) {
-							// ERROR!
-							err = 96;
-							break;
-						}
-						
-						// File closing
-						fclose(fh);
+						err = dataDumping(filename, pinsList);
+					
 					}
-					// Button releasing...
-					if (tgtPtr->type == VS_BUTTON)
-						tgtPtr->status = false;
+
+					if (err != 0)
+						fprintf(stderr, "ERROR! I/O operation failed while data have been saving\n");
+
 				}
 
 			}
