@@ -70,8 +70,6 @@
 //		BUTTON_DEBOUNC  10000
 //
 // License:
-//	KiCad Schematics distributed under the GPL-3 License.
-//
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 //
 //	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
