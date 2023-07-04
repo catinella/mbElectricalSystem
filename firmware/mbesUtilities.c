@@ -52,6 +52,8 @@ void logMsg (const char *fmt, ...) {
 	
 	va_start(argp, fmt);
 
+	USART_writeString("LOGMSG: ");
+	
 	while (fmt[t] != '\0') {
 		if (ctrvFlag == false) {
 			if (fmt[t] == '%')  ctrvFlag = true;

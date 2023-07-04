@@ -34,10 +34,11 @@
 
 // Defrault behaviour
 #ifndef MOCK
-#define MOCK 1
+#define MOCK 0
 #endif
 
 #if MOCK == 1
+#define MBES_VIRTUALSEVECTOR_SWAPFILE "/tmp/virtualSelector.map"
 
 #endif
 
