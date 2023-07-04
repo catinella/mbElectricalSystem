@@ -18,19 +18,23 @@ all:				$(EXEs)
 #                                   S O U R C E   F I L E S   U N D E R   T E S T
 #-------------------------------------------------------------------------------------------------------------------------------
 mbesSerialConsole-0.o:	../mbesSerialConsole.c ../mbesSerialConsole.h
-				@echo "[ CC ] $@"
-				@gcc $(CCOPTS) -c $< $(INCLUDE) "-DFAKE_CONSOLE=\"$(FAKE_CONSOLE)\"" -o $@
+				@echo "[ CC- ] $@"
+				@gcc $(CCOPTS) -c $< $(INCLUDE) "-DFAKE_CONSOLE=\"$(FAKE_CONSOLE)\"" -DMOCK=1 -o $@
 
 mbesUtilities-0.o:	../mbesUtilities.c ../mbesUtilities.h
-				@echo "[ CC ] $@"
-				@gcc $(CCOPTS) -c $< $(INCLUDE) -o $@
+				@echo "[ CC- ] $@"
+				@gcc $(CCOPTS) -c $< $(INCLUDE) -DMOCK=1 -o $@
+
+mbesSelector-0.o:		../mbesSelector.c ../mbesSelector.h
+				@echo "[ CC- ] $@"
+				@gcc $(CCOPTS) -c $< $(INCLUDE) -DMOCK=1 -o $@
 
 virtualSelectors.o:	virtualSelectors.c
-				@echo "[ CC ] $@"
-				@gcc $(CCOPTS) -c $< -o $@
+				@echo "[ CC- ] $@"
+				@gcc $(CCOPTS) -c $< -DMOCK=1 -o $@
 
 virtualSelectors:		virtualSelectors.o
-				@echo "[ LD ] $@"
+				@echo "[ LD- ] $@"
 				@gcc -Wall $< -lncurses -o $@
 
 #-------------------------------------------------------------------------------------------------------------------------------
@@ -39,7 +43,7 @@ virtualSelectors:		virtualSelectors.o
 
 test0-mbes%.o:		test0-mbes%.c mbes%-0.o mbesSerialConsole-0.o
 				@echo "[ CC ] $@"
-				@gcc $(CCOPTS) -c $< $(INCLUDE) -o $@
+				@gcc $(CCOPTS) -c $< $(INCLUDE) -DMOCK=1 -o $@
 
 test0-mbes%:		test0-mbes%.o mbes%-0.o mbesSerialConsole-0.o
 				@echo "[ LD ] $@"
