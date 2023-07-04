@@ -46,7 +46,7 @@ struct mbesSelector {
 	selectorType devType;
 	bool         status;      // 1 = pressed/swiched-to-on/active
 	bool         enabled;     // 1 = hardware changes can be acnowledged
-}
+};
 
 
 void mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
