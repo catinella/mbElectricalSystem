@@ -12,7 +12,10 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	
+//	This is an interactive test. It prints a char and a chars-string on the terminal where you have built this test file.
+//	[!] The serial port is simulated using the terminal's character device. Then make-process sets the FAKE_CONSOLE symbol
+//	    with the currently in-use terminal's device. For this reason the ouput will be sent to that terminal, also if you
+//	    run the test in another one
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
