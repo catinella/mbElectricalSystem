@@ -40,14 +40,30 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <ncurses.h>
+#define _GNU_SOURCE
+#define DEBUG 1
+
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
 #include <sys/file.h>
+#include <sys/ioctl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <debugTools.h>
+#include <limits.h>
+#include <poll.h>
+#include <errno.h>
+#include <termios.h>
+
+#if DEBUG ==1
+#include <syslog.h>
+#endif
 
 typedef enum _selectorType {
 	VS_BUTTON,
@@ -63,9 +79,24 @@ typedef struct _pinItem {
 
 #define VS_PUSHEDTIME 200000
 
+#if DEBUG == 1
+#define MYSYSLOG   syslog
+#define MYOPENLOG  openlog(argv[0], LOG_NDELAY, LOG_LOCAL0);
+#define MYCLOSELOG closelog();
+#else
+#define MYSYSLOG   fooFunction
+#define MYOPENLOG  ;
+#define MYCLOSELOG ;
+#endif
+
 //----------------------------------------------------------------------------------------------------------------------------------
 //                                                   F U N C T I O N S
 //----------------------------------------------------------------------------------------------------------------------------------
+
+#if DEBUG == 1
+void fooFunction (int priority, const char *format, ...) {};
+#endif
+
 void usageMsg (const char *filename) {
 	fprintf(stderr, "ERROR! use %s --file=<filename> --pin=<pin-name>:<pin-type>  [--pin=<pin-name>:<pin-type> ...]\n", filename);
 	fprintf(stderr, "       pin-type: {button|switch}\n");
@@ -74,12 +105,19 @@ void usageMsg (const char *filename) {
 }
 
 
-uint8_t dataDumping (const char *file, const pinItem *myList) {
+void dataUpdating (pinItem *myDB, uint8_t nunOfRecs) {
+	for (uint8_t t=0; t<nunOfRecs; t++) 
+		 if (myDB[t].type == VS_BUTTON) myDB[t].status = false;
+	return;
+}
+
+
+uint8_t dataDumping (const char *file, const pinItem *myDB, uint8_t nunOfRecs) {
 	//
 	// Description:
+	//	It writes the DB's content in the file used to simulate the selector devices. Yhe file has the following syntax:
+	//		[A-Z][0-7]:[0-1]
 	//
-	//
-	pinItem *ptr = (pinItem*)myList;
 	uint8_t  err = 0;
 	FILE     *fh = NULL;
 
@@ -93,11 +131,10 @@ uint8_t dataDumping (const char *file, const pinItem *myList) {
 
 	// Data writing
 	else {
-		while (ptr != NULL) {
+		for (uint8_t t=0; t<nunOfRecs; t++) 
 			// [!] Remember "true" means it is connected to GND and then 0
-			fprintf(fh, "%s:%d\n", ptr->pinName, ptr->status ? 0 : 1);
-			ptr = ptr->next;
-		}
+			fprintf(fh, "%s:%d\n", myDB[t].pinName, myDB[t].status ? 0 : 1);
+		
 		fflush(fh);
 
 		// File unlocking
@@ -109,6 +146,7 @@ uint8_t dataDumping (const char *file, const pinItem *myList) {
 
 	return(err);
 }
+
 //----------------------------------------------------------------------------------------------------------------------------------
 //                                                           M A I N
 //----------------------------------------------------------------------------------------------------------------------------------
@@ -126,12 +164,11 @@ int main(int argc, char *argv[]) {
 		char    value[16];
 		char    pinName[4];
 		char    pinType[16];
-		uint8_t numOfRecs = 0;
 		char    filename[PATH_MAX];
 
 		filename[0] = '\0';
-		pinItem *pinsList = NULL;
-		pinItem *pinsTail = NULL;
+		pinItem pinsDB[16];
+		uint8_t numOfRecs = 0;
 
 		for (t=1; t<argc; t++) {
 			ptr = strchr(argv[t], '=');
@@ -169,19 +206,11 @@ int main(int argc, char *argv[]) {
 							//
 							// Item creation
 							//
-							if (pinsList == NULL) {
-								pinsList = (pinItem*)malloc(sizeof(pinItem));
-								pinsTail = pinsList;
-							} else {
-								pinsTail->next = (pinItem*)malloc(sizeof(pinItem));
-								pinsTail = pinsTail->next;
-							}
 							
-							strcpy(pinsTail->pinName, pinName);
-							if (strcmp(pinType, "button") == 0) pinsTail->type = VS_BUTTON;
-							else                                pinsTail->type = VS_SWITCH;
-							pinsTail->status = false; // NOT-CONNECTED
-							pinsTail->next = NULL;
+							strcpy(pinsDB[numOfRecs].pinName, pinName);
+							if (strcmp(pinType, "button") == 0) pinsDB[numOfRecs].type = VS_BUTTON;
+							else                                pinsDB[numOfRecs].type = VS_SWITCH;
+							pinsDB[numOfRecs].status = false; // NOT-CONNECTED
 							
 							numOfRecs++;
 						}
@@ -206,87 +235,104 @@ int main(int argc, char *argv[]) {
 		}
 
 		if (err == 0) {
-			pinItem *ptr    = NULL;
-			pinItem *tgtPtr = NULL;
-			uint8_t t       = 0;
-			uint8_t tgt     = 0;
-			int     answ    = '\0';
-
-			initscr();
-			keypad(stdscr, true);
-
-			while (answ != 'q' && err == 0) {
-				erase();
-				ptr = pinsList;
-				t = 0;
-				printw("\n+---------- Virtual Selectors ----------+\n");
-				printw("|                                       |\n");
-				while (ptr != NULL) {
-					if (t == tgt)               {printw("| ---> "); tgtPtr = ptr;}
-					else                        printw("|      ");
-					if (ptr->type == VS_BUTTON) printw("(%s)", ptr->pinName);
-					else                        printw("[%s]", ptr->pinName);
-					printw(": %s", (ptr->status == true) ? "PUSHED  " : "RELEASED");
-					printw("                   |\n");
-					ptr = ptr->next;
-					t++;
-				}
-				printw("|                                       |\n");
-				printw("+---------------------------------------+\n");
-				printw("|  Press RETURN to connect the selector |\n");
-				printw("|           Rpess 'q' to EXIT           |\n");
-				printw("+---------------------------------------+\n\n");
+			uint8_t         t    = 0;
+			char            answ = '\0';
 			
-				refresh();
+			struct termios  oldt;    // Original terminal settings
+			struct termios  newt;    // New terminal setting
+			struct pollfd   pfd;
+			struct timespec timeout;
+			int             afd = 0;
+
+			// Syslog service enabling...
+			MYOPENLOG
+			
+			// Old terminal setting saving.....
+			tcgetattr(STDIN_FILENO, &oldt);
+			
+			// New terminal setting
+			newt = oldt;
+			newt.c_lflag &= ~(ICANON | ECHO);
+			tcsetattr(STDIN_FILENO, TCSANOW, &newt);
+			
+			pfd.events = POLLIN;
+			pfd.fd     = STDIN_FILENO;
+
+			timeout.tv_sec  = 0;
+			timeout.tv_nsec = 2000000; // 2 ms
 				
-				answ = getch();
+			while (answ != 'q' && err == 0) {
+	
+				// Clear screen
+				printf("\e[1;1H\e[2J");
 
-				// Arrow-UP
-				if (answ == 259 && tgt > 0)
-					tgt--;
+				t = 0;
+				printf("\n+---------- Virtual Selectors ----------+\n");
+				printf("|                                       |\n");
+				for (t=0; t<numOfRecs; t++) {
+					if (pinsDB[t].type == VS_BUTTON)
+						printf("|  %d)  (%s)", t, pinsDB[t].pinName);
+					else
+						printf("|  %d)  [%s]", t, pinsDB[t].pinName);
 
-				// Arrow-DOWN
-				else if (answ == 258 && tgt < (numOfRecs-1))
-					tgt++;
-
-				// RETURN
-				else if (answ == 10) {
-					if (tgtPtr->type == VS_BUTTON)
-						tgtPtr->status = true;
-					else	
-						tgtPtr->status = !tgtPtr->status;
-
-					err = dataDumping(filename, pinsList);
-					
-					if (err == 0) {
-						usleep(VS_PUSHEDTIME);
-
-						// Button releasing...
-						if (tgtPtr->type == VS_BUTTON)
-							tgtPtr->status = false;
-
-						err = dataDumping(filename, pinsList);
-					
-					}
-
-					if (err != 0)
-						fprintf(stderr, "ERROR! I/O operation failed while data have been saving\n");
-
+					printf(": %s", (pinsDB[t].status == true) ? "PUSHED  " : "RELEASED");
+					printf("                   |\n");
 				}
+				printf("|                                       |\n");
+				printf("+---------------------------------------+\n");
+				printf("|           Rpess 'q' to EXIT           |\n");
+				printf("+---------------------------------------+\n\n");
+			
+				
+				afd = ppoll(&pfd, 1, &timeout, NULL);
 
-			}
-			endwin();		
+				if (afd < 0) {
+					// ERROR!
+					err = 78;
+					ERRORBANNER(err)
+					fprintf(stderr, "ppoll() syscall failed: %s\n", strerror(errno));
+					
+				} else if (afd == 0) {
+					// Timeout
+					dataUpdating(pinsDB, numOfRecs);
+					err = dataDumping(filename, pinsDB, numOfRecs);
+					
+				} else if (read(STDIN_FILENO, &answ, sizeof(char)) != sizeof(char)) {
+					// ERROR!
+					err = 78;
+					ERRORBANNER(err)
+					fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
+
+				} else if (answ == 'q') {
+					MYSYSLOG(LOG_INFO, "Quit option has been selected\n");
+					break;
+
+				} else {
+					uint8_t idx = answ - '0';
+
+					MYSYSLOG(LOG_INFO, "Selection: %c(%d)", answ, idx);
+					
+					if (pinsDB[idx].type == VS_BUTTON)
+						pinsDB[idx].status = true;
+					else	
+						pinsDB[idx].status = !(pinsDB[idx].status);
+
+					err = dataDumping(filename, pinsDB, numOfRecs);
+					
+					if (err != 0) {
+						// ERROR!
+						ERRORBANNER(76)
+						fprintf(stderr, "ERROR! I/O operation failed while data have been saving\n");
+					}
+				}
+	
+			} // *** while() loop ***
 
 
-			//
-			// Resources releasing....
-			//
-			pinItem *old = pinsList, *next = NULL;
-			while (old != NULL) {
-				next = old->next;
-				free(old);
-				old = next;
-			}
+			// Original terminal setting restoring...
+			tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
+
+			MYCLOSELOG
 		}
 	}
 
