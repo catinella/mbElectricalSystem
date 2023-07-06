@@ -51,6 +51,6 @@ struct mbesSelector {
 
 void mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
 bool mbesSelector_get     (struct mbesSelector item);
-void mbesSelector_update  (struct mbesSelector item);
+void mbesSelector_update  (struct mbesSelector *item);
 
 #endif

@@ -43,6 +43,7 @@
 #include <errno.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 # else
 #include <avr/io.h>
@@ -126,24 +127,32 @@ static bool _getPinValue (const char *code) {
 		_exit(127);
 	
 	} else {
-		char   buffer[8];
-		char   tempcode[4];
-		size_t tempSize = 5;
+		char   *buffer = (char*)malloc(8*sizeof(char));
+		size_t tempSize = 6; // [A-Z] [0-7] ':' [0,1] '\n' '\0'
+		bool   end = false;
+		int    eSize;
 		
 		// Data reading
-		while (feof(fh) == false) {
-			if (getline(&buffer, &tempSize, fh) != tempSize) {
+		while (end == false) {
+			eSize = getline(&buffer, &tempSize, fh); 
+			if (eSize > 0 && (eSize != 5 || buffer[2] != ':')) {
 				// ERROR!
 				ERRORBANNER(127)
-				fprintf(
-					stderr, "I/O operation failed or the \"%s\" file is corrupted\n", MBES_VIRTUALSEVECTOR_SWAPFILE
-				);
+				fprintf(stderr, "The \"%s\" file is corrupted\n", MBES_VIRTUALSEVECTOR_SWAPFILE);
 				_exit(127);
-			}
-			if (buffer[2] == ':') {
+			
+			} else if (feof(fh)) {
+				end = true;
+			
+			} else if (eSize < 0) {
+				// ERROR!
+				ERRORBANNER(127)
+				fprintf(stderr, "I/O operation failed: %s", strerror(errno));
+				_exit(127);
+				
+			} else {
 				buffer[2] = '\0';
-				strcpy(tempcode, buffer);
-				if (strcmp(tempcode, code) == 0) {
+				if (strcmp(buffer, code) == 0) {
 					if (buffer[3] == '0')
 						out = 0;
 					else if (buffer[3] == '1')
@@ -154,18 +163,16 @@ static bool _getPinValue (const char *code) {
 						fprintf(stderr, "Corrupted file\n");
 						_exit(127);
 					}
+					break;
 				}
-			} else {
-				// ERROR!
-				ERRORBANNER(127)
-				fprintf(stderr, "Corrupted file\n");
-				_exit(127);
 			}
 		}
 		
+		// Memory releasing
+		free(buffer);
 		
 		// File unlocking
-		if (flock(fileno(fh), LOCK_UN) < 0)
+		if (flock(fileno(fh), LOCK_UN) < 0) {
 			// ERROR!
 			ERRORBANNER(127)
 			fprintf(
@@ -173,7 +180,8 @@ static bool _getPinValue (const char *code) {
 				MBES_VIRTUALSEVECTOR_SWAPFILE, strerror(errno)
 			);
 			_exit(127);
-			
+		}
+		
 		// File closing
 		fclose(fh);
 	}
@@ -334,74 +342,74 @@ bool mbesSelector_get (struct mbesSelector item) {
 }
 
 
-void mbesSelector_update (struct mbesSelector item) {
+void mbesSelector_update (struct mbesSelector *item) {
 	//
 	// Description:
 	//	This function updates the internal representation of the phisical device (button/switch..).
 	//
 	
-	if (item.status == false && item.enabled == true && _getPinValue(item.pin) == false) {
+	if (item->status == false && item->enabled == true && _getPinValue(item->pin) == false) {
 		//
 		// The button/switch... has been pressed/activated
 		//
-		item.status  = true;
-		item.enabled = false;
+		item->status  = true;
+		item->enabled = false;
 		timerAvailabilityCounter++;
 		
 		if (_timer_gettime() == 0) {
 			// Nobody is using the timer, I started it
-			item.myTime = 0;
+			item->myTime = 0;
 			_timer_start();
 		} else {
-			item.myTime = _timer_gettime();
+			item->myTime = _timer_gettime();
 		}
 
-		logMsg("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item.pin);
+		logMsg("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
 	
 	} else if (
-		item.status == true && item.enabled == false && 
-		item.myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()
+		item->status == true && item->enabled == false && 
+		item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()
 	) {
 		//
 		// The button/switch... is ready to be released/deactivated
 		//
-		item.status  = true;
-		item.enabled = true;
+		item->status  = true;
+		item->enabled = true;
 		timerAvailabilityCounter--;
 		if (timerAvailabilityCounter == 0) _timer_reset();
 		
-		logMsg("Selector on pin-%s: ACTIVE\n", item.pin);
+		logMsg("Selector on pin-%s: ACTIVE\n", item->pin);
 	
 	
-	} else if (item.status == true && item.enabled == true && _getPinValue(item.pin) == false) {
-		item.status  = false;
-		item.enabled = false;
+	} else if (item->status == true && item->enabled == true && _getPinValue(item->pin) == false) {
+		item->status  = false;
+		item->enabled = false;
 		timerAvailabilityCounter++;
 		 
 		if (_timer_gettime() == 0) {
 			// Nobody is using the timer, I started it
-			item.myTime = 0;
+			item->myTime = 0;
 			_timer_start();
 		} else {
-			item.myTime = _timer_gettime();
+			item->myTime = _timer_gettime();
 		}
 		
-		logMsg("Selector on pin-%s: just RELEASED/SWITCHED-OFF\n", item.pin);
+		logMsg("Selector on pin-%s: just RELEASED/SWITCHED-OFF\n", item->pin);
 	
 	
 	} else if (
-		item.status == false && item.enabled == false && 
-		item.myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()
+		item->status == false && item->enabled == false && 
+		item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()
 	) {
 		//
 		// The button/switch... is ready to be pressed/activated
 		//
-		item.status  = false;
-		item.enabled = true;
+		item->status  = false;
+		item->enabled = true;
 		timerAvailabilityCounter--;
 		if (timerAvailabilityCounter == 0) _timer_reset();
 	
-		logMsg("Selector on pin-%s: NOT-ACTIVE\n", item.pin);
+		logMsg("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
 	}
 	
 	 

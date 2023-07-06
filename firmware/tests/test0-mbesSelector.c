@@ -50,21 +50,39 @@ void sigHandler (int signum) {
 }
 
 int main() {
+	uint8_t t = 0;
+	struct mbesSelector sel[6];
 
-	struct mbesSelector A1, A2, B2, B3, D3, D4;
-
-	mbesSelector_init(&A1, BUTTON,      "A1");
-	mbesSelector_init(&A2, BUTTON,      "A2");
-	mbesSelector_init(&B2, HOLDBUTTON,  "B2");
-	mbesSelector_init(&B3, HOLDBUTTON,  "B3");
-	mbesSelector_init(&D3, SWITCH,      "D3");
-	mbesSelector_init(&D4, SWITCH,      "D4");
+	mbesSelector_init(&sel[0], BUTTON,      "A1");
+	mbesSelector_init(&sel[1], BUTTON,      "A2");
+	mbesSelector_init(&sel[2], HOLDBUTTON,  "B2");
+	mbesSelector_init(&sel[3], HOLDBUTTON,  "B3");
+	mbesSelector_init(&sel[4], SWITCH,      "D3");
+	mbesSelector_init(&sel[5], SWITCH,      "D4");
 
 	signal(SIGTERM, sigHandler);
 	signal(SIGINT,  sigHandler);
 
 	while (loop) {
-	
+		for (t=0; t<6; t++) 
+			mbesSelector_update (&sel[t]);
+
+		// Display cleaning...
+		printf("\e[1;1H\e[2J");
+
+		for (t=0; t<6; t++) {
+			if (sel[t].devType == BUTTON)
+				printf("(%s)   ", sel[t].pin);
+
+			else if (sel[t].devType == SWITCH)
+				printf("[%s]   ", sel[t].pin);
+
+			else if (sel[t].devType == HOLDBUTTON)
+				printf("((%s)) ", sel[t].pin);
+
+			printf(" %d\n", mbesSelector_get(sel[t]) ? 0 : 1);
+		}
+
 		usleep(10000);
 	}
 
