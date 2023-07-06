@@ -15,6 +15,25 @@ FAKE_CONSOLE := $(shell tty)
 all:				$(EXEs)
 
 #-------------------------------------------------------------------------------------------------------------------------------
+#                                        C U S T O M I Z E D   R U L E S
+#-------------------------------------------------------------------------------------------------------------------------------
+virtualSelectors:		virtualSelectors.o
+				@echo "[ LD* ] $@"
+				@gcc -Wall $< -o $@
+
+virtualSelectors.o:	virtualSelectors.c
+				@echo "[ CC* ] $@"
+				@gcc $(CCOPTS) -c $(INCLUDE) $< -o $@
+
+test0-virtualSelectors.o:	test0-virtualSelectors.c
+					@echo "[ CC* ] $@"
+					@gcc $(CCOPTS) -c $(INCLUDE) $< -o $@
+	
+test0-virtualSelectors:	test0-virtualSelectors.o
+				@echo "[ LD* ] $@"
+				@gcc -Wall $< -o $@
+
+#-------------------------------------------------------------------------------------------------------------------------------
 #                                   S O U R C E   F I L E S   U N D E R   T E S T
 #-------------------------------------------------------------------------------------------------------------------------------
 mbesSerialConsole-0.o:	../mbesSerialConsole.c ../mbesSerialConsole.h
@@ -28,14 +47,6 @@ mbesUtilities-0.o:	../mbesUtilities.c ../mbesUtilities.h
 mbesSelector-0.o:		../mbesSelector.c ../mbesSelector.h
 				@echo "[ CC- ] $@"
 				@gcc $(CCOPTS) -c $< $(INCLUDE) -DMOCK=1 -o $@
-
-virtualSelectors.o:	virtualSelectors.c
-				@echo "[ CC- ] $@"
-				@gcc $(CCOPTS) -c $< -DMOCK=1 -o $@
-
-virtualSelectors:		virtualSelectors.o
-				@echo "[ LD- ] $@"
-				@gcc -Wall $< -lncurses -o $@
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #                                      R U L E S   F O R   T E S T 0   F I L E S
