@@ -37,10 +37,11 @@
 #include <debugTools.h>
 #include <sys/file.h>
 #include <errno.h>
-
+#include <signal.h>
 
 #define MAX_SAMPLES   128
 #define MAX_SELECTORS 16
+#define POLLINGPERIOD 10000
 
 struct selectorData {
 	char pinName[3];
@@ -105,9 +106,12 @@ void dbPrinting() {
 
 		x = db[t].start;
 		while (x != db[t].stop) {
-			printf("%c", db[t].samplePool[x] ? '#' : '_');
-			if (x == MAX_SAMPLES) x = 0;
-			else                  x++;
+			if (x == MAX_SAMPLES)
+				x = 0;
+			else {
+				printf("%c", db[t].samplePool[x] ? '#' : '_');
+				x++;
+			}
 		}
 		printf("\n\n");
 		
@@ -117,6 +121,12 @@ void dbPrinting() {
 	return;
 }
 
+
+void sigStopHandler (int signum) {
+	printf("SIG#%d received\n", signum);
+	loop = false;
+	return;
+};
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                   M A I N
 //------------------------------------------------------------------------------------------------------------------------------
@@ -138,6 +148,9 @@ int main (int argc, char *argv[]) {
 		_exit(127);
 	}
 
+	signal(SIGINT,  sigStopHandler);
+	signal(SIGTERM, sigStopHandler);
+
 	while (loop) {
 	
 		// File locking
@@ -155,6 +168,8 @@ int main (int argc, char *argv[]) {
 			char   *buffer = (char*)malloc(tempSize * sizeof(char));
 			size_t eSize = 0;
 			bool   end = false;
+
+			rewind(fh);
 
 			// Data reading
 			while (end == false) {
@@ -197,7 +212,7 @@ int main (int argc, char *argv[]) {
 			dbPrinting();
 		}
 
-		usleep(1000);
+		usleep(POLLINGPERIOD);
 	}
 
 	// File closing

@@ -2,7 +2,7 @@
 //
 //   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
 // |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
-// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \
 // | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
@@ -24,6 +24,13 @@
 //	                         \_______/                    
 //	                  
 //	The read/write operation are performed asyncronousely, so flock() syscall is used to avoid data corruption
+//	
+//	How to test debouncing effects?
+//	===============================
+//	I wrote this virtual buttons cockpit to test the button/switch devices management. One of the most important aspect
+//	I would have wanted to test is the system immunity to the deboucing side effect. But unfortunately the serial protocol
+//	used to get serial data from keyboard is too slow, and if I set the epoll() reaches timeout if the max-time is smaller
+//	then 500ms.
 //	
 //	
 // License:
@@ -77,7 +84,8 @@ typedef struct _pinItem {
 	struct _pinItem *next;
 } pinItem;
 
-#define VS_PUSHEDTIME 200000
+// in milliseconds
+#define VS_PUSHEDTIME 500
 
 #if DEBUG == 1
 #define MYSYSLOG   syslog
@@ -259,7 +267,7 @@ int main(int argc, char *argv[]) {
 			pfd.fd     = STDIN_FILENO;
 
 			timeout.tv_sec  = 0;
-			timeout.tv_nsec = 2000000; // 2 ms
+			timeout.tv_nsec = VS_PUSHEDTIME * 1000000;
 				
 			while (answ != 'q' && err == 0) {
 	
@@ -310,7 +318,7 @@ int main(int argc, char *argv[]) {
 				} else {
 					uint8_t idx = answ - '0';
 
-					MYSYSLOG(LOG_INFO, "Selection: %c(%d)", answ, idx);
+					//MYSYSLOG(LOG_INFO, "Selection: %c(%d)", answ, idx);
 					
 					if (pinsDB[idx].type == VS_BUTTON)
 						pinsDB[idx].status = true;
