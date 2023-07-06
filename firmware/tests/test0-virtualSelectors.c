@@ -32,6 +32,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <debugTools.h>
 #include <sys/file.h>
@@ -109,6 +110,8 @@ void dbPrinting() {
 			else                  x++;
 		}
 		printf("\n\n");
+		
+		t++;
 	}
 
 	return;
@@ -147,31 +150,39 @@ int main (int argc, char *argv[]) {
 			_exit(127);
 		
 		} else {
-			size_t tempSize = 5;
+			size_t tempSize = 6; // [A-Z][0-7]:[0,1]\n\0
 			bool   value;
-			char   buffer[8];
+			char   *buffer = (char*)malloc(tempSize * sizeof(char));
+			size_t eSize = 0;
+			bool   end = false;
 
 			// Data reading
-			while (feof(fh) == false) {
-				if (getline((char**)&buffer, &tempSize, fh) != tempSize) {
+			while (end == false) {
+				eSize = getline(&buffer, &tempSize, fh);    // [!] getline() returns the number of CHARS read ('\0' is not included)
+				
+				if (feof(fh))
+					end = true;
+
+				else if (eSize != 5 || buffer[2] != ':') {
 					// ERROR!
 					ERRORBANNER(127)
-					fprintf(stderr, "I/O operation failed or the \"%s\" file is corrupted\n", argv[0]);
+					if (errno == 0) 
+						fprintf(stderr, "I/O operation failed or the \"%s\" file is corrupted\n", argv[0]);
+					else
+						fprintf(stderr, "getline() failed: %s\n", strerror(errno));
+
 					_exit(127);
-				}
-				if (buffer[2] == ':') {
+				
+				} else {
 					buffer[2] = '\0';
 					value = (buffer[3] == '1') ? true : false;
 					dbUpdate (buffer, value);
 	
-				} else {
-					// ERROR!
-					ERRORBANNER(127)
-					fprintf(stderr, "Corrupted file\n");
-					_exit(127);
 				}
 			}
 			
+			free(buffer);
+
 			// File unlocking
 			if (flock(fileno(fh), LOCK_UN) < 0) {
 				// ERROR!
@@ -183,14 +194,15 @@ int main (int argc, char *argv[]) {
 				_exit(127);
 			}
 
-			// File closing
-			fclose(fh);
-	
 			dbPrinting();
 		}
 
 		usleep(1000);
 	}
+
+	// File closing
+	fclose(fh);
+	
 
 
 	return(0);
