@@ -33,6 +33,10 @@ test0-virtualSelectors:	test0-virtualSelectors.o
 				@echo "[ LD* ] $@"
 				@gcc -Wall $< -o $@
 
+test0-mbesSelector:	test0-mbesSelector.o mbesUtilities-0.o mbesSelector-0.o mbesSerialConsole-0.o
+				@echo "[ LD* ] $@"
+				@gcc -Wall $^ -lrt -o $@
+
 #-------------------------------------------------------------------------------------------------------------------------------
 #                                   S O U R C E   F I L E S   U N D E R   T E S T
 #-------------------------------------------------------------------------------------------------------------------------------
