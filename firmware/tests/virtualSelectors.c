@@ -169,7 +169,7 @@ int main(int argc, char *argv[]) {
 		uint8_t t;
 		char    *ptr = NULL;
 		char    key[16];
-		char    value[16];
+		char    value[PATH_MAX];
 		char    pinName[4];
 		char    pinType[16];
 		char    filename[PATH_MAX];
@@ -240,7 +240,10 @@ int main(int argc, char *argv[]) {
 		if (strlen(filename) == 0) {
 			usageMsg(argv[0]);
 			err = 74;
-		}
+		} else
+			// Initial status file
+			err = dataDumping(filename, pinsDB, numOfRecs);
+
 
 		if (err == 0) {
 			uint8_t         t    = 0;
