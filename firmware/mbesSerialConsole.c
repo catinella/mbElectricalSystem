@@ -146,6 +146,11 @@ extern void USART_writeString (const char *data) {
 	return;
 }
 
+#if MOCK == 1
+extern void USART_close() {
+	fclose(fakeConsole);
+}
+#endif
 /*
 extern char USART_readChar() {
 	//

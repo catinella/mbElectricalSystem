@@ -38,4 +38,8 @@ void USART_Init        (unsigned int baud_rate);
 void USART_writeChar   (char data);
 void USART_writeString (const char *msg);
 
+#if MOCK == 1
+extern void USART_close();
+#endif
+
 #endif
