@@ -44,10 +44,16 @@ struct mbesSelector {
 	char         pin[3];
 	uint16_t     myTime;
 	selectorType devType;
-	bool         status;      // 1 = pressed/swiched-to-on/active
-	bool         enabled;     // 1 = hardware changes can be acnowledged
+	bool         status;     // 1 = pressed/swiched-to-on/active
+	uint8_t      fsm;
 };
 
+//------------------------------------------------------------------------------------------------------------------------------
+//                                                  F U N C T I O N S 
+//------------------------------------------------------------------------------------------------------------------------------
+#if MOCK == 1
+void mbesSelector_shutdown();
+#endif
 
 void mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
 bool mbesSelector_get     (struct mbesSelector item);

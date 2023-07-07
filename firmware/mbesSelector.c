@@ -34,6 +34,7 @@
 #if MOCK == 1
 #include <sys/file.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -55,6 +56,7 @@
 
 #if MOCK == 1
 static timer_t timerId = 0;                     // POSIX timer's ID
+static FILE    *fh     = NULL;
 #endif
 static uint8_t timerAvailabilityCounter = 0;
 static bool    isInitialized            = false;
@@ -88,6 +90,10 @@ static bool _getPinValue (const char *code) {
 	// Description:
 	//	It returns the argument defined input pin's value
 	//
+	// Returned value:
+	//	true ---> pin=1 ---> button/switch = VCC ---> button = RFELEASED
+	//	false --> pin=0 ---> button/switch = GND ---> button = PUSHED
+	//
 	char    port;
 	uint8_t pinNumber;
 	uint8_t out = 0;
@@ -105,19 +111,9 @@ static bool _getPinValue (const char *code) {
 	}
 
 #else
-	FILE *fh;
-	
-	// File opening
-	fh = fopen(MBES_VIRTUALSEVECTOR_SWAPFILE, "r");
-	
-	if (fh == NULL) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf(stderr, "I cannot open the \"%s\" file\n", MBES_VIRTUALSEVECTOR_SWAPFILE);
-		_exit(127);
-		
+
 	// File locking
-	} else if (flock(fileno(fh), LOCK_EX) < 0) {
+	if (flock(fileno(fh), LOCK_EX) < 0) {
 		// ERROR!
 		ERRORBANNER(127)
 		fprintf(
@@ -132,6 +128,8 @@ static bool _getPinValue (const char *code) {
 		bool   end = false;
 		int    eSize;
 		
+		rewind(fh);
+
 		// Data reading
 		while (end == false) {
 			eSize = getline(&buffer, &tempSize, fh); 
@@ -181,9 +179,6 @@ static bool _getPinValue (const char *code) {
 			);
 			_exit(127);
 		}
-		
-		// File closing
-		fclose(fh);
 	}
 #endif
 
@@ -204,6 +199,8 @@ static void _timer_init() {
 	
 #else
 	struct sigevent sigEvent;
+	
+	memset(&sigEvent, 0, sizeof(struct sigevent));
 	sigEvent.sigev_notify = SIGEV_NONE;
 	
 	if (timer_create(CLOCK_MONOTONIC, &sigEvent, &timerId) != 0) {
@@ -267,6 +264,7 @@ static void _timer_start() {
 	return;
 }
 
+
 static uint16_t _timer_gettime() {
 	//
 	// Description:
@@ -298,7 +296,17 @@ static uint16_t _timer_gettime() {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                           P U B L I C   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
-
+#if MOCK == 1
+void mbesSelector_shutdown() {
+	//
+	// Decription:
+	//	It close files and release resources, you should call it at the end of the test
+	//	It has neaning JUST in (MOCK=1) test mode!!
+	//
+	fclose(fh);
+	timer_delete(timerId);
+}
+#endif
 
 void mbesSelector_init (struct mbesSelector *item, selectorType type, const char *pin) {
 	//
@@ -310,6 +318,17 @@ void mbesSelector_init (struct mbesSelector *item, selectorType type, const char
 	if (isInitialized == false) {
 		logMsg("mbesSelector module initialization...\n");
 		_timer_init();
+
+#if MOCK == 1
+		// Virtual selectors file opening
+		if ((fh = fopen(MBES_VIRTUALSEVECTOR_SWAPFILE, "r")) && fh == NULL) {
+			// ERROR!
+			ERRORBANNER(127)
+			fprintf(stderr, "I cannot open the \"%s\" file\n", MBES_VIRTUALSEVECTOR_SWAPFILE);
+			_exit(127);
+		}
+#endif
+		
 	}
 	
 	// PINs direction setting
@@ -318,13 +337,13 @@ void mbesSelector_init (struct mbesSelector *item, selectorType type, const char
 	// PullUP resistor setting
 	_pullUpEnabling(pin);
 	
-	item->pin[0] = pin[0];
-	item->pin[1] = pin[1];
-	item->pin[2] = '\0';
+	item->pin[0]  = pin[0];
+	item->pin[1]  = pin[1];
+	item->pin[2]  = '\0';
 	item->myTime  = 0;
 	item->devType = type;
 	item->status  = false;        // released status
-	item->enabled = true;
+	item->fsm     = 1;
 	
 	return;
 }
@@ -348,70 +367,137 @@ void mbesSelector_update (struct mbesSelector *item) {
 	//	This function updates the internal representation of the phisical device (button/switch..).
 	//
 	
-	if (item->status == false && item->enabled == true && _getPinValue(item->pin) == false) {
+	if (item->fsm == 1) {
+		// It is the initial status: selector has been not yet activated. So its value is "false"
+		// The selector is ready to be activated
+		
+		item->status  = false;
+		
 		//
 		// The button/switch... has been pressed/activated
 		//
-		item->status  = true;
-		item->enabled = false;
-		timerAvailabilityCounter++;
-		
-		if (_timer_gettime() == 0) {
-			// Nobody is using the timer, I started it
-			item->myTime = 0;
-			_timer_start();
-		} else {
-			item->myTime = _timer_gettime();
+		if (_getPinValue(item->pin) == false) {
+			logMsg("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
+			timerAvailabilityCounter++;
+			if (_timer_gettime() == 0) {
+				// Nobody is using the timer, I started it
+				item->myTime = 0;
+				_timer_start();
+			} else {
+				item->myTime = _timer_gettime();
+			}
+			item->fsm     = 2;
+			item->status  = true;
 		}
-
-		logMsg("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
+		
 	
-	} else if (
-		item->status == true && item->enabled == false && 
-		item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()
-	) {
+	} else if (item->fsm == 2) {
+		// If the object is in this state, then the associated selector has been pressed/switched-on.
+		// The selector will be disabled for a time slot
+		
 		//
 		// The button/switch... is ready to be released/deactivated
 		//
-		item->status  = true;
-		item->enabled = true;
-		timerAvailabilityCounter--;
-		if (timerAvailabilityCounter == 0) _timer_reset();
-		
-		logMsg("Selector on pin-%s: ACTIVE\n", item->pin);
-	
-	
-	} else if (item->status == true && item->enabled == true && _getPinValue(item->pin) == false) {
-		item->status  = false;
-		item->enabled = false;
-		timerAvailabilityCounter++;
-		 
-		if (_timer_gettime() == 0) {
-			// Nobody is using the timer, I started it
-			item->myTime = 0;
-			_timer_start();
-		} else {
-			item->myTime = _timer_gettime();
+		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+			logMsg("Selector on pin-%s: ACTIVE\n", item->pin);
+			timerAvailabilityCounter--;
+			if (timerAvailabilityCounter == 0) _timer_reset();
+			item->fsm    = 3;
+			// item->status is still true;
 		}
+	
+	} else if (item->fsm == 3) {
+		// The selector is ready to be released/switched-off
+		// New activities will be acknowledged
 		
-		logMsg("Selector on pin-%s: just RELEASED/SWITCHED-OFF\n", item->pin);
-	
-	
-	} else if (
-		item->status == false && item->enabled == false && 
-		item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()
-	) {
 		//
-		// The button/switch... is ready to be pressed/activated
+		// Selector releasing...
 		//
-		item->status  = false;
-		item->enabled = true;
-		timerAvailabilityCounter--;
-		if (timerAvailabilityCounter == 0) _timer_reset();
+		if (	
+			(item->devType == HOLDBUTTON && _getPinValue(item->pin) == false) ||
+			(item->devType != HOLDBUTTON && _getPinValue(item->pin) == true)
+		) {
+			timerAvailabilityCounter++;
+			if (_timer_gettime() == 0) {
+				// Nobody is using the timer, I started it
+				item->myTime = 0;
+				_timer_start();
+			} else {
+				item->myTime = _timer_gettime();
+			}
+			if (item->devType == HOLDBUTTON) {
+				logMsg("The hold-button (pin-%s) has been RELEASED\n", item->pin);
+				item->fsm = 4;
+				// item->status is still true (GND)
+			} else {
+				logMsg("The button/switch (pin-%s) has been RELEASED/SWITCHED-OFF\n", item->pin);
+				item->fsm    = 14;
+				item->status = false;
+			}
 	
-		logMsg("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
-	}
+		}
+	} else if (item->fsm == 14) {
+		// If the object is in this state, then the associated selector has been released/switched-off.
+		// The selector will be disabled for a time slot
+		
+		//
+		// The button/switch... is ready to be pressed/activated, again
+		//
+		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+			logMsg("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
+			timerAvailabilityCounter--;
+			if (timerAvailabilityCounter == 0) _timer_reset();
+			item->fsm = 1;
+			// item->status is still false (VCC)
+		}
 	
 	 
+	} else if (item->fsm == 4) {
+		// If the object is in this state, then the associated selector is an hold-button and it has been released.
+		// The selector will be disabled for a time slot
+		
+		//
+		// The button/switch... is ready to be pressed/activated, again
+		//
+		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+			logMsg("Selector on pin-%s is active and available\n", item->pin);
+			timerAvailabilityCounter--;
+			if (timerAvailabilityCounter == 0) _timer_reset();
+			item->fsm = 5;
+		}
+	
+	
+	} else if (item->fsm == 5) {
+		// The selector is an hold-button and it ready to be deactivated
+		// New activities will be acknowledged
+	
+		if (_getPinValue(item->pin) == false) {
+			logMsg("The hols-button (pin-%s) has been pushed again\n", item->pin);
+			timerAvailabilityCounter++;
+			if (_timer_gettime() == 0) {
+				// Nobody is using the timer, I started it
+				item->myTime = 0;
+				_timer_start();
+			} else {
+				item->myTime = _timer_gettime();
+			}
+			item->fsm     = 6;
+			item->status  = false;
+		}
+		
+		
+	} else if (item->fsm == 6) {
+		// The selector is waiting to come back available.
+		// The selector will be disabled for a time slot
+		
+		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+			logMsg("Selector on pin-%s is NOT-ACTIVE and available\n", item->pin);
+			timerAvailabilityCounter--;
+			if (timerAvailabilityCounter == 0) _timer_reset();
+			item->fsm = 1;
+			// item->status is still false (VCC)
+		}
+	
+	}
 	return;
 }
