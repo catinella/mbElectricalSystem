@@ -25,6 +25,13 @@
 //	                  
 //	The read/write operation are performed asyncronousely, so flock() syscall is used to avoid data corruption
 //	
+//	File format:
+//		+----------------+-------------+-----------+-----------------------+-------------+-----------+
+//		| Number of recs | PIN name(1) | value(1)  | ///////////////////// | PIN name(n) | value(n)  |
+//		+----------------+-------------+-----------+-----------------------+-------------+-----------+
+//		| uint8_t(1byte) | char[2](2b) | {0|1}(1b) | ///////////////////// | char[2](2b) | {0|1}(1b) |
+//		+----------------+-------------+-----------+-----------------------+-------------+-----------+
+//	
 //	How to test debouncing effects?
 //	===============================
 //	I wrote this virtual buttons cockpit to test the button/switch devices management. One of the most important aspect
@@ -97,6 +104,8 @@ typedef struct _pinItem {
 #define MYCLOSELOG ;
 #endif
 
+static int fd = -1;
+
 //----------------------------------------------------------------------------------------------------------------------------------
 //                                                   F U N C T I O N S
 //----------------------------------------------------------------------------------------------------------------------------------
@@ -120,7 +129,19 @@ void dataUpdating (pinItem *myDB, uint8_t nunOfRecs) {
 }
 
 
-uint8_t dataDumping (const char *file, const pinItem *myDB, uint8_t nunOfRecs) {
+int ubWrite (const void *bytes, uint8_t size) {
+	int     tot = 0;
+	uint8_t part = 1;
+	while (part > 0 && tot < size) {
+		part = write(fd, (bytes + tot), (size - tot));
+		if (part < 0) tot = -1;
+		else          tot = tot + part;
+	}
+	return(tot);
+}
+
+
+uint8_t dataDumping (const pinItem *myDB, uint8_t nunOfRecs) {
 	//
 	// Description:
 	//	It writes the DB's content in the file used to simulate the selector devices. Yhe file has the following syntax:
@@ -128,29 +149,47 @@ uint8_t dataDumping (const char *file, const pinItem *myDB, uint8_t nunOfRecs) {
 	//
 	uint8_t  err = 0;
 	FILE     *fh = NULL;
+	char     buffer[3]; // [A-Z][0-7][0,1]
 
-	// File opening
-	if ((fh = fopen(file, "w")) && fh == NULL)
-		err = 92;
-					
 	// File locking
-	else if (flock(fileno(fh), LOCK_EX) < 0)
+	if (flock(fileno(fh), LOCK_EX) < 0) {
+		// ERROR!
 		err = 94;
+		ERRORBANNER(err)
 
+	// Rewind
+	} else if (lseek(fd, 0, SEEK_SET) < 0) {
+		// ERROR!
+		err = 127;
+		ERRORBANNER(err)
+		if (flock(fileno(fh), LOCK_UN) < 0) err = 96;
+
+	// Data size writing
+	} else if (write(fd, &nunOfRecs, 1) != 1) {
+		// ERROR!
+		err = 127;
+		ERRORBANNER(err)
+		fprintf(stderr, "I/O failed: %s\n", strerror(errno));
+		if (flock(fileno(fh), LOCK_UN) < 0) err = 96;
+	
 	// Data writing
-	else {
-		for (uint8_t t=0; t<nunOfRecs; t++) 
+	} else {
+		for (uint8_t t=0; t<nunOfRecs; t++) {
+			memcpy(buffer, myDB[t].pinName, 3*sizeof(char));
 			// [!] Remember "true" means it is connected to GND and then 0
-			fprintf(fh, "%s:%d\n", myDB[t].pinName, myDB[t].status ? 0 : 1);
-		
-		fflush(fh);
+			buffer[3] = myDB[t].status ? 0 : 1;
+			if (ubWrite(buffer,3) != 3) {
+				err = 127;
+				ERRORBANNER(err)
+				fprintf(stderr, "I/O failed: %s\n", strerror(errno));
+				break;
+			}
+		}
 
 		// File unlocking
 		if (flock(fileno(fh), LOCK_UN) < 0) err = 96;
-						
-		// File closing
-		fclose(fh);
 	}
+
 
 	return(err);
 }
@@ -235,17 +274,32 @@ int main(int argc, char *argv[]) {
 				}
 			}
 		}
+
+		if (err != 0) _exit(err);
 	
 		// The data file MUST be defined as file's argument
 		if (strlen(filename) == 0) {
 			usageMsg(argv[0]);
 			err = 74;
-		} else
-			// Initial status file
-			err = dataDumping(filename, pinsDB, numOfRecs);
 
 
-		if (err == 0) {
+		// File opening
+		} else if ((fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT)) && fd < 0) {
+			// ERROR!
+			err = 92;
+			ERRORBANNER(err)
+			fprintf(stderr, "I cannot open the \"%s\" file: %s\n", filename, strerror(errno));
+		
+
+		// Initial status file
+		} else if ((err = dataDumping(pinsDB, numOfRecs)) && err != 0) {
+			// ERROR!
+			err = 92;
+			ERRORBANNER(err)
+			fprintf(stderr, "I cannot write the \"%s\" file\n", filename);
+
+
+		} else {
 			uint8_t         t    = 0;
 			char            answ = '\0';
 			
@@ -306,7 +360,7 @@ int main(int argc, char *argv[]) {
 				} else if (afd == 0) {
 					// Timeout
 					dataUpdating(pinsDB, numOfRecs);
-					err = dataDumping(filename, pinsDB, numOfRecs);
+					err = dataDumping(pinsDB, numOfRecs);
 					
 				} else if (read(STDIN_FILENO, &answ, sizeof(char)) != sizeof(char)) {
 					// ERROR!
@@ -328,7 +382,7 @@ int main(int argc, char *argv[]) {
 					else	
 						pinsDB[idx].status = !(pinsDB[idx].status);
 
-					err = dataDumping(filename, pinsDB, numOfRecs);
+					err = dataDumping(pinsDB, numOfRecs);
 					
 					if (err != 0) {
 						// ERROR!
@@ -339,6 +393,9 @@ int main(int argc, char *argv[]) {
 	
 			} // *** while() loop ***
 
+						
+			// File closing
+			close(fd);
 
 			// Original terminal setting restoring...
 			tcsetattr(STDIN_FILENO, TCSANOW, &oldt);

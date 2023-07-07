@@ -53,6 +53,7 @@ struct selectorData {
 struct selectorData db[MAX_SELECTORS];
 uint8_t             db_index = 0;
 bool                loop = true;
+int                 fd = 0;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                         P R I V A T E   F U N C T I O N S
@@ -127,86 +128,100 @@ void sigStopHandler (int signum) {
 	loop = false;
 	return;
 };
+
+
+int ubRead (const void *bytes, uint8_t size) {
+	int     tot = 0;
+	uint8_t part = 1;
+	void    *ptr = NULL;
+
+	while (part > 0 && tot < size) {
+		ptr = ((void*)bytes + tot);
+		part = read(fd, ptr, (size - tot));
+		if (part < 0) tot = -1;
+		else          tot = tot + part;
+	}
+	return(tot);
+}
+
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                   M A I N
 //------------------------------------------------------------------------------------------------------------------------------
 int main (int argc, char *argv[]) {
-	FILE *fh;
-	
+	int fd = -1;
+	uint8_t numOfRecs = 0;
+	uint8_t err = 0;
+
 	if (argc != 2) {
 		fprintf(stderr, "ERROR! use %s <filename>\n", argv[0]);
 		_exit(64);
 	}
 	
 	// File opening
-	fh = fopen(argv[1], "r");
-	
-	if (fh == NULL) {
+	if ((fd = open(argv[1], O_RDONLY)) && fd < 0) {
 		// ERROR!
 		ERRORBANNER(127)
-		fprintf(stderr, "I cannot open the \"%s\" file\n", argv[1]);
+		fprintf(stderr, "I cannot open the \"%s\" file: %s\n", argv[1], strerror(errno));
 		_exit(127);
 	}
 
 	signal(SIGINT,  sigStopHandler);
 	signal(SIGTERM, sigStopHandler);
 
-	while (loop) {
+	while (loop && err == 0) {
 	
 		// File locking
-		if (flock(fileno(fh), LOCK_EX) < 0) {
+		if (flock(fd, LOCK_EX) < 0) {
 			// ERROR!
-			ERRORBANNER(127)
+			err = 127;
+			ERRORBANNER(err)
 			fprintf(
 				stderr, "I cannot lock the \"%s\" file, because flock() syscall failed: %s\n", argv[0], strerror(errno)
 			);
-			_exit(127);
+	
+		// Rewind...
+		} else if (lseek(fd, 0, SEEK_SET) < 0) {
+			// ERROR!
+			err = 127;
+			ERRORBANNER(err)
+			fprintf(stderr, "I cannot rewind the file: %s\n", strerror(errno));
+
+		// Data size reading
+		} else if (read(fd, &numOfRecs, 1) != 1) {
+			// ERROR!
+			err = 127;
+			ERRORBANNER(err)
+			fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
 		
 		} else {
-			size_t tempSize = 6; // [A-Z][0-7]:[0,1]\n\0
 			bool   value;
-			char   *buffer = (char*)malloc(tempSize * sizeof(char));
-			size_t eSize = 0;
-			bool   end = false;
-
-			rewind(fh);
+			char   buffer[4];
 
 			// Data reading
-			while (end == false) {
-				eSize = getline(&buffer, &tempSize, fh);    // [!] getline() returns the number of CHARS read ('\0' is not included)
-				
-				if (feof(fh))
-					end = true;
-
-				else if (eSize != 5 || buffer[2] != ':') {
+			for (uint8_t t=0; t<numOfRecs; t++) {
+				if (ubRead(buffer, 3) != 3) {
 					// ERROR!
-					ERRORBANNER(127)
-					if (errno == 0) 
-						fprintf(stderr, "I/O operation failed or the \"%s\" file is corrupted\n", argv[0]);
-					else
-						fprintf(stderr, "getline() failed: %s\n", strerror(errno));
-
-					_exit(127);
+					err = 127;
+					ERRORBANNER(err)
+					fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
+					break;
 				
 				} else {
+					value = (buffer[2] == '1') ? true : false;
 					buffer[2] = '\0';
-					value = (buffer[3] == '1') ? true : false;
 					dbUpdate (buffer, value);
-	
 				}
 			}
 			
-			free(buffer);
-
 			// File unlocking
-			if (flock(fileno(fh), LOCK_UN) < 0) {
+			if (flock(fd, LOCK_UN) < 0) {
+				err = 127;
+				ERRORBANNER(err)
 				// ERROR!
-				ERRORBANNER(127)
 				fprintf(
 					stderr, "I cannot unlock the \"%s\" file, because flock() syscall failed: %s\n",
 					argv[0], strerror(errno)
 				);
-				_exit(127);
 			}
 
 			dbPrinting();
@@ -216,9 +231,9 @@ int main (int argc, char *argv[]) {
 	}
 
 	// File closing
-	fclose(fh);
+	close(fd);
 	
 
 
-	return(0);
+	return((int)err);
 }
