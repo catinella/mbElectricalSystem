@@ -148,11 +148,10 @@ uint8_t dataDumping (const pinItem *myDB, uint8_t nunOfRecs) {
 	//		[A-Z][0-7]:[0-1]
 	//
 	uint8_t  err = 0;
-	FILE     *fh = NULL;
 	char     buffer[3]; // [A-Z][0-7][0,1]
 
 	// File locking
-	if (flock(fileno(fh), LOCK_EX) < 0) {
+	if (flock(fd, LOCK_EX) < 0) {
 		// ERROR!
 		err = 94;
 		ERRORBANNER(err)
@@ -162,7 +161,7 @@ uint8_t dataDumping (const pinItem *myDB, uint8_t nunOfRecs) {
 		// ERROR!
 		err = 127;
 		ERRORBANNER(err)
-		if (flock(fileno(fh), LOCK_UN) < 0) err = 96;
+		if (flock(fd, LOCK_UN) < 0) err = 96;
 
 	// Data size writing
 	} else if (write(fd, &nunOfRecs, 1) != 1) {
@@ -170,14 +169,14 @@ uint8_t dataDumping (const pinItem *myDB, uint8_t nunOfRecs) {
 		err = 127;
 		ERRORBANNER(err)
 		fprintf(stderr, "I/O failed: %s\n", strerror(errno));
-		if (flock(fileno(fh), LOCK_UN) < 0) err = 96;
+		if (flock(fd, LOCK_UN) < 0) err = 96;
 	
 	// Data writing
 	} else {
 		for (uint8_t t=0; t<nunOfRecs; t++) {
 			memcpy(buffer, myDB[t].pinName, 3*sizeof(char));
 			// [!] Remember "true" means it is connected to GND and then 0
-			buffer[3] = myDB[t].status ? 0 : 1;
+			buffer[2] = myDB[t].status ? 0 : 1;
 			if (ubWrite(buffer,3) != 3) {
 				err = 127;
 				ERRORBANNER(err)
@@ -187,7 +186,7 @@ uint8_t dataDumping (const pinItem *myDB, uint8_t nunOfRecs) {
 		}
 
 		// File unlocking
-		if (flock(fileno(fh), LOCK_UN) < 0) err = 96;
+		if (flock(fd, LOCK_UN) < 0) err = 96;
 	}
 
 
@@ -284,7 +283,7 @@ int main(int argc, char *argv[]) {
 
 
 		// File opening
-		} else if ((fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT)) && fd < 0) {
+		} else if ((fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|0)) && fd < 0) {
 			// ERROR!
 			err = 92;
 			ERRORBANNER(err)
