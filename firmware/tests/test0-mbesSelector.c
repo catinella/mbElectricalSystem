@@ -39,6 +39,7 @@
 #include <signal.h>
 #include <unistd.h>
 #include <mbesMock.h>
+#include <mbesSerialConsole.h>
 #include <mbesSelector.h>
 
 bool loop = true;
@@ -59,6 +60,14 @@ int main() {
 	mbesSelector_init(&sel[3], HOLDBUTTON,  "B3");
 	mbesSelector_init(&sel[4], SWITCH,      "D3");
 	mbesSelector_init(&sel[5], SWITCH,      "D4");
+
+	printf("\nPlease, execute the following command in another shell/terminal, and press ENTER to continue...\n");
+	printf("./virtualSelectors --file=%s ", MBES_VIRTUALSEVECTOR_SWAPFILE);
+	for (t=0; t<6; t++) 
+		printf("--pin=%s:%s ", sel[t].pin, sel[t].devType == SWITCH ? "switch" : "button");
+
+	printf("\n");
+	getchar();
 
 	signal(SIGTERM, sigHandler);
 	signal(SIGINT,  sigHandler);
@@ -85,6 +94,10 @@ int main() {
 
 		usleep(10000);
 	}
+
+	// Just to get the Valgrind-GOD's blessing
+	mbesSelector_shutdown();
+	USART_close();
 
 	return(0);
 }
