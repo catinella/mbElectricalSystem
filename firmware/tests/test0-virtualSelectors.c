@@ -53,7 +53,7 @@ struct selectorData {
 struct selectorData db[MAX_SELECTORS];
 uint8_t             db_index = 0;
 bool                loop = true;
-int                 fd = 0;
+int                 fd = -1;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                         P R I V A T E   F U N C T I O N S
@@ -130,7 +130,7 @@ void sigStopHandler (int signum) {
 };
 
 
-int ubRead (const void *bytes, uint8_t size) {
+int ubRead (void *bytes, uint8_t size) {
 	int     tot = 0;
 	uint8_t part = 1;
 	void    *ptr = NULL;
@@ -148,7 +148,6 @@ int ubRead (const void *bytes, uint8_t size) {
 //                                                   M A I N
 //------------------------------------------------------------------------------------------------------------------------------
 int main (int argc, char *argv[]) {
-	int fd = -1;
 	uint8_t numOfRecs = 0;
 	uint8_t err = 0;
 
@@ -207,7 +206,7 @@ int main (int argc, char *argv[]) {
 					break;
 				
 				} else {
-					value = (buffer[2] == '1') ? true : false;
+					value = (buffer[2] == 1) ? true : false;
 					buffer[2] = '\0';
 					dbUpdate (buffer, value);
 				}
