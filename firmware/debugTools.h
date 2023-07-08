@@ -29,8 +29,27 @@
 #ifndef DEBUGTOOLS
 #define DEBUGTOOLS
 
-#define DBGTRACE \
-    fprintf(stdout, "---> %s::%s() pid=%d line=%d\n", __FILE__, __func__, getpid(), __LINE__); fflush(stdout);
+#ifndef DEBUG
+#define DEBUG 0
+#endif
+
+#if DEBUG != 0
+#include <syslog.h>
+#define DBGTRACE   fprintf(stdout, "---> %s::%s() pid=%d line=%d\n", __FILE__, __func__, getpid(), __LINE__); fflush(stdout);
+#define DBGBREAK   {printf("\nPress [RETURN] to continue\n\n"); fflush(stdout); getchar();}
+#define MYSYSLOG   syslog
+#define MYOPENLOG  openlog(argv[0], LOG_NDELAY, LOG_LOCAL0);
+#define MYCLOSELOG closelog();
+#else
+#define DBGTRACE   
+#define DBGBREAK   
+#define MYSYSLOG   fooFunction_syslog
+#define MYOPENLOG  fooFunction_openlog
+#define MYCLOSELOG fooFunction_closelog
+void fooFunction_syslog  (int priority, const char *format, ...)       {return;}
+void fooFunction_closelog()                                            {return;}
+void fooFunction_openlog (const char *ident, int option, int facility) {return;}
+#endif
 
 #define ERRORBANNER(x)                                                                           \
 	fprintf(stderr, "\n********************  \033[1;31mERROR\033[0m  ********************\n"); \
@@ -65,8 +84,5 @@
 
 #endif
 
-
-#define DBGBREAK \
-	{printf("\nPress [RETURN] to continue\n\n"); fflush(stdout); getchar();}
 
 #endif 
