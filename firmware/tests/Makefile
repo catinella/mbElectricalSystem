@@ -1,11 +1,12 @@
 
-
+DEBUG  ?= 0
 CCOPTS  = -Wall -g
 
 SRCs   := $(shell ls test[0-9]*.c)
 EXEs   := $(SRCs:%.c=%)
 
 INCLUDE = -I../
+SYMBOLS = -DMOCK=1 -DDEBUG=$(DEBUG)
 
 FAKE_CONSOLE := $(shell tty)
 
@@ -42,15 +43,15 @@ test0-mbesSelector:	test0-mbesSelector.o mbesUtilities-0.o mbesSelector-0.o mbes
 #-------------------------------------------------------------------------------------------------------------------------------
 mbesSerialConsole-0.o:	../mbesSerialConsole.c ../mbesSerialConsole.h
 				@echo "[ CC- ] $@"
-				@gcc $(CCOPTS) -c $< $(INCLUDE) "-DFAKE_CONSOLE=\"$(FAKE_CONSOLE)\"" -DMOCK=1 -o $@
+				@gcc $(CCOPTS) -c $< $(INCLUDE) "-DFAKE_CONSOLE=\"$(FAKE_CONSOLE)\"" $(SYMBOLS) -o $@
 
 mbesUtilities-0.o:	../mbesUtilities.c ../mbesUtilities.h
 				@echo "[ CC- ] $@"
-				@gcc $(CCOPTS) -c $< $(INCLUDE) -DMOCK=1 -o $@
+				@gcc $(CCOPTS) -c $< $(INCLUDE) $(SYMBOLS) -o $@
 
 mbesSelector-0.o:		../mbesSelector.c ../mbesSelector.h
 				@echo "[ CC- ] $@"
-				@gcc $(CCOPTS) -c $< $(INCLUDE) -DMOCK=1 -o $@
+				@gcc $(CCOPTS) -c $< $(INCLUDE) $(SYMBOLS) -o $@
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #                                      R U L E S   F O R   T E S T 0   F I L E S
@@ -58,7 +59,7 @@ mbesSelector-0.o:		../mbesSelector.c ../mbesSelector.h
 
 test0-mbes%.o:		test0-mbes%.c mbes%-0.o mbesSerialConsole-0.o
 				@echo "[ CC ] $@"
-				@gcc $(CCOPTS) -c $< $(INCLUDE) -DMOCK=1 -o $@
+				@gcc $(CCOPTS) -c $< $(INCLUDE) -DDEBUG=$(DEBUG) -o $@
 
 test0-mbes%:		test0-mbes%.o mbes%-0.o mbesSerialConsole-0.o
 				@echo "[ LD ] $@"
