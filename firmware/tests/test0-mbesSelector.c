@@ -39,9 +39,11 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
+#include <debugTools.h>
 #include <mbesMock.h>
 #include <mbesSerialConsole.h>
 #include <mbesSelector.h>
+
 
 bool loop = true;
 
@@ -51,11 +53,14 @@ void sigHandler (int signum) {
 	return;
 }
 
-int main() {
+int main (int argc, char **argv) {
 	uint8_t      t = 0;
 	struct       mbesSelector sel[6];
 	char         *pinsList[6]  = {"A1", "A2", "B2", "B3", "D3", "D4"};
 	selectorType typesList[6] = {BUTTON, BUTTON, HOLDBUTTON, HOLDBUTTON, SWITCH, SWITCH};
+
+	// Syslog service enabling...
+	MYOPENLOG
 
 	{
 		printf("\nPlease, execute the following command in another shell/terminal, and press ENTER to continue...\n");
@@ -70,6 +75,8 @@ int main() {
 
 	signal(SIGTERM, sigHandler);
 	signal(SIGINT,  sigHandler);
+
+	MYSYSLOG (LOG_INFO, "========= %s =========", argv[0]);
 
 	while (loop) {
 		for (t=0; t<6; t++) 
@@ -88,7 +95,7 @@ int main() {
 			else if (sel[t].devType == HOLDBUTTON)
 				printf("((%s)) ", sel[t].pin);
 
-			printf(" %d\n", mbesSelector_get(sel[t]) ? 0 : 1);
+			printf(" %d  (FSM=%d)\n", mbesSelector_get(sel[t]) ? 0 : 1, sel[t].fsm);
 		}
 
 		usleep(10000);
@@ -97,6 +104,7 @@ int main() {
 	// Just to get the Valgrind-GOD's blessing
 	mbesSelector_shutdown();
 	USART_close();
+	MYCLOSELOG
 
 	return(0);
 }
