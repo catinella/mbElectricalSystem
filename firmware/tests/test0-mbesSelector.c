@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <signal.h>
 #include <unistd.h>
+#include <string.h>
 #include <mbesMock.h>
 #include <mbesSerialConsole.h>
 #include <mbesSelector.h>
@@ -51,23 +52,21 @@ void sigHandler (int signum) {
 }
 
 int main() {
-	uint8_t t = 0;
-	struct mbesSelector sel[6];
+	uint8_t      t = 0;
+	struct       mbesSelector sel[6];
+	char         *pinsList[6]  = {"A1", "A2", "B2", "B3", "D3", "D4"};
+	selectorType typesList[6] = {BUTTON, BUTTON, HOLDBUTTON, HOLDBUTTON, SWITCH, SWITCH};
 
-	mbesSelector_init(&sel[0], BUTTON,      "A1");
-	mbesSelector_init(&sel[1], BUTTON,      "A2");
-	mbesSelector_init(&sel[2], HOLDBUTTON,  "B2");
-	mbesSelector_init(&sel[3], HOLDBUTTON,  "B3");
-	mbesSelector_init(&sel[4], SWITCH,      "D3");
-	mbesSelector_init(&sel[5], SWITCH,      "D4");
+	{
+		printf("\nPlease, execute the following command in another shell/terminal, and press ENTER to continue...\n");
+		printf("./virtualSelectors --file=%s ", MBES_VIRTUALSEVECTOR_SWAPFILE);
+		for (t=0; t<6; t++) printf("--pin=%s:%s ", pinsList[t], typesList[t] == SWITCH ? "switch" : "button");
+		printf("\n");
+		getchar();
+	}
 
-	printf("\nPlease, execute the following command in another shell/terminal, and press ENTER to continue...\n");
-	printf("./virtualSelectors --file=%s ", MBES_VIRTUALSEVECTOR_SWAPFILE);
-	for (t=0; t<6; t++) 
-		printf("--pin=%s:%s ", sel[t].pin, sel[t].devType == SWITCH ? "switch" : "button");
-
-	printf("\n");
-	getchar();
+	// Iniyializations...
+	for (t=0; t<6; t++) mbesSelector_init(&sel[t], typesList[t], pinsList[t]);
 
 	signal(SIGTERM, sigHandler);
 	signal(SIGINT,  sigHandler);
