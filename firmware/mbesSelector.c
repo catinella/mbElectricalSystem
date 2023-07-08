@@ -38,28 +38,89 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 #include <signal.h>
 #include <time.h>
-#include <debugTools.h>
 #include <errno.h>
 #include <string.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include <syslog.h>
+#include <sys/time.h>
+#include <debugTools.h>
 
 # else
 #include <avr/io.h>
 #endif
 
+//
+// Project's libraries
+//
 #include "mbesMock.h"
 #include "mbesUtilities.h"
 #include "mbesSelector.h"
 
 #if MOCK == 1
-static timer_t timerId = 0;                     // POSIX timer's ID
-static FILE    *fh     = NULL;
+typedef enum _timer_cmd {
+	GET,
+	RESET,
+	START
+} timer_cmd;
+
+static int fd = 0;
 #endif
+
 static uint8_t timerAvailabilityCounter = 0;
 static bool    isInitialized            = false;
+
+
+//------------------------------------------------------------------------------------------------------------------------------
+//                                     P R I V A T E   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+#if MOCK == 1
+int ubRead (void *bytes, uint8_t size) {
+	int     tot = 0;
+	uint8_t part = 1;
+	void    *ptr = NULL;
+
+	while (part > 0 && tot < size) {
+		ptr = ((void*)bytes + tot);
+		part = read(fd, ptr, (size - tot));
+		if (part < 0) tot = -1;
+		else          tot = tot + part;
+	}
+	return(tot);
+}
+
+
+int wTimer (timer_cmd cmd) {
+	//
+	// Description:
+	//	Because the POSIX timer are only countdown ones, this function allow you to simulate an ARM monothonic timer
+	//	The funcion accepts only one argument: the command. It selects the following feature: GET, RESET, START
+	//
+	struct timeval         tv;
+	static struct timeval  t0;
+	int                    out;
+	static bool            enabled = false;
+	
+	if (gettimeofday(&tv, NULL) < 0) {
+		ERRORBANNER(127)
+		fprintf(stderr, "gettimeofday() failed: %s\n", strerror(errno));
+		_exit(127);
+		 
+	} else if (cmd == RESET) 
+		enabled = false;
+		
+	else if (cmd == GET && enabled)
+		out = (tv.tv_sec - t0.tv_sec)*1000 + (tv.tv_usec - t0.tv_usec)/1000;
+	
+	else {
+		enabled = true;
+		t0 = tv;
+	}
+	return(out);
+}
+#endif
 
 
 static void _pullUpEnabling (const char *code) {
@@ -84,6 +145,7 @@ static void _pullUpEnabling (const char *code) {
 
 	return;
 }
+
 
 static bool _getPinValue (const char *code) {
 	//
@@ -111,9 +173,10 @@ static bool _getPinValue (const char *code) {
 	}
 
 #else
-
+	uint8_t numOfRec = 0;
+	
 	// File locking
-	if (flock(fileno(fh), LOCK_EX) < 0) {
+	if (flock(fd, LOCK_EX) < 0) {
 		// ERROR!
 		ERRORBANNER(127)
 		fprintf(
@@ -122,55 +185,40 @@ static bool _getPinValue (const char *code) {
 		);
 		_exit(127);
 	
-	} else {
-		char   *buffer = (char*)malloc(8*sizeof(char));
-		size_t tempSize = 6; // [A-Z] [0-7] ':' [0,1] '\n' '\0'
-		bool   end = false;
-		int    eSize;
+	// Rewind...
+	} else if (lseek(fd, 0, SEEK_SET) < 0) {
+		// ERROR!
+		ERRORBANNER(127)
+		fprintf(stderr, "I cannot rewind the file; %s\n", strerror(errno));
+		_exit(127);
 		
-		rewind(fh);
-
+	// Data size reading
+	} else if (ubRead(&numOfRec, 1) != 1) {
+		// ERROR!
+		ERRORBANNER(127)
+		fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
+		_exit(127);
+		
+	} else {
+		char buffer[3];
+		
 		// Data reading
-		while (end == false) {
-			eSize = getline(&buffer, &tempSize, fh); 
-			if (eSize > 0 && (eSize != 5 || buffer[2] != ':')) {
+		for (uint8_t t=0; t<numOfRec; t++) {
+			if (ubRead(buffer, 3) != 3) {
 				// ERROR!
 				ERRORBANNER(127)
-				fprintf(stderr, "The \"%s\" file is corrupted\n", MBES_VIRTUALSEVECTOR_SWAPFILE);
-				_exit(127);
-			
-			} else if (feof(fh)) {
-				end = true;
-			
-			} else if (eSize < 0) {
-				// ERROR!
-				ERRORBANNER(127)
-				fprintf(stderr, "I/O operation failed: %s", strerror(errno));
+				fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
 				_exit(127);
 				
 			} else {
+				out = buffer[2];
 				buffer[2] = '\0';
-				if (strcmp(buffer, code) == 0) {
-					if (buffer[3] == '0')
-						out = 0;
-					else if (buffer[3] == '1')
-						out = 1;
-					else {
-						// ERROR!
-						ERRORBANNER(127)
-						fprintf(stderr, "Corrupted file\n");
-						_exit(127);
-					}
-					break;
-				}
+				if (strcmp(buffer, code) == 0) break;
 			}
 		}
 		
-		// Memory releasing
-		free(buffer);
-		
 		// File unlocking
-		if (flock(fileno(fh), LOCK_UN) < 0) {
+		if (flock(fd, LOCK_UN) < 0) {
 			// ERROR!
 			ERRORBANNER(127)
 			fprintf(
@@ -182,7 +230,7 @@ static bool _getPinValue (const char *code) {
 	}
 #endif
 
-	return((out > 0) ? true : false);
+	return((bool)out);
 }
 
 
@@ -198,16 +246,6 @@ static void _timer_init() {
 	TCCR1B &= ~((1 << WGM12) | (1 << WGM13));
 	
 #else
-	struct sigevent sigEvent;
-	
-	memset(&sigEvent, 0, sizeof(struct sigevent));
-	sigEvent.sigev_notify = SIGEV_NONE;
-	
-	if (timer_create(CLOCK_MONOTONIC, &sigEvent, &timerId) != 0) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf (stderr, "POSIX timer creation failed: %s\n", strerror(errno));
-	}
 #endif
 	
 	isInitialized = true;
@@ -224,19 +262,8 @@ static void _timer_reset() {
 #if MOCK == 0
 	TCCR1B &= ~((1 << CS12) | (1 << CS11) | (1 << CS10)); // Prescaler == 0 --> timer stopped (disabled)
 	TCNT1 = 0;
-	
 #else
-	struct itimerspec newdl;
-	newdl.it_interval.tv_sec  = 0;
-	newdl.it_interval.tv_nsec = 0;
-	newdl.it_value.tv_sec  = 0;
-	newdl.it_value.tv_nsec = 0;
-	
-	if (timer_settime(timerId, 0, &newdl, NULL) < 0) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf (stderr, "Stopping and resetting POSIX timer failed: %s\n", strerror(errno));
-	}
+	wTimer(RESET);
 #endif
 
 	return;
@@ -251,15 +278,8 @@ static void _timer_start() {
 #if MOCK == 0
 	TCCR1B |= (1 << CS12) | (1 << CS10);
 	TCCR1B &= ~(1 << CS11);
-	
 #else
-	struct itimerspec newdl;
-	newdl.it_interval.tv_sec  = 1;
-	newdl.it_interval.tv_nsec = 0;
-	newdl.it_value.tv_sec  = 0;
-	newdl.it_value.tv_nsec = 1000000;
-	
-	timer_settime(timerId, 0, &newdl, NULL);
+	wTimer(START);
 #endif
 	return;
 }
@@ -271,23 +291,7 @@ static uint16_t _timer_gettime() {
 	//	It return the current timer's value
 	//
 #if MOCK == 1
-	struct itimerspec t;
-	uint16_t          out;
-	
-	if (timer_gettime(timerId, &t) < 0) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf (stderr, "POSIX timer reading failed: %s\n", strerror(errno));
-	
-	} else if (t.it_value.tv_sec > 0) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf (stderr, "Timer overflow!!\n");
-	
-	} else
-		out = (t.it_value.tv_nsec/1000000); // It converts it from nanoseconds to milliseconds
-	
-	return(out);
+	return(wTimer(GET));
 #else
 	return(TCNT1);
 #endif
@@ -303,8 +307,7 @@ void mbesSelector_shutdown() {
 	//	It close files and release resources, you should call it at the end of the test
 	//	It has neaning JUST in (MOCK=1) test mode!!
 	//
-	fclose(fh);
-	timer_delete(timerId);
+	close(fd);
 }
 #endif
 
@@ -321,7 +324,7 @@ void mbesSelector_init (struct mbesSelector *item, selectorType type, const char
 
 #if MOCK == 1
 		// Virtual selectors file opening
-		if ((fh = fopen(MBES_VIRTUALSEVECTOR_SWAPFILE, "r")) && fh == NULL) {
+		if ((fd = open(MBES_VIRTUALSEVECTOR_SWAPFILE, O_RDONLY)) && fd < 0) {
 			// ERROR!
 			ERRORBANNER(127)
 			fprintf(stderr, "I cannot open the \"%s\" file\n", MBES_VIRTUALSEVECTOR_SWAPFILE);
@@ -377,7 +380,12 @@ void mbesSelector_update (struct mbesSelector *item) {
 		// The button/switch... has been pressed/activated
 		//
 		if (_getPinValue(item->pin) == false) {
+#if MOCK == 0
 			logMsg("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
+			MYSYSLOG(LOG_INFO, "Active timers: %d\n", timerAvailabilityCounter);
+#endif
 			timerAvailabilityCounter++;
 			if (_timer_gettime() == 0) {
 				// Nobody is using the timer, I started it
@@ -399,13 +407,19 @@ void mbesSelector_update (struct mbesSelector *item) {
 		// The button/switch... is ready to be released/deactivated
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+#if MOCK == 0
 			logMsg("Selector on pin-%s: ACTIVE\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "Selector on pin-%s: ACTIVE\n", item->pin);
+			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+#endif
 			timerAvailabilityCounter--;
 			if (timerAvailabilityCounter == 0) _timer_reset();
 			item->fsm    = 3;
 			// item->status is still true;
 		}
-	
+		MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
+		
 	} else if (item->fsm == 3) {
 		// The selector is ready to be released/switched-off
 		// New activities will be acknowledged
@@ -426,11 +440,19 @@ void mbesSelector_update (struct mbesSelector *item) {
 				item->myTime = _timer_gettime();
 			}
 			if (item->devType == HOLDBUTTON) {
+#if MOCK == 0
 				logMsg("The hold-button (pin-%s) has been RELEASED\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "The hold-button (pin-%s) has been RELEASED\n", item->pin);
+#endif
 				item->fsm = 4;
 				// item->status is still true (GND)
 			} else {
+#if MOCK == 0
 				logMsg("The button/switch (pin-%s) has been RELEASED/SWITCHED-OFF\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "The button/switch (pin-%s) has been RELEASED/SWITCHED-OFF\n", item->pin);
+#endif
 				item->fsm    = 14;
 				item->status = false;
 			}
@@ -444,13 +466,19 @@ void mbesSelector_update (struct mbesSelector *item) {
 		// The button/switch... is ready to be pressed/activated, again
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+#if MOCK == 0
 			logMsg("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "Selector on pin-%s: NOT-ACTIVE\n", item->pin);
+			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+#endif
 			timerAvailabilityCounter--;
 			if (timerAvailabilityCounter == 0) _timer_reset();
 			item->fsm = 1;
 			// item->status is still false (VCC)
 		}
-	
+
+		MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
 	 
 	} else if (item->fsm == 4) {
 		// If the object is in this state, then the associated selector is an hold-button and it has been released.
@@ -460,7 +488,11 @@ void mbesSelector_update (struct mbesSelector *item) {
 		// The button/switch... is ready to be pressed/activated, again
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+#if MOCK == 0
 			logMsg("Selector on pin-%s is active and available\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "Selector on pin-%s is active and available\n", item->pin);
+#endif
 			timerAvailabilityCounter--;
 			if (timerAvailabilityCounter == 0) _timer_reset();
 			item->fsm = 5;
@@ -472,7 +504,11 @@ void mbesSelector_update (struct mbesSelector *item) {
 		// New activities will be acknowledged
 	
 		if (_getPinValue(item->pin) == false) {
+#if MOCK == 0
 			logMsg("The hols-button (pin-%s) has been pushed again\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "The hols-button (pin-%s) has been pushed again\n", item->pin);
+#endif
 			timerAvailabilityCounter++;
 			if (_timer_gettime() == 0) {
 				// Nobody is using the timer, I started it
@@ -491,7 +527,11 @@ void mbesSelector_update (struct mbesSelector *item) {
 		// The selector will be disabled for a time slot
 		
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+#if MOCK == 0
 			logMsg("Selector on pin-%s is NOT-ACTIVE and available\n", item->pin);
+#else
+			MYSYSLOG(LOG_INFO, "Selector on pin-%s is NOT-ACTIVE and available\n", item->pin);
+#endif
 			timerAvailabilityCounter--;
 			if (timerAvailabilityCounter == 0) _timer_reset();
 			item->fsm = 1;
