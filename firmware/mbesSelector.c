@@ -32,11 +32,8 @@
 ------------------------------------------------------------------------------------------------------------------------------*/
 
 #if MOCK == 1
-#include <sys/file.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -46,7 +43,7 @@
 #include <string.h>
 #include <syslog.h>
 #include <sys/time.h>
-#include <debugTools.h>
+#include <syslog.h>
 
 # else
 #include <avr/io.h>
@@ -55,9 +52,11 @@
 //
 // Project's libraries
 //
+#include <debugTools.h>
 #include "mbesMock.h"
 #include "mbesUtilities.h"
 #include "mbesSelector.h"
+
 
 #if MOCK == 1
 typedef enum _timer_cmd {
@@ -65,8 +64,6 @@ typedef enum _timer_cmd {
 	RESET,
 	START
 } timer_cmd;
-
-static int fd = 0;
 #endif
 
 static uint8_t timerAvailabilityCounter = 0;
@@ -76,22 +73,8 @@ static bool    isInitialized            = false;
 //------------------------------------------------------------------------------------------------------------------------------
 //                                     P R I V A T E   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
+
 #if MOCK == 1
-int ubRead (void *bytes, uint8_t size) {
-	int     tot = 0;
-	uint8_t part = 1;
-	void    *ptr = NULL;
-
-	while (part > 0 && tot < size) {
-		ptr = ((void*)bytes + tot);
-		part = read(fd, ptr, (size - tot));
-		if (part < 0) tot = -1;
-		else          tot = tot + part;
-	}
-	return(tot);
-}
-
-
 int wTimer (timer_cmd cmd) {
 	//
 	// Description:
@@ -144,93 +127,6 @@ static void _pullUpEnabling (const char *code) {
 #endif
 
 	return;
-}
-
-
-static bool _getPinValue (const char *code) {
-	//
-	// Description:
-	//	It returns the argument defined input pin's value
-	//
-	// Returned value:
-	//	true ---> pin=1 ---> button/switch = VCC ---> button = RFELEASED
-	//	false --> pin=0 ---> button/switch = GND ---> button = PUSHED
-	//
-	char    port;
-	uint8_t pinNumber;
-	uint8_t out = 0;
-
-	codeConverter(code, &port, &pinNumber);
-	
-#if MOCK == 0
-	if      (port == 'A') out = (PINA & (1 << pinNumber));
-	else if (port == 'B') out = (PINB & (1 << pinNumber));
-	else if (port == 'C') out = (PINC & (1 << pinNumber));
-	else if (port == 'D') out = (PIND & (1 << pinNumber));
-	else {
-		// ERROR!
-		logMsg("ERROR(%d)! \"%c\" is not a valid port\n", __LINE__, port);
-	}
-
-#else
-	uint8_t numOfRec = 0;
-	
-	// File locking
-	if (flock(fd, LOCK_EX) < 0) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf(
-			stderr, "I cannot lock the \"%s\" file, because flock() syscall failed: %s\n", 
-			MBES_VIRTUALSEVECTOR_SWAPFILE, strerror(errno)
-		);
-		_exit(127);
-	
-	// Rewind...
-	} else if (lseek(fd, 0, SEEK_SET) < 0) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf(stderr, "I cannot rewind the file; %s\n", strerror(errno));
-		_exit(127);
-		
-	// Data size reading
-	} else if (ubRead(&numOfRec, 1) != 1) {
-		// ERROR!
-		ERRORBANNER(127)
-		fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
-		_exit(127);
-		
-	} else {
-		char buffer[3];
-		
-		// Data reading
-		for (uint8_t t=0; t<numOfRec; t++) {
-			if (ubRead(buffer, 3) != 3) {
-				// ERROR!
-				ERRORBANNER(127)
-				fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
-				_exit(127);
-				
-			} else {
-				out = buffer[2];
-				buffer[2] = '\0';
-				if (strcmp(buffer, code) == 0) break;
-			}
-		}
-		
-		// File unlocking
-		if (flock(fd, LOCK_UN) < 0) {
-			// ERROR!
-			ERRORBANNER(127)
-			fprintf(
-				stderr, "I cannot unlock the \"%s\" file, because flock() syscall failed: %s\n",
-				MBES_VIRTUALSEVECTOR_SWAPFILE, strerror(errno)
-			);
-			_exit(127);
-		}
-	}
-#endif
-
-	return((bool)out);
 }
 
 
@@ -300,16 +196,6 @@ static uint16_t _timer_gettime() {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                           P U B L I C   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
-#if MOCK == 1
-void mbesSelector_shutdown() {
-	//
-	// Decription:
-	//	It close files and release resources, you should call it at the end of the test
-	//	It has neaning JUST in (MOCK=1) test mode!!
-	//
-	close(fd);
-}
-#endif
 
 void mbesSelector_init (struct mbesSelector *item, selectorType type, const char *pin) {
 	//
@@ -321,17 +207,6 @@ void mbesSelector_init (struct mbesSelector *item, selectorType type, const char
 	if (isInitialized == false) {
 		logMsg("mbesSelector module initialization...\n");
 		_timer_init();
-
-#if MOCK == 1
-		// Virtual selectors file opening
-		if ((fd = open(MBES_VIRTUALSEVECTOR_SWAPFILE, O_RDONLY)) && fd < 0) {
-			// ERROR!
-			ERRORBANNER(127)
-			fprintf(stderr, "I cannot open the \"%s\" file\n", MBES_VIRTUALSEVECTOR_SWAPFILE);
-			_exit(127);
-		}
-#endif
-		
 	}
 	
 	// PINs direction setting
@@ -379,7 +254,7 @@ void mbesSelector_update (struct mbesSelector *item) {
 		//
 		// The button/switch... has been pressed/activated
 		//
-		if (_getPinValue(item->pin) == false) {
+		if (getPinValue(item->pin) == false) {
 #if MOCK == 0
 			logMsg("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
 #else
@@ -416,8 +291,10 @@ void mbesSelector_update (struct mbesSelector *item) {
 			timerAvailabilityCounter--;
 			item->fsm    = 3;
 			// item->status is still true;
-		} else
+		} else {
 			MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
+		}
+		
 		
 	} else if (item->fsm == 3) {
 		// The selector is ready to be released/switched-off
@@ -426,7 +303,7 @@ void mbesSelector_update (struct mbesSelector *item) {
 		//
 		// Selector releasing...
 		//
-		if (_getPinValue(item->pin) == true) {
+		if (getPinValue(item->pin) == true) {
 			timerAvailabilityCounter++;
 			if (_timer_gettime() == 0) {
 				// Nobody is using the timer, I started it
@@ -475,7 +352,7 @@ void mbesSelector_update (struct mbesSelector *item) {
 	} else if (item->fsm == 4) {
 		// The hold-button has been pressed fot the second tine
 		//
-		if (_getPinValue(item->pin) == false) {
+		if (getPinValue(item->pin) == false) {
 #if MOCK == 0
 			logMsg("Selector on pin-%s: HOLD-BUTTON pushed again\n", item->pin);
 #else
@@ -518,7 +395,7 @@ void mbesSelector_update (struct mbesSelector *item) {
 	} else if (item->fsm == 6) {
 		// The hold-button has been released for the second tine
 		//
-		if (_getPinValue(item->pin) == true) {
+		if (getPinValue(item->pin) == true) {
 #if MOCK == 0
 			logMsg("Selector on pin-%s: HOLD-BUTTON released again\n", item->pin);
 #else
@@ -550,9 +427,9 @@ void mbesSelector_update (struct mbesSelector *item) {
 			timerAvailabilityCounter--;
 			item->fsm    = 1;
 			// item->status is still false;
-		} else
+		} else {
 			MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
-			
+		}
 	}
 	
 	if (timerAvailabilityCounter == 0) _timer_reset();

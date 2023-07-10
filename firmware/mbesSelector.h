@@ -32,6 +32,9 @@
 #ifndef MBESSELECTOR
 #define MBESSELECTOR
 
+#include <stdbool.h>
+#include <stdint.h>
+
 #define MBESSELECTOR_DEBOUNCETIME 100
 
 typedef enum _selectorType {
@@ -51,10 +54,6 @@ struct mbesSelector {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
-#if MOCK == 1
-void mbesSelector_shutdown();
-#endif
-
 void mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
 bool mbesSelector_get     (struct mbesSelector item);
 void mbesSelector_update  (struct mbesSelector *item);

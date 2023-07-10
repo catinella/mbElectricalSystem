@@ -31,12 +31,11 @@
 #ifndef MBESUTILITIES
 #define MBESUTILITIES
 
-#include "mbesMock.h"
+#include <mbesMock.h>
 #include <stdarg.h>
-
-#if MOCK == 1
 #include <stdint.h>
-#endif
+#include <stdbool.h>
+
 
 #ifndef DEBUG
 #define DEBUG 1
@@ -47,9 +46,18 @@ typedef enum _mbesPinDir {
 	OUTPUT
 } mbesPinDir;
 
+//------------------------------------------------------------------------------------------------------------------------------
+//                                                  F U N C T I O N S 
+//------------------------------------------------------------------------------------------------------------------------------
+
+#if MOCK == 1
+void mbesSelector_shutdown();
+void mbesUtilities_init();
+#endif
 
 void logMsg               (const char *fmt, ...);
 void codeConverter        (const char *code, char *port, uint8_t *pinNumber);
 void pinDirectionRegister (const char *code, mbesPinDir dir);
+bool getPinValue          (const char *code);
 
 #endif

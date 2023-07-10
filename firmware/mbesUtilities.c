@@ -28,15 +28,70 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include "mbesUtilities.h"
-#include "mbesSerialConsole.h"
+#include <mbesUtilities.h>
+#include <mbesSerialConsole.h>
+#include <mbesMock.h>
 #include <stdio.h>
 
 #if MOCK == 0
 #include <avr/io.h>
 
 #else
-#include <stdbool.h>
+#include <debugTools.h>
+#include <sys/file.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+
+static int fd = 0;
+
+#endif
+
+#if MOCK == 1
+static int _ubRead (void *bytes, uint8_t size) {
+	int     tot = 0;
+	uint8_t part = 1;
+	void    *ptr = NULL;
+
+	while (part > 0 && tot < size) {
+		ptr = ((void*)bytes + tot);
+		part = read(fd, ptr, (size - tot));
+		if (part < 0) tot = -1;
+		else          tot = tot + part;
+	}
+	return(tot);
+}
+#endif
+
+//------------------------------------------------------------------------------------------------------------------------------
+//                                           P U B L I C   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+#if MOCK == 1
+void mbesSelector_shutdown() {
+	//
+	// Decription:
+	//	It close files and release resources, you should call it at the end of the test
+	//	It has neaning JUST in (MOCK=1) test mode!!
+	//
+	close(fd);
+	return;
+}
+
+void mbesUtilities_init() {
+	//
+	// Description:
+	//	In order to stubb the PINs reading function, every virtual pin's value is acnowledged by a data-file. The file
+	//	is filled by an external process (virtualSelectors), asyncronously. The file has to be opened (and closed) only one
+	//	 time.
+	//
+	if ((fd = open(MBES_VIRTUALSEVECTOR_SWAPFILE, O_RDONLY)) && fd < 0) {
+		// ERROR!
+		ERRORBANNER(127)
+		fprintf(stderr, "I cannot open the \"%s\" file\n", MBES_VIRTUALSEVECTOR_SWAPFILE);
+		_exit(127);
+	}
+	return;
+}
 #endif
 
 void logMsg (const char *fmt, ...) {
@@ -120,7 +175,7 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	char    port;
 	uint8_t pinNumber;
 	
-	_codeConverter(code, &port, &pinNumber);
+	codeConverter(code, &port, &pinNumber);
 	if      (port == 'A' && dir == OUTPUT)  DDRA |=  (1 << pinNumber);
 	else if (port == 'A')                   DDRA &= ~(1 << pinNumber);
 	else if (port == 'B' && dir == OUTPUT)  DDRB |=  (1 << pinNumber);
@@ -137,4 +192,90 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	return;
 }
 
+
+bool getPinValue (const char *code) {
+	//
+	// Description:
+	//	It returns the argument defined input pin's value
+	//
+	// Returned value:
+	//	true ---> pin=1 ---> button/switch = VCC ---> button = RFELEASED
+	//	false --> pin=0 ---> button/switch = GND ---> button = PUSHED
+	//
+	char    port;
+	uint8_t pinNumber;
+	uint8_t out = 0;
+
+	codeConverter(code, &port, &pinNumber);
+	
+#if MOCK == 0
+	if      (port == 'A') out = (PINA & (1 << pinNumber));
+	else if (port == 'B') out = (PINB & (1 << pinNumber));
+	else if (port == 'C') out = (PINC & (1 << pinNumber));
+	else if (port == 'D') out = (PIND & (1 << pinNumber));
+	else {
+		// ERROR!
+		logMsg("ERROR(%d)! \"%c\" is not a valid port\n", __LINE__, port);
+	}
+
+#else
+	uint8_t numOfRec = 0;
+	
+	// File locking
+	if (flock(fd, LOCK_EX) < 0) {
+		// ERROR!
+		ERRORBANNER(127)
+		fprintf(
+			stderr, "I cannot lock the \"%s\" file, because flock() syscall failed: %s\n", 
+			MBES_VIRTUALSEVECTOR_SWAPFILE, strerror(errno)
+		);
+		_exit(127);
+	
+	// Rewind...
+	} else if (lseek(fd, 0, SEEK_SET) < 0) {
+		// ERROR!
+		ERRORBANNER(127)
+		fprintf(stderr, "I cannot rewind the file; %s\n", strerror(errno));
+		_exit(127);
+		
+	// Data size reading
+	} else if (_ubRead(&numOfRec, 1) != 1) {
+		// ERROR!
+		ERRORBANNER(127)
+		fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
+		_exit(127);
+		
+	} else {
+		char buffer[3];
+		
+		// Data reading
+		for (uint8_t t=0; t<numOfRec; t++) {
+			if (_ubRead(buffer, 3) != 3) {
+				// ERROR!
+				ERRORBANNER(127)
+				fprintf(stderr, "I/O operation failed: %s\n", strerror(errno));
+				_exit(127);
+				
+			} else {
+				out = buffer[2];
+				buffer[2] = '\0';
+				if (strcmp(buffer, code) == 0) break;
+			}
+		}
+		
+		// File unlocking
+		if (flock(fd, LOCK_UN) < 0) {
+			// ERROR!
+			ERRORBANNER(127)
+			fprintf(
+				stderr, "I cannot unlock the \"%s\" file, because flock() syscall failed: %s\n",
+				MBES_VIRTUALSEVECTOR_SWAPFILE, strerror(errno)
+			);
+			_exit(127);
+		}
+	}
+#endif
+
+	return((bool)out);
+}
 

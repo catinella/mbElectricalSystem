@@ -87,8 +87,11 @@
 
 #include <avr/io.h>
 #include <stdlib.h>
-#include "mbesUtilities.h"
-#include "mbesSerialConsole.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <mbesUtilities.h>
+#include <mbesSerialConsole.h>
+#include <mbesSelector.h>
 
 //
 // PINs declaration
@@ -142,7 +145,7 @@
 uint16_t ADC_read (const char *code) {
 	//
 	// Description:
-	//	It selects the argument defined channel and converts the voltage analog-value on that channel
+	//	It _selects the argument defined channel and converts the voltage analog-value on that channel
 	//
 	//	ADMUX register:
 	//		+-------+-------+-------+------+------+------+------+------+
@@ -154,11 +157,11 @@ uint16_t ADC_read (const char *code) {
 	//		ADLAR==1            ---> left giustified result
 	//
 	uint8_t pinNumber;
-	_codeConverter(code, NULL, &pinNumber);
+	codeConverter(code, NULL, &pinNumber);
 
 	if (pinNumber < ACHANS_NUMBER) {
 		ADMUX &= 0x20;                 // ADMUX register initialization
-		ADMUX |= pinNumber;              // Analog channel selection
+		ADMUX |= pinNumber;              // Analog channel _selection
 	
 		ADCSRA |= (1 << ADSC);         // Convertion starting...
 
@@ -196,7 +199,7 @@ void setPinValue (const char *code, uint8_t value) {
 	char    port;
 	uint8_t pinNumber;
 
-	_codeConverter(code, &port, &pinNumber);
+	codeConverter(code, &port, &pinNumber);
 
 	if      (port == 'A' && value) PORTA |=  (1 << pinNumber);
 	if      (port == 'A')          PORTA &= ~(1 << pinNumber);
@@ -213,33 +216,25 @@ void setPinValue (const char *code, uint8_t value) {
 	return;
 }
 
-//-------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------
 //                                                      M A I N
-//-------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------
 
-void main(void) {
-	uint8_t  loop                  = 1; // It enables the main loop (Just for future applications)
-	uint8_t  ready_flag            = 0; // When the flag is true (1), the motorbike is ready to accept commands
-	uint8_t  decompress_flag       = 0; // It is set when the decompressor lever has been pulled
-	uint8_t  engstart_flag         = 1; // It means the driver is pushing the start button and the electric engine is running
-	uint16_t startButtonDebouncing = 0; // It is the counter used to manage the start button bebouncing event
+int main(void) {
+	uint8_t  loop             = 1; // It enables the main loop (Just for future applications)
+	uint8_t  ready_flag       = 0; // When the flag is true (1), the motorbike is ready to accept commands
+	uint8_t  FSM              = 0;
+	
+	struct mbesSelector 
+		leftArr_sel, rightArr_sel, dLight_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel,
+		 engOn_sel
+	;
 	
 	//
 	// PINs direction setting
 	//
 	pinDirectionRegister(i_NEUTRAL,     INPUT);
-	pinDirectionRegister(i_LEFTARROW,   INPUT);
-	pinDirectionRegister(i_DOWNLIGHT,   INPUT);
-	pinDirectionRegister(i_UPLIGHT,     INPUT);
-	pinDirectionRegister(i_RIGHTARROW,  INPUT);
-	pinDirectionRegister(i_HORN,        INPUT);
 	pinDirectionRegister(i_BIKESTAND,   INPUT);
-	pinDirectionRegister(i_STARTBUTTON, INPUT);
-	pinDirectionRegister(i_ENGINEON,    INPUT);
-	pinDirectionRegister(i_DECOMPRESS,  INPUT);
-	pinDirectionRegister(i_ADDLIGHT,    INPUT);
-	pinDirectionRegister(i_LIGHTONOFF,  INPUT);
-
 	pinDirectionRegister(o_ENGINEOFF,   OUTPUT);
 	pinDirectionRegister(o_ENGINEREADY, OUTPUT);
 	pinDirectionRegister(o_NEUTRAL,     OUTPUT);
@@ -251,6 +246,22 @@ void main(void) {
 	pinDirectionRegister(o_HORN,        OUTPUT);
 	pinDirectionRegister(o_KEEPALIVE,   OUTPUT);
 	pinDirectionRegister(o_STARTENGINE, OUTPUT);
+	
+	
+	//
+	// _selectors initialization
+	//
+	mbesSelector_init(&horn_sel,     BUTTON, i_HORN);
+	mbesSelector_init(&engStart_sel, BUTTON, i_STARTBUTTON);
+	mbesSelector_init(&decomp_sel,   BUTTON, i_DECOMPRESS);
+	mbesSelector_init(&leftArr_sel,  SWITCH, i_LEFTARROW);
+	mbesSelector_init(&dLight_sel,   SWITCH, i_DOWNLIGHT);
+	mbesSelector_init(&uLight_sel,   SWITCH, i_UPLIGHT);
+	mbesSelector_init(&rightArr_sel, SWITCH, i_RIGHTARROW);
+	mbesSelector_init(&addLight_sel, SWITCH, i_ADDLIGHT);
+	mbesSelector_init(&light_sel,    SWITCH, i_LIGHTONOFF);
+	mbesSelector_init(&engOn_sel,    SWITCH, i_ENGINEON);
+
 	
 
 	//
@@ -298,21 +309,23 @@ void main(void) {
 			//
 			// Lights and horn
 			//
-			setPinValue(o_UPLIGHT,     !(getPinValue(i_UPLIGHT)));
-			setPinValue(o_DOWNLIGHT,   !(getPinValue(i_DOWNLIGHT)));
-			setPinValue(o_HORN,        !(getPinValue(i_HORN)));
-			setPinValue(o_ADDLIGHT,    !(getPinValue(i_ADDLIGHT)));
-			setPinValue(o_NEUTRAL,     !(getPinValue(i_NEUTRAL)));
+			if (mbesSelector_get(light_sel)) {
+				setPinValue(o_DOWNLIGHT, mbesSelector_get(dLight_sel));
+				setPinValue(o_UPLIGHT,   mbesSelector_get(uLight_sel));
+			}
+			setPinValue(o_HORN,     mbesSelector_get(horn_sel));
+			setPinValue(o_ADDLIGHT, mbesSelector_get(addLight_sel));
+			setPinValue(o_NEUTRAL,  !(getPinValue(i_NEUTRAL)));
 
 
 			//
 			// Blinking lights
 			//
-			if (getPinValue(i_LEFTARROW)  == 0) {
+			if (mbesSelector_get(leftArr_sel)) {
 				setPinValue(o_LEFTARROW,  blink());
 				setPinValue(o_RIGHTARROW, 0);
 
-			} else if (getPinValue(i_RIGHTARROW) == 0) {
+			} else if (mbesSelector_get(rightArr_sel)) {
 				setPinValue(o_RIGHTARROW, blink());
 				setPinValue(o_LEFTARROW,  0);
 
@@ -321,53 +334,42 @@ void main(void) {
 				setPinValue(o_LEFTARROW,  0);
 			}
 			
-
-			if (getPinValue(i_ENGINEON) == 0) {
-				//
-				// "_i_ENGINEON" is enablen (0) when the switch placed in the right hand-bar is set to "RUN".
-				// In different case, It stop the engine and does not allow the motorbike engine to start or
-				// re-start.
-				//
 				
-				// Disabling CDI blocking
-				setPinValue(o_ENGINEOFF, 0);
+			// Decompressor sensor management
+			if (FSM == 1) {
+				if (mbesSelector_get(engOn_sel)) { 
+					setPinValue(o_ENGINEOFF, 0);
+					if (mbesSelector_get(decomp_sel)) FSM = 2;
+				} else
+					setPinValue(o_ENGINEOFF, 1); // 1 means eng locked
 
-				// Decompressor sensor management
-				if (getPinValue(i_DECOMPRESS) == 0) decompress_flag = 1;
 				
-				if (
-					decompress_flag &&
-					getPinValue(i_NEUTRAL)     == 0 && 
-					getPinValue(i_STARTBUTTON) == 0
-				) {
-					engstart_flag = 1;
-					decompress_flag = 0;
-					setPinValue(o_STARTENGINE, 1); // The electric starter motor is rounding!!
-				}
+			// Electric starter engine starting...
+			} else if (FSM == 2) {
+				if (mbesSelector_get(engOn_sel) == false) 
+					FSM = 1;
+					
+				else if (getPinValue(i_NEUTRAL) == 0) {
+					 // The electric starter motor is rounding!!
+					 if (mbesSelector_get(engStart_sel)) {
+						setPinValue(o_STARTENGINE, 1);
+						FSM = 3;
+					}
+				} else
+					// Electric starter engine off
+					setPinValue(o_STARTENGINE, 1);
 
-			} else {
-				decompress_flag = 0;             // it resets decompressor status
-				setPinValue(o_ENGINEREADY, 0);   // it turns-off the led indicator
-				setPinValue(o_ENGINEOFF,   1);   // it stops the motorbike engine using CDI. (paranoide option)
-			}
 
-			if (engstart_flag) {
-				// The electric starter is running...
-				if (getPinValue(i_STARTBUTTON) == 0)
-					// The button is still pressed
-					startButtonDebouncing = BUTTON_DEBOUNC;
-				else
-					// Probably the button has been released
-					startButtonDebouncing--;
-
-				if (startButtonDebouncing == 0) {
-					// OK the start button has been released
+			// Electric starter engine stopping...
+			} else if (FSM == 3) {
+				// EngOn == false
+				if (mbesSelector_get(engOn_sel) == false || mbesSelector_get(engStart_sel) == false) {
+					FSM = 1;
 					setPinValue(o_STARTENGINE, 0);
-					engstart_flag = 0;
-				}
+				}	
 			}
 		}
 	}
 
-	return;
+	return(0);
 }

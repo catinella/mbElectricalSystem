@@ -31,7 +31,7 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#define MOCK 1
+#define MOCK  1
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -39,9 +39,10 @@
 #include <signal.h>
 #include <unistd.h>
 #include <string.h>
-#include <debugTools.h>
 #include <mbesMock.h>
+#include <debugTools.h>
 #include <mbesSerialConsole.h>
+#include <mbesUtilities.h>
 #include <mbesSelector.h>
 
 
@@ -77,6 +78,7 @@ int main (int argc, char **argv) {
 	signal(SIGINT,  sigHandler);
 
 	MYSYSLOG (LOG_INFO, "========= %s =========", argv[0]);
+	mbesUtilities_init();
 
 	while (loop) {
 		for (t=0; t<6; t++) 

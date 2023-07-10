@@ -12,7 +12,10 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	
+//	This simple module tests the mbesUtilities object. 
+//
+//	[!] logMsg() function is available just in DEBUG=1 mode. So, if you cannot read the DBGTRACE debug-message, then
+//	    you have not properly set the DEBUG symbol
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -28,14 +31,18 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+#define MOCK 1
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <debugTools.h>
 #include <mbesUtilities.h>
 
 int main() {
-
-	logMsg("This is a log-message (pid=%d): \"%s\"\n", getpid(), "You should see this message");
+	DBGTRACE
+	
+	logMsg("This is a log-message. \"%s\"\n", "You should see this message");
+	logMsg("This is another log-message (pid=%d): \"%s\"\n", getpid(), "You should see this message too");
 
 	return(0);
 }
