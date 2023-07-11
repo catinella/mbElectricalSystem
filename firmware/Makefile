@@ -1,29 +1,78 @@
+#-------------------------------------------------------------------------------------------------------------------------------
+#
+#   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+# |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+# | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+# | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+# |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+#                                                                                                 |___/                       
+#
+# File:   Makefile
+#
+# Author: Silvano Catinella <catinella@yahoo.com>
+#
+# Description:
+#	This file automatize all firmware building process using AVR-GCC cross compiler.
+#	
+#	That software is available for all common operating systems (eg. Linux, Windows...) and you can download it free using
+#	the following address:
+#		https://www.microchip.com/en-us/tools-resources/develop/microchip-studio/gcc-compilers
+#	
+#	After the AVR-GCC installation, you need to create the Makefile.conf where you have to set the "AVR-GCC_HOME" symbol
+#	to the installed compiler's foder.
+#	
+#	To make your life easier, Atmel/Microchip provides device-pack files at http://packs.download.atmel.com. The files have
+#	extension .atpack but apart from that, they are just ZIP files, so you can unzip them and use them. These files contain
+#	all you need
+#
+#	You can find further information about AVR-GCC, on the following web-page: https://gcc.gnu.org/wiki/avr-gcc
+#
+# License:
+#	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
+#
+#	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+#	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+#	version.
+#
+#	This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+#	warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+#
+#	You should have received a copy of the GNU General Public License along with this program. If not, see
+#		<https://www.gnu.org/licenses/gpl-3.0.txt>.
+#
+#-------------------------------------------------------------------------------------------------------------------------------
 
-CC       = "/opt/microchip/xc8/v2.41/bin/xc8-cc"
-CLAGS    = -Wall -mcpu=ATmega16 -x c -O1 -MD -MP
-SYMBOLS  = -D__ATmega16__ -DXPRJ_default=default  
-LDFLAGS  = -Wl,--gc-sections
+CC       = $(AVR-GCC_HOME)/bin/avr-gcc
+CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
+           -funsigned-bitfields 
+SYMBOLS  = 
+LDFLAGS  = 
 
-DEVPACK  = $(MPLABX_HOME)/release/packs/Microchip/ATmega_DFP/3.0.158/xc8
-XC8FLAGS = -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char -funsigned-bitfields \
-           -mno-const-data-in-config-mapped-progmem -mconst-data-in-progmem 
-EXETYPE  = -gdwarf-3
-INCLUDE  = -I$(DEVPACK)/avr/include -I.
+INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
 
-#-MT build/default/production/mbElectricalSystem.o 
+SRCs    := $(shell ls mb[eE]*.c)
+OBJs    := $(SRCs:%.c=%.o)
+DEPs    := $(SRCs:%.c=%.d)
 
 include Makefile.conf
 
 .PHONY: clean
 
+mbElectricalSystem.hex:	$(OBJs)
+				@echo "[ LD ] $@"
+				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  $(EXETYPE) -o $@
+
 mbElectricalSystem.o:	mbElectricalSystem.c
 				@echo "[ CC ] $@"
-				@$(CC) $(CLAGS) $(XC8FLAGS) -c $< $(SYMBOLS) -mdfp="$(MPLABX_HOME)" $(EXETYPE) $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) $(XC8FLAGS) -c $< $(SYMBOLS)  $(EXETYPE) $(INCLUDE) -o $@
 
 mbes%.o:			mbes%.c mbes%.h
 				@echo "[ CC ] $@"
-				@$(CC) $(CLAGS) $(XC8FLAGS) -c $< $(SYMBOLS) -mdfp="$(MPLABX_HOME)" $(EXETYPE) -MD -MP $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) $(XC8FLAGS) -c $< $(SYMBOLS)  $(EXETYPE) $(INCLUDE) -o $@
 
 clean:
 				@echo "[CLEAN]"
-				@rm -fv *.o *.d
+				@rm -fv $(OBJs) $(DEPs)
+
+cleanall:			clean
+				@rm -fv mbElectricalSystem.hex
