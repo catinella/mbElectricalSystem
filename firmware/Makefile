@@ -43,10 +43,13 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 
 CC       = $(AVR-GCC_HOME)/bin/avr-gcc
+STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
 CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
            -funsigned-bitfields 
 SYMBOLS  = 
 LDFLAGS  = 
+
+FIRMWARE = firmware
 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
 
@@ -58,21 +61,25 @@ include Makefile.conf
 
 .PHONY: clean
 
-mbElectricalSystem.hex:	$(OBJs)
-				@echo "[ LD ] $@"
+$(FIRMWARE).strp.hex:	$(FIRMWARE).hex
+				@echo "[STRIPP] $@"
+				@$(STRIP) --strip-all $< -o $@
+
+$(FIRMWARE).hex:		$(OBJs)
+				@echo "[  LD  ] $@"
 				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  $(EXETYPE) -o $@
 
 mbElectricalSystem.o:	mbElectricalSystem.c
-				@echo "[ CC ] $@"
+				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) $(XC8FLAGS) -c $< $(SYMBOLS)  $(EXETYPE) $(INCLUDE) -o $@
 
 mbes%.o:			mbes%.c mbes%.h
-				@echo "[ CC ] $@"
+				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) $(XC8FLAGS) -c $< $(SYMBOLS)  $(EXETYPE) $(INCLUDE) -o $@
 
 clean:
-				@echo "[CLEAN]"
+				@echo "[ CLEAN ]"
 				@rm -fv $(OBJs) $(DEPs)
 
 cleanall:			clean
-				@rm -fv mbElectricalSystem.hex
+				@rm -fv $(FIRMWARE).hex $(FIRMWARE).strp.hex 
