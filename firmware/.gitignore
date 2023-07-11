@@ -1,6 +1,6 @@
-debug
-build
-dist
 nbproject
 .generated_files
 Makefile.conf
+*.o
+*.d
+*.hex
