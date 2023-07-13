@@ -44,6 +44,7 @@
 
 CC       = $(AVR-GCC_HOME)/bin/avr-gcc
 STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
+OBJCOPY  = $(AVR-GCC_HOME)/bin/avr-objcopy
 CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
            -funsigned-bitfields 
 SYMBOLS  = 
@@ -61,25 +62,39 @@ include Makefile.conf
 
 .PHONY: clean
 
-$(FIRMWARE).strp.hex:	$(FIRMWARE).hex
+all:				$(FIRMWARE).elf $(FIRMWARE).strp.elf $(FIRMWARE).hex $(FIRMWARE).strp.hex
+
+%.hex:			%.elf
+				@echo "[ HEX  ] $@"
+				@$(OBJCOPY) -O ihex $< $@
+
+%.strp.elf:			%.elf
 				@echo "[STRIPP] $@"
 				@$(STRIP) --strip-all $< -o $@
 
-$(FIRMWARE).hex:		$(OBJs)
+firmware-test.elf:	firmware-test.o
 				@echo "[  LD  ] $@"
-				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  $(EXETYPE) -o $@
+				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $<  -o $@
+
+firmware-test.o:		firmware-test.c
+				@echo "[  CC  ] $@"
+				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+
+$(FIRMWARE).elf:		$(OBJs)
+				@echo "[  LD  ] $@"
+				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
 
 mbElectricalSystem.o:	mbElectricalSystem.c
 				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) $(XC8FLAGS) -c $< $(SYMBOLS)  $(EXETYPE) $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
 mbes%.o:			mbes%.c mbes%.h
 				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) $(XC8FLAGS) -c $< $(SYMBOLS)  $(EXETYPE) $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
 clean:
 				@echo "[ CLEAN ]"
 				@rm -fv $(OBJs) $(DEPs)
 
 cleanall:			clean
-				@rm -fv $(FIRMWARE).hex $(FIRMWARE).strp.hex 
+				@rm -fv $(FIRMWARE).elf $(FIRMWARE).strp.elf $(FIRMWARE).hex $(FIRMWARE).strp.hex 
