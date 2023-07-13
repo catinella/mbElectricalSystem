@@ -41,6 +41,7 @@
 #		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 #
 #-------------------------------------------------------------------------------------------------------------------------------
+include Makefile.conf
 
 CC       = $(AVR-GCC_HOME)/bin/avr-gcc
 STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
@@ -49,20 +50,43 @@ CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-
            -funsigned-bitfields 
 SYMBOLS  = 
 LDFLAGS  = 
-
-FIRMWARE = firmware
-
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
 
-SRCs    := $(shell ls mb[eE]*.c)
-OBJs    := $(SRCs:%.c=%.o)
-DEPs    := $(SRCs:%.c=%.d)
+BUILD4MPLABX ?= 0
 
-include Makefile.conf
+ifeq ($(isDebug), "true")
+MPLABXTGTDIR ?= dist/default/debug
+MPLABXTGTFILE = firmware.debug.elf
+GDBOPT        = -g
+else
+MPLABXTGTDIR ?= dist/default/production
+MPLABXTGTFILE = firmware.production.hex
+GDBOPT        = 
+endif
 
-.PHONY: clean
+FIRMWARE = firmware
+#FIRMWARE = firmware-test
 
+# Lists
+SRCs := $(shell ls mb[eE]*.c)
+OBJs := $(SRCs:%.c=%.o)
+DEPs := $(SRCs:%.c=%.d)
+
+
+.PHONY: clean all
+
+#-------------------------------------------------------------------------------------------------------------------------------
+#                                                     R U L E S
+#-------------------------------------------------------------------------------------------------------------------------------
+ifeq ($(BUILD4MPLABX),1)
+bin_for_mplabx:		$(FIRMWARE).hex
+				echo "--->[$(isDebug)]"
+				@echo "[ COPY ] $^"
+				@test -d $(MPLABXTGTDIR) || mkdir -p $(MPLABXTGTDIR)
+				@cp -fv $< $(MPLABXTGTDIR)/firmware.production.hex
+else
 all:				$(FIRMWARE).elf $(FIRMWARE).strp.elf $(FIRMWARE).hex $(FIRMWARE).strp.hex
+endif
 
 %.hex:			%.elf
 				@echo "[ HEX  ] $@"
@@ -78,7 +102,7 @@ firmware-test.elf:	firmware-test.o
 
 firmware-test.o:		firmware-test.c
 				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) $(GDBOPT) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
 $(FIRMWARE).elf:		$(OBJs)
 				@echo "[  LD  ] $@"
@@ -86,11 +110,11 @@ $(FIRMWARE).elf:		$(OBJs)
 
 mbElectricalSystem.o:	mbElectricalSystem.c
 				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) $(GDBOPT) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
 mbes%.o:			mbes%.c mbes%.h
 				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) $(GDBOPT) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
 clean:
 				@echo "[ CLEAN ]"
@@ -100,3 +124,6 @@ cleanall:			clean
 				@for ext in elf strp.elf hex strp.hex ; do \
 					rm -fv $(FIRMWARE).$$ext firmware-test.$$ext ;\
 				done
+ifeq ($(BUILD4MPLABX),1)
+				@rm -rfv dist
+endif
