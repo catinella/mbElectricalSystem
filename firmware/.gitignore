@@ -4,3 +4,4 @@ Makefile.conf
 *.o
 *.d
 *.hex
+*.elf
