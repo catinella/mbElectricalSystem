@@ -27,6 +27,13 @@
 #
 #	You can find further information about AVR-GCC, on the following web-page: https://gcc.gnu.org/wiki/avr-gcc
 #
+#	MPLabX
+#	======
+#	In order to allow me to use the Microchip's IDE MPLabX, I have rewritten this file to generate all files with the same 
+#	(first) main rule. It is not an elegant solution but it integrate this Makefile with the MPLabX's building process, in
+#	east way. In order to enable these intergration-rules, you have to set the BUILD4MPLABX symbol to 1 in the Makefile.conf
+#	file
+#
 # License:
 #	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 #
@@ -54,16 +61,10 @@ INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
 
 BUILD4MPLABX ?= 0
 
-ifeq ($(isDebug), "true")
-MPLABXTGTDIR ?= dist/default/debug
-MPLABXTGTFILE = firmware.debug.elf
-GDBOPT        = -g
-else
-MPLABXTGTDIR ?= dist/default/production
-MPLABXTGTFILE = firmware.production.hex
-GDBOPT        = 
-endif
-
+MPLABXTGTDIR     = dist/default/production
+MPLABXTGTFILE    = firmware.production.hex
+MPLABXTGTDBGDIR  = dist/default/debug
+MPLABXTGTDBGFILE = firmware.debug.elf
 FIRMWARE = firmware
 #FIRMWARE = firmware-test
 
@@ -71,23 +72,57 @@ FIRMWARE = firmware
 SRCs := $(shell ls mb[eE]*.c)
 OBJs := $(SRCs:%.c=%.o)
 DEPs := $(SRCs:%.c=%.d)
+DBJs := $(SRCs:%.c=%-dbg.o)
 
 
+ifeq ($(BUILD4MPLABX),1)
+.PHONY: clean all-mplabx make-mplabx-dir
+else
 .PHONY: clean all
+endif
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #                                                     R U L E S
 #-------------------------------------------------------------------------------------------------------------------------------
 ifeq ($(BUILD4MPLABX),1)
-bin_for_mplabx:		$(FIRMWARE).hex
-				echo "--->[$(isDebug)]"
+all-mplabx:			$(FIRMWARE).hex $(FIRMWARE)-gdb.elf make-mplabx-dir
 				@echo "[ COPY ] $^"
-				@test -d $(MPLABXTGTDIR) || mkdir -p $(MPLABXTGTDIR)
-				@cp -fv $< $(MPLABXTGTDIR)/firmware.production.hex
+				@cp -fv $(FIRMWARE).hex      $(MPLABXTGTDIR)/$(MPLABXTGTFILE)
+				@cp -fv $(FIRMWARE)-gdb.elf  $(MPLABXTGTDBGDIR)/$(MPLABXTGTDBGFILE)
 else
-all:				$(FIRMWARE).elf $(FIRMWARE).strp.elf $(FIRMWARE).hex $(FIRMWARE).strp.hex
+all:				$(FIRMWARE).elf $(FIRMWARE).strp.elf $(FIRMWARE).hex $(FIRMWARE).strp.hex $(FIRMWARE)-gdb.elf
 endif
 
+
+firmware-test.elf:	firmware-test.o
+				@echo "[  LD  ] $@"
+				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $<  -o $@
+
+firmware-test.o:		firmware-test.c
+				@echo "[  CC  ] $@"
+				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+
+
+$(FIRMWARE)-gdb.elf:	firmware-gdb.o $(DBJs)
+				@echo "[  LD  ] $@"
+				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
+
+$(FIRMWARE).elf:		firmware.o $(OBJs)
+				@echo "[  LD  ] $@"
+				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
+
+
+firmware.o:			firmware.c
+				@echo "[  CC  ] $@"
+				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+
+firmware-gdb.o:		firmware.c
+				@echo "[  CC  ] $@"
+				@$(CC) $(CFLAGS) -g -c $< $(SYMBOLS) $(INCLUDE) -o $@
+
+#-------------------------------------------------------------------------------------------------------------------------------
+#                                              G E N E R I C   R U L E S
+#-------------------------------------------------------------------------------------------------------------------------------
 %.hex:			%.elf
 				@echo "[ HEX  ] $@"
 				@$(OBJCOPY) -O ihex $< $@
@@ -96,33 +131,31 @@ endif
 				@echo "[STRIPP] $@"
 				@$(STRIP) --strip-all $< -o $@
 
-firmware-test.elf:	firmware-test.o
-				@echo "[  LD  ] $@"
-				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $<  -o $@
-
-firmware-test.o:		firmware-test.c
-				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) $(GDBOPT) -c $< $(SYMBOLS) $(INCLUDE) -o $@
-
-$(FIRMWARE).elf:		$(OBJs)
-				@echo "[  LD  ] $@"
-				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
-
-mbElectricalSystem.o:	mbElectricalSystem.c
-				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) $(GDBOPT) -c $< $(SYMBOLS) $(INCLUDE) -o $@
-
 mbes%.o:			mbes%.c mbes%.h
 				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) $(GDBOPT) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
+
+mbes%-dbg.o:		mbes%.c mbes%.h
+				@echo "[CC-DBG] $@"
+				@$(CC) $(CFLAGS) -g -c $< $(SYMBOLS) $(INCLUDE) -o $@
+
+#-------------------------------------------------------------------------------------------------------------------------------
+#                                                  O T H E R S
+#-------------------------------------------------------------------------------------------------------------------------------
+ifeq ($(BUILD4MPLABX),1)
+make-mplabx-dir:		
+				@for dir in $(MPLABXTGTDIR) $(MPLABXTGTDBGDIR); do       \
+					echo "  + $$dir"; test -d $$dir || mkdir -p $$dir; \
+				done
+endif
 
 clean:
 				@echo "[ CLEAN ]"
-				@rm -fv $(OBJs) $(DEPs)
+				@rm -fv $(OBJs) $(DEPs) $(DBJs) firmware.o firmware-gdb.o firmware-test.o
 
 cleanall:			clean
 				@for ext in elf strp.elf hex strp.hex ; do \
-					rm -fv $(FIRMWARE).$$ext firmware-test.$$ext ;\
+					rm -fv $(FIRMWARE).$$ext firmware-test.$$ext firmware-gdb.$$ext;\
 				done
 ifeq ($(BUILD4MPLABX),1)
 				@rm -rfv dist
