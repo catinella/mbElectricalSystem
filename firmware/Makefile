@@ -97,4 +97,6 @@ clean:
 				@rm -fv $(OBJs) $(DEPs)
 
 cleanall:			clean
-				@rm -fv $(FIRMWARE).elf $(FIRMWARE).strp.elf $(FIRMWARE).hex $(FIRMWARE).strp.hex 
+				@for ext in elf strp.elf hex strp.hex ; do \
+					rm -fv $(FIRMWARE).$$ext firmware-test.$$ext ;\
+				done
