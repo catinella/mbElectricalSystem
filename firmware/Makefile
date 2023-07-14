@@ -90,7 +90,7 @@ all-mplabx:			$(FIRMWARE).hex $(FIRMWARE)-gdb.elf make-mplabx-dir
 				@cp -fv $(FIRMWARE).hex      $(MPLABXTGTDIR)/$(MPLABXTGTFILE)
 				@cp -fv $(FIRMWARE)-gdb.elf  $(MPLABXTGTDBGDIR)/$(MPLABXTGTDBGFILE)
 else
-all:				$(FIRMWARE).elf $(FIRMWARE).strp.elf $(FIRMWARE).hex $(FIRMWARE).strp.hex $(FIRMWARE)-gdb.elf
+all:				$(FIRMWARE).hex $(FIRMWARE).strp.hex $(FIRMWARE)-gdb.hex
 endif
 
 
