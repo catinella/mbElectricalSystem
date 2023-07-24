@@ -76,26 +76,29 @@
 //
 // PINs declaration
 //
+
 #define i_VX1          "A0"
 #define i_VX2          "A1"
 #define i_VY1          "A2"
 #define i_VY2          "A3"
 // ==== available ==== "A4"
 // ==== available ==== "A5"
-#define o_ENGINEOFF    "A6"
-#define i_NEUTRAL      "A7"
+#define i_SELCONFIG    "A6"
+#define i_CONFIG       "A7"
+
 
 #define i_LEFTARROW    "B0"
 #define i_DOWNLIGHT    "B1"
 #define i_UPLIGHT      "B2"
 #define i_RIGHTARROW   "B3"
 #define i_HORN         "B4"
-#define i_BIKESTAND    "B5"
-#define o_ENGINEREADY  "B6"
-#define o_NEUTRAL      "B7"
+// ===== ISP =====     "B5"
+// ===== ISP =====     "B6"
+// ===== ISP =====     "B7"
 
-// ==== available ==== "C0"
-#define i_STARTBUTTON  "C1"
+
+// ====== I2C ======   "C0"
+// ====== I2C ======   "C1"
 #define i_ENGINEON     "C2"
 #define i_DECOMPRESS   "C3"
 #define o_RIGHTARROW   "C4"
@@ -103,13 +106,24 @@
 #define i_ADDLIGHT     "C6"
 #define i_LIGHTONOFF   "C7"
 
+
 // === RXD UART ===    "D0"
 // === TXD UART ===    "D1"
-#define o_DOWNLIGHT    "D2"
-#define o_UPLIGHT      "D3"
+// ==== available ==== "D2"
+// ==== available ==== "D3"
 #define o_ADDLIGHT     "D4"
 #define o_HORN         "D5"
 #define o_KEEPALIVE    "D6"
 #define o_STARTENGINE  "D7"
+
+
+#define i_BYKESTAND    "00"
+#define o_ENGINEREADY  "01"
+#define o_NEUTRAL      "02"
+#define i_STARTBUTTON  "03"
+#define o_ENGINEON     "04"
+#define i_NEUTRAL      "05"
+#define o_DOWNLIGHT    "06"
+#define o_UPLIGHT      "07"
 
 #endif
