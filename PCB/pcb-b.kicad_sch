@@ -1373,9 +1373,6 @@
     (path "/44e17612-9f2f-476d-8e41-268bb036a54a/e7654424-157b-4875-8f8f-7dcd8cc3c1f1"
       (reference "IC3") (unit 1) (value "BDX34C") (footprint "BDX34C:TO270P460X1020X2008-3P")
     )
-    (path "/58129762-4641-4cf0-a39a-a6f0d215df4c/a502f6fe-4ba8-451d-86b0-2188f8b6020b"
-      (reference "K1") (unit 1) (value "RT42xxxx") (footprint "Relay_THT:Relay_DPDT_Schrack-RT2-FormC_RM5mm")
-    )
     (path "/44e17612-9f2f-476d-8e41-268bb036a54a/63623e10-bc2d-47dc-9455-4fd79a16df8d"
       (reference "LEDs_conn1") (unit 1) (value "Conn_01x08") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical")
     )
@@ -1573,6 +1570,9 @@
     )
     (path "/6a6e99ef-e6b2-45c4-8f90-b97eece6054b"
       (reference "U3") (unit 1) (value "L7805") (footprint "Package_TO_SOT_THT:TO-220-3_Vertical")
+    )
+    (path "/58129762-4641-4cf0-a39a-a6f0d215df4c/68e79a14-bd4d-489a-acd5-d2d2c8f96b01"
+      (reference "U4") (unit 1) (value "HK19F-DC12-SHG") (footprint "HK19F:HK19F-DC12-SHG")
     )
     (path "/7ace0198-87bb-4486-9d09-86f40ed410fe"
       (reference "USB-5V1") (unit 1) (value "Conn_01x01") (footprint "Connector_Wire:SolderWire-1.5sqmm_1x01_D1.7mm_OD3.9mm")
