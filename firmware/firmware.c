@@ -34,15 +34,29 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-
+// AVR Libraries
 #include <avr/io.h>
+#include <util/twi.h>
+
+// C standard libraries
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+
+// Progect's sub-modules
 #include <mbesUtilities.h>
 #include <mbesSerialConsole.h>
 #include <mbesSelector.h>
 #include <mbesPinsMap.h>
+
+// CPU frequency when ATmega16 uses its own internal (1Mhz) oscillator
+#define F_CPU 1000000UL
+
+// I2C serial clock frequency
+#define I2C_CLOCK_FREQ 10000UL
+
+// MCP23008XP Address
+#define MCP23008_ADDR 0x00
 
 
 #define BLINK_DELAY     4000000
@@ -147,7 +161,7 @@ int main(void) {
 	//
 	pinDirectionRegister(i_NEUTRAL,     INPUT);
 	pinDirectionRegister(i_BIKESTAND,   INPUT);
-	pinDirectionRegister(o_ENGINEOFF,   OUTPUT);
+	pinDirectionRegister(o_ENGINEON,    OUTPUT);
 	pinDirectionRegister(o_ENGINEREADY, OUTPUT);
 	pinDirectionRegister(o_NEUTRAL,     OUTPUT);
 	pinDirectionRegister(o_RIGHTARROW,  OUTPUT);
@@ -182,6 +196,32 @@ int main(void) {
 	ADCSRA = (1 << ADEN);    // A/D converter enabling
 	
 
+	// USART port initialization
+	USART_Init(9600);
+
+
+	//
+	// I2C Initialization
+	//
+	TWCR = 0x00;                            // Interrupts disabling
+	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
+	TWSR = 0x00;                            // Prescaler = 1
+	TWCR |= (1 << TWEN);                    // I2C module enabling...
+
+
+	// 
+	// MCP23008 initialization
+	//
+	{
+		uint8_t ioconValue = 0b00100000;  // Imposta il bit 6 (INTPOL) a 0
+		I2C_Start();                      // Start transmission
+		I2C_Write(MCP23008_ADDRESS << 1); // MCP23008 adderess sending with write-flag-bit set to 0
+		I2C_Write(0x05);                  // "IOCON" register selection
+		I2C_Write(ioconValue);            // "IOCON" register's value
+		I2C_Stop();                       // Stop transmission
+	}
+
+
 	//
 	// Starting conditions
 	//
@@ -193,11 +233,7 @@ int main(void) {
 	setPinValue(o_HORN,        0);
 	setPinValue(o_KEEPALIVE,   0); // IMPORTANT!!
 	setPinValue(o_STARTENGINE, 0);
-	setPinValue(o_ENGINEOFF,   1);
-
-
-	// USART port initialization
-	USART_Init(9600);
+	setPinValue(o_ENGINEON,    0);
 
 
 	while (loop) {
@@ -249,11 +285,14 @@ int main(void) {
 				
 			// Decompressor sensor management
 			if (FSM == 1) {
+				// This LED informs the biker the engine is not ready to be started
+				setPinValue(o_ENGINEREADY, 0);
+
 				if (mbesSelector_get(engOn_sel)) { 
-					setPinValue(o_ENGINEOFF, 0);
+					setPinValue(o_ENGINEON, 1);
 					if (mbesSelector_get(decomp_sel)) FSM = 2;
 				} else
-					setPinValue(o_ENGINEOFF, 1); // 1 means eng locked
+					setPinValue(o_ENGINEON, 0); // 1 means eng locked
 
 				
 			// Electric starter engine starting...
@@ -262,6 +301,9 @@ int main(void) {
 					FSM = 1;
 					
 				else if (getPinValue(i_NEUTRAL) == 0) {
+					// This LED inform the biker the engine is ready to start
+					setPinValue(o_ENGINEREADY, 1);
+
 					 // The electric starter motor is rounding!!
 					 if (mbesSelector_get(engStart_sel)) {
 						setPinValue(o_STARTENGINE, 1);
@@ -269,7 +311,7 @@ int main(void) {
 					}
 				} else
 					// Electric starter engine off
-					setPinValue(o_STARTENGINE, 1);
+					setPinValue(o_STARTENGINE, 0);
 
 
 			// Electric starter engine stopping...
