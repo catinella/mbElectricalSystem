@@ -156,9 +156,11 @@ void codeConverter (const char *code, char *port, uint8_t *pinNumber) {
 void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	//
 	// Description:
-	//	It sets the MCU's pin to function as input or output
+	//	It sets the argument defined PIN with the given direction (INPUT|OUTPUT). The PIN can belong to the MCU or an
+	//	extension I/O chip connected with I2C BUS. It the specified port is a number ([0-9]) then it will be interpretated
+	//	as the MCP23008XP address where the pin is defined.
 	//
-	//	AVR Data Direction Registers (DDR) registers:
+	//	AVR Data Directions Register (DDR):
 	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
 	//		| Register | pin7  | pin6  | pin5  | pin4  | pin3  | pin2  | pin1  | pin0  |
 	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
@@ -171,20 +173,63 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	//		bitN == 1 --> pinN = output
 	//		bitN == 0 --> pinN = input
 	//
+	//	MCP23008XP Directions register (IODIR 0x00):
+	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
+	//		| Register | pin7  | pin6  | pin5  | pin4  | pin3  | pin2  | pin1  | pin0  |
+	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
+	//		|  IODIR   | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} | {0|1} |
+	//		+----------+-------+-------+-------+-------+-------+-------+-------+-------+
+	//
+	//		bitN == 0 --> pinN = output
+	//		bitN == 1 --> pinN = input
+	//
+	//
 #if MOCK == 0
 	char    port;
 	uint8_t pinNumber;
 	
-	codeConverter(code, &port, &pinNumber);
-	if      (port == 'A' && dir == OUTPUT)  DDRA |=  (1 << pinNumber);
-	else if (port == 'A')                   DDRA &= ~(1 << pinNumber);
-	else if (port == 'B' && dir == OUTPUT)  DDRB |=  (1 << pinNumber);
-	else if (port == 'B')                   DDRB &= ~(1 << pinNumber);
-	else if (port == 'C' && dir == OUTPUT)  DDRC |=  (1 << pinNumber);
-	else if (port == 'C')                   DDRC &= ~(1 << pinNumber);
-	else if (port == 'D' && dir == OUTPUT)  DDRD |=  (1 << pinNumber);
-	else if (port == 'D')                   DDRD &= ~(1 << pinNumber);
-	else {
+	if (port == 'A') {
+		if (dir == OUTPUT) DDRA |= (1 << pinNumber);
+		else               DDRA &= ~(1 << pinNumber);
+	
+	} else if (port == 'B') {
+		if (dir == OUTPUT) DDRB |= (1 << pinNumber);
+		else               DDRB &= ~(1 << pinNumber);
+	
+	} else if (port == 'C') {
+		if (dir == OUTPUT) DDRC |= (1 << pinNumber);
+		else               DDRC &= ~(1 << pinNumber);
+	
+	} else if (port == 'D') {
+		if (dir == OUTPUT) DDRD |= (1 << pinNumber);
+		else               DDRD &= ~(1 << pinNumber);
+		
+	} else if (port >= '0' && port <= '9') {
+		uint8_t iodirValue = 0;
+		uint8_t myID = port - '0':
+		
+		// "IODIR" register selecting
+		I2C_Start();
+		I2C_Write(myID << 1);         // LSB=0 --> writing operation
+		I2C_Write(0x00);              // "IODIR" register (0x00) selection
+		
+		// "IODIR" register reading
+		I2C_Start();
+		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
+		iodirValue = I2C_Read(I2C_NACK);
+		
+		// "IODIR" register changing
+		if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber)
+		else               iodirValue |=  (1 << pinNumber);
+		
+		// "IODIR" register saving
+		I2C_Start();
+		I2C_Write(myID << 1);         // LSB=0 --> writing operation
+		I2C_Write(iodirValue);
+		
+		I2C_Stop();
+        
+	} else {
 		// ERROR!
 	}
 #endif
@@ -279,3 +324,53 @@ bool getPinValue (const char *code) {
 	return((bool)out);
 }
 
+
+uint8_t I2C_Write (uint8_t data) {
+	//
+	// Description:
+	//	It sends the argument defined byte using the I2C BUS, and returns the transmission status
+	//
+	TWDR = data;
+	TWCR = (1 << TWINT) | (1 << TWEN);
+	
+	// Waiting for the operation end
+	while (!(TWCR & (1 << TWINT)));
+	
+	return(TWSR & 0xF8);
+}
+
+
+uint8_t I2C_Read_ACK (mbesI2CopType optType) {
+	//
+	// Description:
+	//	It reads a byte from the I2C bus and returns it. 
+	//
+	if (optType == I2C_ACK)
+		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); 
+	else
+		TWCR = (1 << TWINT) | (1 << TWEN);
+		
+	// Waiting  for data cknowledge
+	while (!(TWCR & (1 << TWINT)));
+	
+	return(TWDR);
+}
+
+
+void I2C_Stop() {
+	//
+	// Description:
+	//	It seands a STOP marker to the remote device on I2C
+	//
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
+}
+
+
+void I2C_Start() {
+	//
+	// Description:
+	//	It seands a START marker to the remote device on I2C
+	//
+	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
+	while (!(TWCR & (1 << TWINT)));
+}
