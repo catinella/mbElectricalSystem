@@ -106,30 +106,6 @@ int wTimer (timer_cmd cmd) {
 #endif
 
 
-static void _pullUpEnabling (const char *code) {
-	//
-	// Description:
-	//	It enable the pull-up resistor for the argument defined input pin
-	//
-#if MOCK == 0
-	char    port;
-	uint8_t pinNumber;
-
-	codeConverter(code, &port, &pinNumber);
-	if      (port == 'A') PORTA |= (1 << pinNumber);
-	else if (port == 'B') PORTB |= (1 << pinNumber);
-	else if (port == 'C') PORTC |= (1 << pinNumber);
-	else if (port == 'D') PORTD |= (1 << pinNumber);
-	else {
-		// ERROR!
-		logMsg("ERROR(%d)! \"%c\" is not a valid port\n", __LINE__, port);
-	}
-#endif
-
-	return;
-}
-
-
 static void _timer_init() {
 	//
 	// Description:
@@ -141,9 +117,7 @@ static void _timer_init() {
 	TCCR1A &= ~((1 << WGM10) | (1 << WGM11));
 	TCCR1B &= ~((1 << WGM12) | (1 << WGM13));
 	
-#else
 #endif
-	
 	isInitialized = true;
 	
 	return;
@@ -213,7 +187,7 @@ void mbesSelector_init (struct mbesSelector *item, selectorType type, const char
 	pinDirectionRegister(pin, INPUT);
 	
 	// PullUP resistor setting
-	_pullUpEnabling(pin);
+	pullUpEnabling(pin);
 	
 	item->pin[0]  = pin[0];
 	item->pin[1]  = pin[1];
