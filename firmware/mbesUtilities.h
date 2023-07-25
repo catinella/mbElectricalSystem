@@ -42,14 +42,14 @@
 #endif
 
 typedef enum _mbesPinDir {
-	INPUT,_mbesI2CopType
+	INPUT,
 	OUTPUT
 } mbesPinDir;
 
 typedef enum _mbesI2CopType {
 	I2C_ACK,
 	I2C_NACK
-}, mbesI2CopType;
+} mbesI2CopType;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S 
@@ -63,10 +63,12 @@ void mbesUtilities_init();
 void    logMsg               (const char *fmt, ...);
 void    codeConverter        (const char *code, char *port, uint8_t *pinNumber);
 void    pinDirectionRegister (const char *code, mbesPinDir dir);
+void    pullUpEnabling       (const char *code);
 bool    getPinValue          (const char *code);
+void    setPinValue          (const char *code, uint8_t value);
 
 uint8_t I2C_Write            (uint8_t data);
-uint8_t I2C_Read_ACK         (mbesI2CopType optType);
+uint8_t I2C_Read             (mbesI2CopType optType);
 void    I2C_Stop             ();
 void    I2C_Start            ();
 

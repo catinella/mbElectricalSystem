@@ -28,13 +28,9 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesUtilities.h>
-#include <mbesSerialConsole.h>
-#include <mbesMock.h>
-#include <stdio.h>
-
 #if MOCK == 0
 #include <avr/io.h>
+#include <util/twi.h>
 
 #else
 #include <debugTools.h>
@@ -43,11 +39,26 @@
 #include <errno.h>
 #include <string.h>
 
-static int fd = 0;
-
 #endif
 
-#if MOCK == 1
+#include <mbesUtilities.h>
+#include <mbesSerialConsole.h>
+#include <mbesMock.h>
+#include <stdio.h>
+
+
+#if MOCK == 0
+//
+// I2C I/O extender MCP23008XP's regirters
+//
+#define IODIR_ADDR 0x00
+#define GPIO_ADDR  0x09
+#define GPPU_ADDR  0x06
+
+
+#else
+static int fd = 0;
+
 static int _ubRead (void *bytes, uint8_t size) {
 	int     tot = 0;
 	uint8_t part = 1;
@@ -188,30 +199,32 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	char    port;
 	uint8_t pinNumber;
 	
+	codeConverter(code, &port, &pinNumber);
+	
 	if (port == 'A') {
-		if (dir == OUTPUT) DDRA |= (1 << pinNumber);
+		if (dir == OUTPUT) DDRA |=  (1 << pinNumber);
 		else               DDRA &= ~(1 << pinNumber);
 	
 	} else if (port == 'B') {
-		if (dir == OUTPUT) DDRB |= (1 << pinNumber);
+		if (dir == OUTPUT) DDRB |=  (1 << pinNumber);
 		else               DDRB &= ~(1 << pinNumber);
 	
 	} else if (port == 'C') {
-		if (dir == OUTPUT) DDRC |= (1 << pinNumber);
+		if (dir == OUTPUT) DDRC |=  (1 << pinNumber);
 		else               DDRC &= ~(1 << pinNumber);
 	
 	} else if (port == 'D') {
-		if (dir == OUTPUT) DDRD |= (1 << pinNumber);
+		if (dir == OUTPUT) DDRD |=  (1 << pinNumber);
 		else               DDRD &= ~(1 << pinNumber);
 		
 	} else if (port >= '0' && port <= '9') {
 		uint8_t iodirValue = 0;
-		uint8_t myID = port - '0':
+		uint8_t myID = port - '0';
 		
 		// "IODIR" register selecting
 		I2C_Start();
 		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(0x00);              // "IODIR" register (0x00) selection
+		I2C_Write(IODIR_ADDR);
 		
 		// "IODIR" register reading
 		I2C_Start();
@@ -219,7 +232,7 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 		iodirValue = I2C_Read(I2C_NACK);
 		
 		// "IODIR" register changing
-		if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber)
+		if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
 		else               iodirValue |=  (1 << pinNumber);
 		
 		// "IODIR" register saving
@@ -254,11 +267,37 @@ bool getPinValue (const char *code) {
 	codeConverter(code, &port, &pinNumber);
 	
 #if MOCK == 0
-	if      (port == 'A') out = (PINA & (1 << pinNumber));
-	else if (port == 'B') out = (PINB & (1 << pinNumber));
-	else if (port == 'C') out = (PINC & (1 << pinNumber));
-	else if (port == 'D') out = (PIND & (1 << pinNumber));
-	else {
+	if (port == 'A')
+		out = (PINA & (1 << pinNumber));
+		
+	else if (port == 'B')
+		out = (PINB & (1 << pinNumber));
+	
+	else if (port == 'C')
+		out = (PINC & (1 << pinNumber));
+	
+	else if (port == 'D')
+		out = (PIND & (1 << pinNumber));
+	
+	else if (port >= '0' && port <= '9') {
+		uint8_t myID      = port - '0';
+		uint8_t gpioValue = 0;
+		
+		// "IODIR" register selecting
+		I2C_Start();
+		I2C_Write(myID << 1);         // LSB=0 --> writing operation
+		I2C_Write(GPIO_ADDR);
+		
+		// "IODIR" register reading
+		I2C_Start();
+		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
+		gpioValue = I2C_Read(I2C_NACK);
+		
+		out = gpioValue & (1 << pinNumber);
+		
+		I2C_Stop();
+		
+	} else {
 		// ERROR!
 		logMsg("ERROR(%d)! \"%c\" is not a valid port\n", __LINE__, port);
 	}
@@ -321,9 +360,110 @@ bool getPinValue (const char *code) {
 	}
 #endif
 
-	return((bool)out);
+	return(out > 0 ? true : false);
 }
 
+
+
+void pullUpEnabling (const char *code) {
+	//
+	// Description:
+	//	It enable the pull-up resistor for the argument defined input pin
+	//
+#if MOCK == 0
+	char    port;
+	uint8_t pinNumber;
+
+	codeConverter(code, &port, &pinNumber);
+	if (port == 'A')
+		PORTA |= (1 << pinNumber);
+
+	else if (port == 'B')
+		PORTB |= (1 << pinNumber);
+
+	else if (port == 'C')
+		PORTC |= (1 << pinNumber);
+
+	else if (port == 'D')
+		PORTD |= (1 << pinNumber);
+
+	else if (port >= '0' && port <= '9') {
+		uint8_t myID      = port - '0';
+		
+		// "IODIR" register selecting
+		I2C_Start();
+		I2C_Write(myID << 1);         // LSB=0 --> writing operation
+		I2C_Write(GPPU_ADDR);
+		
+		I2C_Write(1 << pinNumber);
+		
+		I2C_Stop();
+		
+	} else {
+		// ERROR!
+		logMsg("ERROR(%d)! \"%c\" is not a valid port\n", __LINE__, port);
+	}
+#endif
+
+	return;
+}
+
+
+void setPinValue (const char *code, uint8_t value) {
+	//
+	// Description:
+	//	It set the argument defined boolean value to the output pin
+	//
+	char    port;
+	uint8_t pinNumber;
+
+	codeConverter(code, &port, &pinNumber);
+
+	if (port == 'A') {
+		if (value)  PORTA |=  (1 << pinNumber);
+		else        PORTA &= ~(1 << pinNumber);
+		
+	} else if (port == 'B') {
+		if (value) PORTB |=  (1 << pinNumber);
+		else       PORTB &= ~(1 << pinNumber);
+		
+	} else if (port == 'C') {
+		if (value) PORTC |=  (1 << pinNumber);
+		else       PORTC &= ~(1 << pinNumber);
+		
+	} else if (port == 'D') {
+		if (value) PORTD |=  (1 << pinNumber);
+		else       PORTD &= ~(1 << pinNumber);
+		
+	} else if (port >= '0' && port <= '9') {
+		uint8_t myID      = port - '0';
+		uint8_t gpioValue = 0;
+		
+		// "IODIR" register selecting
+		I2C_Start();
+		I2C_Write(myID << 1);         // LSB=0 --> writing operation
+		I2C_Write(GPIO_ADDR);
+		
+		I2C_Start();
+		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
+		gpioValue = I2C_Read(I2C_NACK);
+		
+		if (value)  gpioValue |=  (1 << pinNumber);
+		else        gpioValue &= ~(1 << pinNumber);
+		
+		// "IODIR" register saving
+		I2C_Start();
+		I2C_Write(myID << 1);         // LSB=0 --> writing operation
+		I2C_Write(gpioValue);
+		
+		I2C_Stop();
+		
+	} else {
+		// ERROR!
+	}
+
+	return;
+}
 
 uint8_t I2C_Write (uint8_t data) {
 	//
@@ -340,7 +480,7 @@ uint8_t I2C_Write (uint8_t data) {
 }
 
 
-uint8_t I2C_Read_ACK (mbesI2CopType optType) {
+uint8_t I2C_Read (mbesI2CopType optType) {
 	//
 	// Description:
 	//	It reads a byte from the I2C bus and returns it. 
