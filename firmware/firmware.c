@@ -117,31 +117,6 @@ uint8_t blink() {
 }
 
 
-void setPinValue (const char *code, uint8_t value) {
-	//
-	// Description:
-	//	It set the argument defined boolean value to the output pin
-	//
-	char    port;
-	uint8_t pinNumber;
-
-	codeConverter(code, &port, &pinNumber);
-
-	if      (port == 'A' && value) PORTA |=  (1 << pinNumber);
-	if      (port == 'A')          PORTA &= ~(1 << pinNumber);
-	else if (port == 'B' && value) PORTB |=  (1 << pinNumber);
-	else if (port == 'B')          PORTB &= ~(1 << pinNumber);
-	else if (port == 'C' && value) PORTC |=  (1 << pinNumber);
-	else if (port == 'C')          PORTC &= ~(1 << pinNumber);
-	else if (port == 'D' && value) PORTD |=  (1 << pinNumber);
-	else if (port == 'D')          PORTD &= ~(1 << pinNumber);
-	else {
-		// ERROR!
-	}
-
-	return;
-}
-
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                      M A I N
 //------------------------------------------------------------------------------------------------------------------------------
@@ -160,7 +135,7 @@ int main(void) {
 	// PINs direction setting
 	//
 	pinDirectionRegister(i_NEUTRAL,     INPUT);
-	pinDirectionRegister(i_BIKESTAND,   INPUT);
+	pinDirectionRegister(i_BYKESTAND,   INPUT);
 	pinDirectionRegister(o_ENGINEON,    OUTPUT);
 	pinDirectionRegister(o_ENGINEREADY, OUTPUT);
 	pinDirectionRegister(o_NEUTRAL,     OUTPUT);
@@ -196,7 +171,9 @@ int main(void) {
 	ADCSRA = (1 << ADEN);    // A/D converter enabling
 	
 
+	//
 	// USART port initialization
+	//
 	USART_Init(9600);
 
 
@@ -215,7 +192,7 @@ int main(void) {
 	{
 		uint8_t ioconValue = 0b00100000;  // Imposta il bit 6 (INTPOL) a 0
 		I2C_Start();                      // Start transmission
-		I2C_Write(MCP23008_ADDRESS << 1); // MCP23008 adderess sending with write-flag-bit set to 0
+		I2C_Write(MCP23008_ADDR << 1);    // MCP23008 adderess sending with write-flag-bit set to 0
 		I2C_Write(0x05);                  // "IOCON" register selection
 		I2C_Write(ioconValue);            // "IOCON" register's value
 		I2C_Stop();                       // Stop transmission
