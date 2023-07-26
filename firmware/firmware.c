@@ -225,7 +225,8 @@ int main(void) {
 				// The keyword has been authenicated, you can unplug it
 				setPinValue(o_KEEPALIVE, 1);
 				ready_flag = 1;
-
+				FSM = 1;
+				
 			} else {
 				// Waiting (1ms) to prevent brutal-force attack and for analog circuit re-initialization
 			}
@@ -259,17 +260,26 @@ int main(void) {
 				setPinValue(o_LEFTARROW,  0);
 			}
 			
+			
+			//
+			// Protection by motorcycle stand down when the vehicle is running
+			//
+			if (getPinValue(i_NEUTRAL) != 0 && getPinValue(i_BYKESTAND) != 0) {
+				setPinValue(o_ENGINEON, 0);   // Engine locked by CDI
+				FSM = 1;
+			}
+				
 				
 			// Decompressor sensor management
 			if (FSM == 1) {
-				// This LED informs the biker the engine is not ready to be started
+				// When this LED is off then the engine is not ready to be started
 				setPinValue(o_ENGINEREADY, 0);
 
 				if (mbesSelector_get(engOn_sel)) { 
 					setPinValue(o_ENGINEON, 1);
 					if (mbesSelector_get(decomp_sel)) FSM = 2;
 				} else
-					setPinValue(o_ENGINEON, 0); // 1 means eng locked
+					setPinValue(o_ENGINEON, 0); // 0 means eng locked
 
 				
 			// Electric starter engine starting...
