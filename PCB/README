@@ -14,13 +14,16 @@ Description:
 Files:
 	LICENSE.txt                             This project is covered by the GPL-3. Please, read that file for further information
 	Makefile                                It allow you to create the files (es. Gebber) needed to produce the PCB (KiCAD-7)
-	mbes_front_outputs.kicad_sch            Electric schema component
-	mbes_inputs.kicad_sch                   Electric schema component
-	mbes_rear_connector.kicad_sch           Electric schema component
-	motorbike_electrical_system.kicad_pcb   The PCB
-	motorbike_electrical_system.kicad_pro   Kicad project's file
-	motorbike_electrical_system.kicad_sch   Electric schema component
 	kicad_symbols                           This folder contains all components definitions not provided by KiCAD by default
+	conn_to_pcbb.kicad_sch                  A part of PCB-a electric scheme
+	mbes_front_outputs.kicad_sch            A part of PCB-b electric scheme
+	mbes_inputs.kicad_sch                   A part of PCB-a electric scheme
+	mbes_rear_connector.kicad_sch           A part of PCB-a electric scheme
+	mbes_start_stop.kicad_sch               A part of PCB-b electric scheme
+	pcb-a.kicad_sch                         PCB-a electric scheme
+	pcb-b.kicad_sch                         PCB-b electric scheme
+	pcb-a.kicad_pcb                         PCB-a
+	pcb-b.kicad_pcb                         PCB-b
 
 
 Internals:
@@ -59,3 +62,21 @@ Internals:
 	| left_arrow  |   1A   | BDX34C  | 1.5mA | 2.5W       |   7.5mW   |
 	| right_arrow |   1A   | BDX34C  | 1.5mA | 2.5W       |   7.5mW   |
 	+-------------+--------+---------+-------+------------+-----------+
+
+
+Devices building:
+	About the PCBs creation I have used the MD srl company service. So, in order to create a copy, you can contact the company
+	(https://www.mdsrl.it) and use the following order numbers, it will allow you to save some money.
+		+-----------------+-----------+----------+---------------+
+		|       PCB       |   GIT TAG | MD order |     Price     |
+		+-----------------+-----------+----------+---------------+
+		| pcb-a.kicad_pcb | r-2.2.0-0 |  81552   | 18.9 euro * 2 |
+		+-----------------+-----------+--------------------------+
+
+	PCB building details:
+	=====================
+	In order to get a more vibrations resistant circuit,  I suggest you to print it on a 3.2mm high plate
+	
+	[!] It you are using Linux, you too, you have to remember that the PCB building company will ask you a ZIP file (not GZIP).
+	    So, after the fabric-files generation use the following command to create the zip file:
+	    	zip -r <archive name> <data folder name>
