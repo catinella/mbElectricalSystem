@@ -63,6 +63,16 @@ Internals:
 	| right_arrow |   1A   | BDX34C  | 1.5mA | 2.5W       |   7.5mW   |
 	+-------------+--------+---------+-------+------------+-----------+
 
+	In System Programming (ISP-10pin) port:
+		     +-------+
+		MOSI | 1   2 | NC
+		NC   | 3   4 | GND
+		     +-+     |
+		Reset  | 5 6 | VTG
+		     +-+     |
+		SCK  | 7   8 | GND
+		MISO | 9  10 | GND
+		     +-------+
 
 Devices building:
 	About the PCBs creation I have used the MD srl company service. So, in order to create a copy, you can contact the company
