@@ -34,6 +34,15 @@
 #	east way. In order to enable these intergration-rules, you have to set the BUILD4MPLABX symbol to 1 in the Makefile.conf
 #	file
 #
+#	Microchip's AVR Studio-6
+#	========================
+#	This version has been developed to get a firmware building tool for AVR Studio release 6 on MS-Windows (10). 
+#	After some tuning and fix I committed this Makefile, it was able to compile and build the firmware files correctly.
+#	But, I discovered AVR Studio-6 cannot detect my USB-ASP and ATMEL-ICE correctly. For this reason I migrate to the
+#	AVR Studio-7.
+#
+#
+#
 # License:
 #	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 #
