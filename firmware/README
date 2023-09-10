@@ -37,3 +37,58 @@
 		BUILD4MPLABX = {0|1}    # If it is set then the produced files will be stored in the MPLabX standard folders
 
 
+	Checking for fuses status:
+	==========================
+	In order to avoid ghost problems, it is highly recommended to check the fuses status. You can get their value using the
+	following command: make fuses-read
+
+	                +----------+---------+--------+-------+--------+---------+---------+----------+
+	Bit number:     |     7    |    6    |   5    |   4   |   3    |    2    |    1    |    0     |
+	                +----------+---------+--------+-------+--------+---------+---------+----------+
+	High fuse bits: |   OCDEN  | JTAGEN  | SPIEN  | CKOPT | EESAVE | BOOTSZ1 | BOOTSZ0 | BOOTTRST | 
+	                +----------+---------+--------+-------+--------+---------+---------+----------+
+	Low fuse bits:  | BODLEVEL |  BODEN  |  SUT1  | SUT0  | CKSEL3 |  CKSEL2 | CKSEL1  |  CKSEL0  |
+	                +----------+---------+--------+-------+--------+---------+---------+----------+
+	
+	OCDEN (On-Chip Debugging Enable)
+		The on-chip debugging is used to run the program step-by-step on hardware to study the internal signal which provides
+		the information about state of the processor. This bit is used to enable/disable the on-chip debugging.
+		If this bit is programmed (0), then the on-chip debugging is enabled.
+
+	JTAGEN (JTAG Enable)
+		There is an in-built JTAG unit in ATmega16, which is pre-activated in virgin microcontroller. To disable the JTAG,
+		JTAGEN bit should be unprogrammed (1)
+
+	SPIEN (SPI Serial Programming Enable)
+		If this bit is programmed (0), the SPI serial programming of the controller is enabled, else you cannot upload firmware
+		using SPI
+	
+	CKOPT (Clock Option)
+		This bit is combined with CKSEL [3:1] bits to select operating frequency and its mode
+
+	EESAVE (EEPROM Save)
+		This bit is used to preserve the EEPROM content during chip erase. If the fuse is programmed (0), the EEPROM preserves
+		its content else it is not preserved duringchip erase.
+	
+	BOOTSZ [1:0] (Boot Size)
+		The default value of these bits is ‘00’ which sets the boot size to 1024 words. This size is allocated from flash memory.
+		Bootloader always resides at the bottom of flash.
+
+	BOOTRST [BootLoader Reset]
+		BootLoader is a small program which is written on a specific area of the flash memory. This program executes at the boot
+		time of the controller. If BOOTRST bit is programmed (0), the device will jump on first address bootloader block.
+
+	BODLEVEL (Brown-Out Detection Level)
+		This fuse bit is used to set trigger level for BOD unit. The trigger voltage is set as 2.7 volts, if the BODLEVEL bit is
+		unprogrammed (1). If this fuse bit is programmed (0), the trigger level is set to 4.0 volts.
+
+	SUT [1:0] (Start Up Time)
+		This bit is used to set start up time of ATmega16. The combination of SUT [1:0] and CKSEL0 bits are used to select the
+		start-up time of controller.
+
+	CKSEL[3:0] (Clock Selection)
+		These bits allow you to select the oscillator frequency
+
+	Default values:
+		HI: 1 0 0 1 1 0 0 1  dec=153 hex=99
+		LO: 1 1 1 0 0 0 0 1  dec=225 hex=e1

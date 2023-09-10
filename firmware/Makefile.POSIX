@@ -76,16 +76,16 @@ DBJs := $(SRCs:%.c=%-dbg.o)
 
 
 ifeq ($(BUILD4MPLABX),1)
-.PHONY: clean all-mplabx make-mplabx-dir
+.PHONY: clean all-mplabx make-mplabx-dir erase
 else
-.PHONY: clean all
+.PHONY: clean all erase
 endif
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #                                                     R U L E S
 #-------------------------------------------------------------------------------------------------------------------------------
 ifeq ($(BUILD4MPLABX),1)
-all-mplabx:			$(FIRMWARE).hex $(FIRMWARE)-gdb.elf make-mplabx-dir
+all:				$(FIRMWARE).hex $(FIRMWARE)-gdb.elf make-mplabx-dir
 				@echo "[ COPY ] $^"
 				@cp -fv $(FIRMWARE).hex      $(MPLABXTGTDIR)/$(MPLABXTGTFILE)
 				@cp -fv $(FIRMWARE)-gdb.elf  $(MPLABXTGTDBGDIR)/$(MPLABXTGTDBGFILE)
@@ -162,6 +162,15 @@ ifeq ($(BUILD4MPLABX),1)
 endif
 
 
-install:			$(FIRMWARE).hex
-				@echo "[INSTALL]"
+install:			$(FIRMWARE).hex erase
+				@echo "[INSTALL] $<"
 				@avrdude -v -c usbasp -p m16 -P usb -U flash:w:$<
+
+erase:			
+				@echo "[ERASE] atmega16"
+				@avrdude -v -c usbasp -p m16 -P usb -e
+
+fuses-read:
+				@echo "[FUSES] atmega16"
+				@avrdude -v -c usbasp -p m16 -P usb -U hfuse:r:-:h
+				@avrdude -v -c usbasp -p m16 -P usb -U lfuse:r:-:h
