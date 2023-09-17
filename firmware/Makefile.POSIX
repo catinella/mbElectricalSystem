@@ -94,29 +94,20 @@ all:				$(FIRMWARE).hex $(FIRMWARE).strp.hex $(FIRMWARE)-gdb.hex
 endif
 
 
-firmware-test.elf:	firmware-test.o
-				@echo "[  LD  ] $@"
-				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $<  -o $@
-
-firmware-test.o:		firmware-test.c
-				@echo "[  CC  ] $@"
-				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
-
-
-$(FIRMWARE)-gdb.elf:	firmware-gdb.o $(DBJs)
+$(FIRMWARE)-gdb.elf:	$(FIRMWARE)-gdb.o $(DBJs)
 				@echo "[  LD  ] $@"
 				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
 
-$(FIRMWARE).elf:		firmware.o $(OBJs)
+$(FIRMWARE).elf:		$(FIRMWARE).o $(OBJs)
 				@echo "[  LD  ] $@"
 				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
 
 
-firmware.o:			firmware.c
+$(FIRMWARE).o:		$(FIRMWARE).c
 				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
-firmware-gdb.o:		firmware.c
+$(FIRMWARE)-gdb.o:	$(FIRMWARE).c
 				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) -g -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
@@ -151,11 +142,11 @@ endif
 
 clean:
 				@echo "[ CLEAN ]"
-				@rm -fv $(OBJs) $(DEPs) $(DBJs) firmware.o firmware-gdb.o firmware-test.o
+				@rm -fv $(OBJs) $(DEPs) $(DBJs) $(FIRMWARE).o $(FIRMWARE)-gdb.o $(FIRMWARE)-test.o
 
 cleanall:			clean
 				@for ext in elf strp.elf hex strp.hex ; do \
-					rm -fv $(FIRMWARE).$$ext firmware?-test.$$ext firmware-gdb.$$ext;\
+					rm -fv $(FIRMWARE).$$ext $(FIRMWARE)-gdb.$$ext;\
 				done
 
 ifeq ($(BUILD4MPLABX),1)
