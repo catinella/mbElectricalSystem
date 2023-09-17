@@ -9,7 +9,9 @@
 0. Files
 	debugTools.h           Useful tools for code debug activities
 	firmware.c             Firmware main file (main())
-	firmware-test.c        This firmware is an "hello-world" just for test
+	firmware0-test.c       Very basic test, it requires just a multimeter
+	firmware1-test.c       This causes an LED to flash
+	firmware2-test.c       It print "hello-world" on your serial console
 	[Makefile]             Rules to build the firmware
 	[Makefile.conf]        Makefile configuration file
 	Makefile.MSWin         Makefile for ATMEL-studio ver 6 on MS-Windows
