@@ -29,17 +29,17 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+#define F_CPU 1000000UL
+
 #include <mbesPinsMap.h>
-#include <mbesUtitities.h>
+#include <mbesUtilities.h>
 #include <avr/io.h>
+#include <util/delay.h>
 
 
 int main() {
-	char    *pin = o_KEEPALIVE;
-	
-	CLKPR = (1 << CLKPCE);  // Clock prescaling enabling
-	CLKPR = 0;              // It sets the prescaler to 1
-	
+	char *pin = o_KEEPALIVE;
+
 	while (1) {
 		setPinValue (pin, 1);
 		_delay_ms(1000);
