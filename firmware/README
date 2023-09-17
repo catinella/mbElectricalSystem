@@ -39,11 +39,13 @@
 
 	Firmware building:
 	==================
-		To build the project's firmware, use the following command:
-			......
+		For production firmware
+			make all
+			make install # For USB ASP
 
-		To build a testing firmware, use the following syntax:
-			make firmware<n>-test.c FIRMWARE=firmware<n>-test
+		For testing firmware
+			make FIRMWARE=firmware<n>-test
+			make install FIRMWARE=firmware<n>-test # For USB ASP
 
 
 	Checking for fuses status:
