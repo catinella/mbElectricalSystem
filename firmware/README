@@ -37,6 +37,15 @@
 		BUILD4MPLABX = {0|1}    # If it is set then the produced files will be stored in the MPLabX standard folders
 
 
+	Firmware building:
+	==================
+		To build the project's firmware, use the following command:
+			......
+
+		To build a testing firmware, use the following syntax:
+			make firmware<n>-test.c FIRMWARE=firmware<n>-test
+
+
 	Checking for fuses status:
 	==========================
 	In order to avoid ghost problems, it is highly recommended to check the fuses status. You can get their value using the

@@ -155,8 +155,9 @@ clean:
 
 cleanall:			clean
 				@for ext in elf strp.elf hex strp.hex ; do \
-					rm -fv $(FIRMWARE).$$ext firmware-test.$$ext firmware-gdb.$$ext;\
+					rm -fv $(FIRMWARE).$$ext firmware?-test.$$ext firmware-gdb.$$ext;\
 				done
+
 ifeq ($(BUILD4MPLABX),1)
 				@rm -rfv dist
 endif
