@@ -1,19 +1,21 @@
 /*------------------------------------------------------------------------------------------------------------------------------
 //
-//   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+//  __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
 // |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
-// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \
 // | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   mbesSerialConsole.h
+// File:   mbesHwConfig.h
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This module is responsible on the serial (USART) data exchange to/from the Microcontroller. It has been developed for
-//	debug purples, mainly.
+//	This header file contrains hardware platform dependent settings. this file should be included before any other excepts
+//	for mbesMock.h
+//
+//	F_CPU = 1000000UL (1Mhz) when you are using the internal oscillator
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -29,17 +31,10 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#ifndef MBSERIALCONSOLE
-#define MBSERIALCONSOLE
+#ifndef MBESHWCONF
+#define MBESHWCONF
 
-#include <mbesHwConfig.h>
 
-void USART_Init        (unsigned int baud_rate);
-void USART_writeChar   (char data);
-void USART_writeString (const char *msg);
-
-#if MOCK == 1
-extern void USART_close();
-#endif
+#define F_CPU 1000000UL 
 
 #endif

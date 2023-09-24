@@ -29,7 +29,7 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#define F_CPU 1000000UL
+#include <mbesHwConfig.h>
 
 #include <mbesSerialConsole.h>
 #include <avr/io.h>
@@ -37,7 +37,7 @@
 
 
 int main() {
-	USART_Init(9600);
+	USART_Init(2400);
 	
 	while (1) {
 		USART_writeString("Hello world\n");

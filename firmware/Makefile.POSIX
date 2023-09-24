@@ -103,7 +103,7 @@ $(FIRMWARE).elf:		$(FIRMWARE).o $(OBJs)
 				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
 
 
-$(FIRMWARE).o:		$(FIRMWARE).c
+$(FIRMWARE).o:		$(FIRMWARE).c mbesHwConfig.h
 				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
@@ -122,7 +122,7 @@ $(FIRMWARE)-gdb.o:	$(FIRMWARE).c
 				@echo "[STRIPP] $@"
 				@$(STRIP) --strip-all $< -o $@
 
-mbes%.o:			mbes%.c mbes%.h
+mbes%.o:			mbes%.c mbes%.h mbesHwConfig.h
 				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
