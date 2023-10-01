@@ -94,7 +94,10 @@ extern void USART_Init (unsigned int baud_rate) {
 	//	It initializes the internal USART module and sets the port speed with the argument defined value
 	//
 #if MOCK == 0
-	unsigned int ubrr = F_CPU / 16 / baud_rate - 1;
+	unsigned int ubrr;
+
+	UCSRA |= (1 << U2X);                                // UX2 bit improve the available high frequencies
+	ubrr = F_CPU / 8 / baud_rate - 1;
 	UBRRH = (unsigned char)(ubrr >> 8);                 // USART Baud Rate Register (H)
 	UBRRL = (unsigned char)ubrr;                        //   ""   ""   ""    ""     (L)
 	UCSRB = (1 << RXEN) | (1 << TXEN);                  // It enables the ATmega16 to transmit and receive data
@@ -119,6 +122,7 @@ extern void USART_writeChar (char data) {
 	//
 #if MOCK == 0
 	while (!(UCSRA & (1 << UDRE))); // Waiting for the serial channel availability
+	//UCSRA |= (1 << TXC);
 	UDR = data;
 #else
 	if (initialized == false) USART_Init(0);
