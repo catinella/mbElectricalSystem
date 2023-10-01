@@ -15,7 +15,7 @@
 //	This header file contrains hardware platform dependent settings. this file should be included before any other excepts
 //	for mbesMock.h
 //
-//	F_CPU = 1000000UL (1Mhz) when you are using the internal oscillator
+//	F_CPU = 1000000UL (1Mhz) when you are using the internal oscillator at the default frequency
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -35,6 +35,6 @@
 #define MBESHWCONF
 
 
-#define F_CPU 1000000UL 
+#define F_CPU 1000000UL
 
 #endif
