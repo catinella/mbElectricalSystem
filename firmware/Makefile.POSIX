@@ -34,6 +34,14 @@
 #	east way. In order to enable these intergration-rules, you have to set the BUILD4MPLABX symbol to 1 in the Makefile.conf
 #	file
 #
+#	{H|L}fules backup
+#	=================
+#	Because the fuses modification is always a critical one, when you dump their values, with fuses-dump rule, the procedure
+#	will also make a backup of the current data. The backup will have a progressive numerical suffix. In this way you should
+#	be able to keep track of you modifications and roll-back, eventually
+#
+#
+#
 # License:
 #	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 #
@@ -59,14 +67,13 @@ SYMBOLS  =
 LDFLAGS  = 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
 
-BUILD4MPLABX ?= 0
 
+BUILD4MPLABX    ?= 0
 MPLABXTGTDIR     = dist/default/production
 MPLABXTGTFILE    = firmware.production.hex
 MPLABXTGTDBGDIR  = dist/default/debug
 MPLABXTGTDBGFILE = firmware.debug.elf
-FIRMWARE = firmware
-#FIRMWARE = firmware-test
+
 
 # Lists
 SRCs := $(shell ls mb[eE]*.c)
@@ -76,10 +83,15 @@ DBJs := $(SRCs:%.c=%-dbg.o)
 
 
 ifeq ($(BUILD4MPLABX),1)
-.PHONY: clean all-mplabx make-mplabx-dir erase
+.PHONY: clean all-mplabx make-mplabx-dir erase fuses-h.txt fuses-l.txt
 else
-.PHONY: clean all erase
+.PHONY: clean all erase fuses-h.txt fuses-l.txt
 endif
+
+
+FIRMWARE = firmware
+SUFFX   := $(shell date +%s)
+
 
 #-------------------------------------------------------------------------------------------------------------------------------
 #                                                     R U L E S
@@ -148,6 +160,7 @@ cleanall:			clean
 				@for ext in elf strp.elf hex strp.hex ; do \
 					rm -fv $(FIRMWARE).$$ext $(FIRMWARE)-gdb.$$ext;\
 				done
+				@rm -fv fuses-[hl].txt*
 
 ifeq ($(BUILD4MPLABX),1)
 				@rm -rfv dist
@@ -162,7 +175,21 @@ erase:
 				@echo "[ERASE] atmega16"
 				@avrdude -v -c usbasp -p m16 -P usb -e
 
-fuses-read:
-				@echo "[FUSES] atmega16"
-				@avrdude -v -c usbasp -p m16 -P usb -U hfuse:r:-:h
-				@avrdude -v -c usbasp -p m16 -P usb -U lfuse:r:-:h
+fuses-h.txt:
+				@echo "[DUMP] atmega16 --> $@"
+				@avrdude -v -c usbasp -p m16 -P usb -U hfuse:r:$@:h
+
+fuses-l.txt:
+				@echo "[DUMP] atmega16 --> $@"
+				@avrdude -v -c usbasp -p m16 -P usb -U lfuse:r:$@:h
+
+
+fuses-dump:			fuses-h.txt fuses-l.txt
+				@echo "[BCKP] $^"
+				@for file in $^; do cp -v $$file $$file-$(SUFFX); done
+
+
+fuses-update:		fuses-h.txt fuses-l.txt
+				@avrdude -v -c usbasp -p m16 -P usb -U hfuse:r:$(shell cat fuses-h.txt):h
+				@avrdude -v -c usbasp -p m16 -P usb -U lfuse:r:$(shell cat fuses-l.txt):h
+
