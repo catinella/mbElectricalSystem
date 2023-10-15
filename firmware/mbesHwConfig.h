@@ -34,7 +34,10 @@
 #ifndef MBESHWCONF
 #define MBESHWCONF
 
+// External 8Mhz crystal (FUSES = "99:C4")
+//#define F_CPU 8000000UL
 
-#define F_CPU 1000000UL
+// Internal 1Mhz crystal (FUSES = "99:E1")
+#define F_CPU 8000000UL
 
 #endif
