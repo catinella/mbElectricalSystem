@@ -143,6 +143,7 @@ void logMsg (const char *fmt, ...) {
 		t++;
 	}
 	
+	USART_writeChar('\n');
 	va_end(argp);
 	
 	#endif
