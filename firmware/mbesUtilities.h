@@ -36,6 +36,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <mbesPinsMap.h>
+#include <mbesSerialConsole.h>
 
 #ifndef DEBUG
 #define DEBUG 1
@@ -64,9 +66,19 @@ void    logMsg               (const char *fmt, ...);
 void    codeConverter        (const char *code, char *port, uint8_t *pinNumber);
 void    pinDirectionRegister (const char *code, mbesPinDir dir);
 void    pullUpEnabling       (const char *code);
-bool    getPinValue          (const char *code);
-void    setPinValue          (const char *code, uint8_t value);
 
+
+//
+// I/O Functions
+//
+bool     getPinValue          (const char *code);
+void     setPinValue          (const char *code, uint8_t value);
+uint16_t ADC_read             (const char *code);
+
+
+//
+// I2C management
+//
 uint8_t I2C_Write            (uint8_t data);
 uint8_t I2C_Read             (mbesI2CopType optType);
 void    I2C_Stop             ();

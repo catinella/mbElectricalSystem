@@ -126,4 +126,8 @@
 #define i_LEFTARROW    "06"
 #define i_RIGHTARROW   "07"
 
+
+// Number of used analog input
+#define ACHANS_NUMBER   4
+
 #endif

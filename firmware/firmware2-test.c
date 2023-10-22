@@ -40,7 +40,7 @@ int main() {
 	USART_Init(2400);
 	
 	while (1) {
-		USART_writeString("Hello world\n");
+		USART_writeString("Hello world\n\r");
 		_delay_ms(1000);
 	}
 	

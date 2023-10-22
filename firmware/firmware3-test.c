@@ -30,11 +30,11 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <mbesHwConfig.h>
-
 #include <mbesUtilities.h>
+
 #include <avr/io.h>
 #include <util/delay.h>
-
+#include <stdio.h>
 
 int main() {
 	char pin[3];
@@ -45,6 +45,7 @@ int main() {
 			sprintf(pin, "A%d", t);
 			logMsg ("%s: %d", pin, ADC_read(pin));
 		}
+		USART_writeChar('\n');
 		_delay_ms(1000);
 	}
 	
