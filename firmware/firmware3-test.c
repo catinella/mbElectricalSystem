@@ -30,7 +30,7 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <mbesHwConfig.h>
-#include <mbesUtilities.h>
+#include <mbesADCengine.h>
 
 #include <avr/io.h>
 #include <util/delay.h>
