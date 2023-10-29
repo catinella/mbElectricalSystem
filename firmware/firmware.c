@@ -132,12 +132,6 @@ int main(void) {
 	
 
 	//
-	// A/D converter settings....
-	//
-	ADCSRA = (1 << ADEN);    // A/D converter enabling
-	
-
-	//
 	// USART port initialization
 	//
 	USART_Init(9600);
