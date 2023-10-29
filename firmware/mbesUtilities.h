@@ -73,7 +73,6 @@ void    pullUpEnabling       (const char *code);
 //
 bool     getPinValue          (const char *code);
 void     setPinValue          (const char *code, uint8_t value);
-uint16_t ADC_read             (const char *code);
 
 
 //

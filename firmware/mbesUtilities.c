@@ -517,33 +517,3 @@ void I2C_Start() {
 	while (!(TWCR & (1 << TWINT)));
 }
 
-
-uint16_t ADC_read (const char *code) {
-	//
-	// Description:
-	//	It _selects the argument defined channel and converts the voltage analog-value on that channel
-	//
-	//	ADMUX register:
-	//		+-------+-------+-------+------+------+------+------+------+
-	//		| REFS1 | REFS0 | ADLAR | MUX4 | MUX3 | MUX2 | MUX1 | MUX0 |
-	//		+-------+-------+-------+------+------+------+------+------+
-	//		|   0   |   0   |   1   |   0  |   0  |   0  |   0  |   0  |  Reset
-	//		+-------+-------+-------+------+------+------+------+------+
-	//		REFS1==0 & REFS0==0 ---> external volt ref
-	//		ADLAR==1            ---> left giustified result
-	//
-	uint8_t pinNumber;
-	codeConverter(code, NULL, &pinNumber);
-
-	if (pinNumber < ACHANS_NUMBER) {
-		ADMUX &= 0x20;                 // ADMUX register initialization
-		ADMUX |= pinNumber;              // Analog channel _selection
-	
-		ADCSRA |= (1 << ADSC);         // Convertion starting...
-
-		while (ADCSRA & (1 << ADSC));  // Waiting for convertion operation
-	}
-
-	return ADC;
-}
-
