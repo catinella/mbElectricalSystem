@@ -48,11 +48,6 @@ typedef enum _mbesPinDir {
 	OUTPUT
 } mbesPinDir;
 
-typedef enum _mbesI2CopType {
-	I2C_ACK,
-	I2C_NACK
-} mbesI2CopType;
-
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -74,13 +69,5 @@ void    pullUpEnabling       (const char *code);
 bool     getPinValue          (const char *code);
 void     setPinValue          (const char *code, uint8_t value);
 
-
-//
-// I2C management
-//
-uint8_t I2C_Write            (uint8_t data);
-uint8_t I2C_Read             (mbesI2CopType optType);
-void    I2C_Stop             ();
-void    I2C_Start            ();
 
 #endif

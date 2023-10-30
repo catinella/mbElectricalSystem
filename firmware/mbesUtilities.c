@@ -31,6 +31,7 @@
 #if MOCK == 0
 #include <avr/io.h>
 #include <util/twi.h>
+#include <mbesI2C.h>
 
 #else
 #include <debugTools.h>
@@ -466,54 +467,3 @@ void setPinValue (const char *code, uint8_t value) {
 
 	return;
 }
-
-uint8_t I2C_Write (uint8_t data) {
-	//
-	// Description:
-	//	It sends the argument defined byte using the I2C BUS, and returns the transmission status
-	//
-	TWDR = data;
-	TWCR = (1 << TWINT) | (1 << TWEN);
-	
-	// Waiting for the operation end
-	while (!(TWCR & (1 << TWINT)));
-	
-	return(TWSR & 0xF8);
-}
-
-
-uint8_t I2C_Read (mbesI2CopType optType) {
-	//
-	// Description:
-	//	It reads a byte from the I2C bus and returns it. 
-	//
-	if (optType == I2C_ACK)
-		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); 
-	else
-		TWCR = (1 << TWINT) | (1 << TWEN);
-		
-	// Waiting  for data cknowledge
-	while (!(TWCR & (1 << TWINT)));
-	
-	return(TWDR);
-}
-
-
-void I2C_Stop() {
-	//
-	// Description:
-	//	It seands a STOP marker to the remote device on I2C
-	//
-	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
-}
-
-
-void I2C_Start() {
-	//
-	// Description:
-	//	It seands a START marker to the remote device on I2C
-	//
-	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-	while (!(TWCR & (1 << TWINT)));
-}
-
