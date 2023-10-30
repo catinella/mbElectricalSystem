@@ -7,13 +7,13 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware1-test.c
+// File:   firmware3-test.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This test has been developped to ckeck for the mbesSerialConsole library. If it functions correctly the MCU will
-//	prints an "hello world" on your serial console, every second.
+//	This test has been developped to ckeck for the AT-Mega16 analog inputs. You should change the trimmers setting and
+//	verify their voltage values printed on the serial console
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>

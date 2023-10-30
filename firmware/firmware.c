@@ -129,23 +129,14 @@ int main(void) {
 	mbesSelector_init(&light_sel,    SWITCH, i_LIGHTONOFF);
 	mbesSelector_init(&engOn_sel,    SWITCH, i_ENGINEON);
 
-	
 
-	//
 	// USART port initialization
-	//
 	USART_Init(9600);
 
-
-	//
 	// I2C Initialization
-	//
-	TWCR = 0x00;                            // Interrupts disabling
-	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
-	TWSR = 0x00;                            // Prescaler = 1
-	TWCR |= (1 << TWEN);                    // I2C module enabling...
+	I2C_init();
 
-
+	\
 	// 
 	// MCP23008 initialization
 	//
