@@ -286,12 +286,12 @@ bool getPinValue (const char *code) {
 		uint8_t myID      = port - '0';
 		uint8_t gpioValue = 0;
 		
-		// "IODIR" register selecting
+		// "GPIO" register selecting
 		I2C_Start();
 		I2C_Write(myID << 1);         // LSB=0 --> writing operation
 		I2C_Write(GPIO_ADDR);
 		
-		// "IODIR" register reading
+		// "GPIO" register reading
 		I2C_Start();
 		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
 		gpioValue = I2C_Read(I2C_NACK);
@@ -442,11 +442,12 @@ void setPinValue (const char *code, uint8_t value) {
 		uint8_t myID      = port - '0';
 		uint8_t gpioValue = 0;
 		
-		// "IODIR" register selecting
+		// "GPIO" register selecting
 		I2C_Start();
 		I2C_Write(myID << 1);         // LSB=0 --> writing operation
 		I2C_Write(GPIO_ADDR);
 		
+		// "GPIO" register reading
 		I2C_Start();
 		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
 		gpioValue = I2C_Read(I2C_NACK);
@@ -454,7 +455,7 @@ void setPinValue (const char *code, uint8_t value) {
 		if (value)  gpioValue |=  (1 << pinNumber);
 		else        gpioValue &= ~(1 << pinNumber);
 		
-		// "IODIR" register saving
+		// "GPIO" register saving
 		I2C_Start();
 		I2C_Write(myID << 1);         // LSB=0 --> writing operation
 		I2C_Write(gpioValue);
