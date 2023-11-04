@@ -33,7 +33,7 @@
 
 #include <stdint.h>
 
-#define I2C_CLOCK_FREQ 1000
+#define I2C_CLOCK_FREQ 10000
 
 typedef enum _mbesI2CopType {
 	I2C_ACK,
