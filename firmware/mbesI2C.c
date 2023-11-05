@@ -34,13 +34,25 @@
 #include <util/twi.h>
 
 #include <mbesHwConfig.h>
+#include <mbesUtilities.h>
 #include <mbesI2C.h>
+
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
+#if DEBUG == 0
+#define LOGTRACE
+#else
+#define LOGTRACE   logMsg("%s()", __FUNCTION__);
+#endif
 
 void I2C_init (void) {
 	//
 	// Description:
 	//	I2C Initialization
 	//
+	LOGTRACE
 	TWCR = 0x00;                            // Interrupts disabling
 	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
 	TWSR = 0x00;                            // Prescaler = 1
@@ -55,6 +67,7 @@ uint8_t I2C_Write (uint8_t data) {
 	// Description:
 	//	It sends the argument defined byte using the I2C BUS, and returns the transmission status
 	//
+	LOGTRACE
 	TWDR = data;
 	TWCR = (1 << TWINT) | (1 << TWEN);
 	
@@ -70,12 +83,16 @@ uint8_t I2C_Read (mbesI2CopType optType) {
 	// Description:
 	//	It reads a byte from the I2C bus and returns it. 
 	//
+	LOGTRACE
 
-	if (optType == I2C_ACK)
+	if (optType == I2C_ACK) {
 		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); 
-	else
+		logMsg("ACK will be expected");
+	} else {
 		TWCR = (1 << TWINT) | (1 << TWEN);
-		
+		logMsg("NO ACK will be expected");
+	}
+
 	// Waiting  for data cknowledge
 	while (!(TWCR & (1 << TWINT)));
 
@@ -88,6 +105,7 @@ void I2C_Stop (void) {
 	// Description:
 	//	It seands a STOP marker to the remote device on I2C
 	//
+	LOGTRACE
 
 	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
 	return;
@@ -100,6 +118,7 @@ void I2C_Start (void) {
 	// Description:
 	//	It seands a START marker to the remote device on I2C
 	//
+	LOGTRACE
 
 	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
 	while (!(TWCR & (1 << TWINT)));
