@@ -61,7 +61,7 @@ int main() {
 	// "IODIR" register selecting
 	I2C_Start();
 	I2C_Write(0);                 // LSB=0 --> writing operation
-	I2C_Write(GPIO_ADDR);
+	I2C_Write(IODIR_ADDR);
 	
 	// "IODIR" register reading
 	I2C_Start();
