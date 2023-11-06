@@ -34,13 +34,22 @@
 #include <stdint.h>
 #include <mbesHwConfig.h>
 
-typedef enum _mcp23008_regMode {
-	mcp23008_regReading,
-	mcp23008_regWriting
-} mcp23008_regMode;
+#define IODIR   0x00
+#define IPOL    0x01
+#define GPINTEN 0x02
+#define DEFVAL  0x03
+#define INTCON  0x04
+#define IOCON   0x05
+#define GPPU    0x06
+#define INTF    0x07
+#define INTCAP  0x08
+#define GPIO    0x09
+#define OLAT    0x0A
 
-void regSelecting (uint8_t devAddr, uint8_t regAddr, mcp23008_regMode node);
-void regReading   (uint8_t devAddr, uint8_t *value);
-void regSaving    (uint8_t devAddr, uint8_t value);
+
+void init_MC2398         (uint8_t devAddr);
+void regSelecting_MC2398 (uint8_t regAddr);
+void regReading_MC2398   (uint8_t *value);
+void regSaving_MC2398    (uint8_t value);
 
 #endif

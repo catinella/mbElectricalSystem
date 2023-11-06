@@ -33,40 +33,56 @@
 #include <mbesI2C.h>
 #include <mbesMCP23008-XP.h>
 
-void regSelecting (uint8_t devAddr, uint8_t regAddr, mcp23008_regMode mode) {
+static uint8_t MC2398_devAddr;
+
+void init_MC2398 (uint8_t devAddr) {
 	//
 	// Description
-	//	This function allows you to open a MCD23008's register in read or write mode
+	//	This function writes the device address inside the module. Every function belongs to this module will use the
+	//	recorded device address (0-7)
+	//
+	//	[!] According to the datasheet, the most significant half byte is fixed (0100)
+	//	   https://ww1.microchip.com/downloads/en/DeviceDoc/MCP23008-MCP23S08-Data-Sheet-20001919F.pdf
+	//
+	MC2398_devAddr = devAddr;
+	MC2398_devAddr = MC2398_devAddr << 1;  // The first bit is used to set the I/O operation type (read/write)
+	MC2398_devAddr |= 64;
+	return;
+}
+
+void regSelecting_MC2398 (uint8_t regAddr) {
+	//
+	// Description
+	//	This function allows you to select a MCD23008's register
 	//
 	I2C_Start();
-	if (mode == mcp23008_regReading) {
-		I2C_Write(devAddr << 1);         // LSB=1 --> reading operation
-		devAddr |= 1;
-	} else {
-		I2C_Write(devAddr << 1);         // LSB=0 --> writing operation
-	}
+	I2C_Write(MC2398_devAddr);  // LSB=0 --> writing operation
 	I2C_Write(regAddr);
 
 	return;
 }
 
 
-void regReading (uint8_t devAddr, uint8_t *value) {
+void regReading_MC2398 (uint8_t *value) {
 	//
 	// Description
 	//	This function allows you to read the previousle selelected registers
 	//
 	I2C_Start();
-	I2C_Write((devAddr << 1) | 1);          // LSB=1 --> reading operation
+	I2C_Write(MC2398_devAddr | 1);  // LSB=1 --> reading operation
 	*value = I2C_Read(I2C_NACK);
 	
 	return;
 }
 
 
-void regSaving (uint8_t devAddr, uint8_t value) {
+void regSaving_MC2398 (uint8_t value) {
+	//
+	// Description
+	//	This function allows you to write the previouse selelected registers
+	//
 	I2C_Start();
-	I2C_Write(devAddr << 1);               // LSB=0 --> writing operation
+	I2C_Write(MC2398_devAddr);  // LSB=0 --> writing operation
 	I2C_Write(value);
 
 	return;
