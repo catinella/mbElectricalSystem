@@ -48,10 +48,15 @@
 #define GPIO_ADDR  0x09
 #define GPPU_ADDR  0x06
 
+#define MC23008_ADDR 0
 
 int main() {
 	uint8_t regValue = 0;
- 
+ 	uint8_t mc2308_addr = MC23008_ADDR;
+
+	mc2308_addr = mc2308_addr << 1;  // The LSB is used to set the I/O operation type
+	mc2308_addr |= 64;
+
 	USART_Init(2400);
 	I2C_init();
 	_delay_ms(100);
@@ -60,22 +65,25 @@ int main() {
 
 	// "IODIR" register selecting
 	I2C_Start();
-	I2C_Write(0);                 // LSB=0 --> writing operation
+	I2C_Write(mc2308_addr);             // LSB=0 --> writing operation
 	I2C_Write(IODIR_ADDR);
+	USART_writeString("IODIR register selecting \n\r");
 	
 	// "IODIR" register reading
 	I2C_Start();
-	I2C_Write(1);                 // LSB=1 --> reading operation
+	I2C_Write(mc2308_addr | 1);          // LSB=1 --> reading operation
 	regValue = I2C_Read(I2C_NACK);
+	logMsg ("IODIR: %d", regValue);
 	
 	// "IODIR" register changing
-	regValue &= ~(1 << 3);          // GP3 (bit0 --> OUTPUT)
-	regValue |=  (1 << 0);          // GP0 (bit1 --> INPUT)
+	regValue &= ~(1 << 3);               // GP3 (bit0 --> OUTPUT)
+	regValue |=  (1 << 0);               // GP0 (bit1 --> INPUT)
 		
 	// "IODIR" register saving
 	I2C_Start();
-	I2C_Write(0);               // LSB=0 --> writing operation
+	I2C_Write(mc2308_addr);               // LSB=0 --> writing operation
 	I2C_Write(regValue);
+	USART_writeString("IODIR register updaing\n\r");
 
 	I2C_Stop();
 	_delay_ms(1);
@@ -85,14 +93,14 @@ int main() {
 		
 		// GPIO register selecting
 		I2C_Start();
-		I2C_Write(0);                   // LSB=0 --> writing operation
+		I2C_Write(mc2308_addr);          // LSB=0 --> writing operation
 		I2C_Write(GPIO_ADDR);
-		USART_writeString("Register selecting \n\r");
+		USART_writeString("GPIO register selecting\n\r");
 		
 
 		// GPIO register reading
 		I2C_Start();
-		I2C_Write(1);                   // LSB=1 --> reading operation
+		I2C_Write(mc2308_addr | 1);       // LSB=1 --> reading operation
 		regValue = I2C_Read(I2C_NACK);
 		logMsg ("GPIO: %d", regValue);
 
@@ -100,21 +108,22 @@ int main() {
 		
 		// GPIO register selecting
 		I2C_Start();
-		I2C_Write(0);                   // LSB=0 --> writing operation
+		I2C_Write(mc2308_addr);           // LSB=0 --> writing operation
 		I2C_Write(GPIO_ADDR);
-		USART_writeString("Register selecting \n\r");
+		USART_writeString("GPIO register selecting\n\r");
 		
 		// GPIO updating
-		if ((regValue & 1) == 0)        // GP0 == 0 ?
-			regValue &= ~(1 << 3);    // GP3 = 0
+		if ((regValue & 1) == 0)          // GP0 == 0 ?
+			regValue &= ~(1 << 3);      // GP3 = 0
 		else
-			regValue |= (1 << 3);     // GP3 = 1
+			regValue |= (1 << 3);       // GP3 = 1
 
 
 		// GPIO register saving
 		I2C_Start();
-		I2C_Write(0);                    // LSB=0 --> writing operation
+		I2C_Write(mc2308_addr);            // LSB=0 --> writing operation
 		I2C_Write(regValue);
+		USART_writeString("GPIO register updating\n\r");
 
 
 		I2C_Stop();
