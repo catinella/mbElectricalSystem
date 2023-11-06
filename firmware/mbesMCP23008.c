@@ -7,7 +7,7 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   mbesMCP23008-XP.c
+// File:   mbesMCP23008.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
@@ -31,7 +31,7 @@
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <mbesHwConfig.h>
 #include <mbesI2C.h>
-#include <mbesMCP23008-XP.h>
+#include <mbesMCP23008.h>
 
 static uint8_t MC2398_devAddr;
 

@@ -7,7 +7,7 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   mbesMCP23008-XP.h
+// File:   mbesMCP23008.h
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
@@ -28,8 +28,8 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#ifndef MCP23008XP_LIB
-#define MCP23008XP_LIB
+#ifndef MCP23008_LIB
+#define MCP23008_LIB
 
 #include <stdint.h>
 #include <mbesHwConfig.h>
