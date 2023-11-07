@@ -44,9 +44,24 @@ void init_MC2398 (uint8_t devAddr) {
 	//	[!] According to the datasheet, the most significant half byte is fixed (0100)
 	//	   https://ww1.microchip.com/downloads/en/DeviceDoc/MCP23008-MCP23S08-Data-Sheet-20001919F.pdf
 	//
+
+	//
+	// Device address setting
+	//
 	MC2398_devAddr = devAddr;
 	MC2398_devAddr = MC2398_devAddr << 1;  // The first bit is used to set the I/O operation type (read/write)
 	MC2398_devAddr |= 64;
+
+	//
+	// Sequential access disabling
+	//
+	{
+		uint8_t reg = 0;
+		regSelecting_MC2398(IOCON);
+		regReading_MC2398(&reg);
+		reg |= (1 << SEQOPT);
+		regSaving_MC2398(reg);
+	}
 	return;
 }
 
