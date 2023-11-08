@@ -14,6 +14,18 @@
 // Description:
 //	This file contains functions to manage external devices connected with I2C bus
 //
+//	       +-------+-------+-------+-------+-------+-------+------+------+
+//	TWCR : | TWINT | TWEA  | TWSTA | TWSTO | TWWC  | TWEN  |      | TWIE |
+//	       +-------+-------+-------+-------+-------+-------+------+------+
+//	       TWINT: TWI Interrupt Flag
+//	       TWEA:  TWI Enable Acknowledge Bit
+//	       TWSTA: TWI START Condition Bit
+//	       TWSTO: TWI STOP Condition Bit
+//	       TWWC:  TWI Write Collision Flag
+//	       TWEN:  TWI Enable Bit
+//	       [////]
+//	       TWIE: TWI Interrupt Enable
+//	
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 //
@@ -28,12 +40,13 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+#include <mbesHwConfig.h>
 
 // AVR Libraries
 #include <avr/io.h>
 #include <util/twi.h>
+#include <util/delay.h>
 
-#include <mbesHwConfig.h>
 #include <mbesUtilities.h>
 #include <mbesI2C.h>
 
@@ -43,9 +56,40 @@
 
 #if DEBUG == 0
 #define LOGTRACE
+#define TIMEOUTMSG
 #else
-#define LOGTRACE   logMsg("%s()", __FUNCTION__);
+#define LOGTRACE   logMsg("%s(): start", __FUNCTION__);
+#define TIMEOUTMSG logMsg("%s(): timeout", __FUNCTION__);
 #endif
+
+#define DELAYSTEP 10
+
+#define TOUTFLAGSRESET TWCR = (1 << TWINT) | (1 << TWEN)
+//------------------------------------------------------------------------------------------------------------------------------
+//                                      P R I V A T E   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+uint8_t waitForTwint() {
+	//
+	// Description:
+	//	It is used to wait for data received
+	//
+	// Returned value
+	//	0  WARNING! timeout achieved
+	//	1  OK, data is ready
+	//
+	uint16_t tout = I2C_TIMEOUT / DELAYSTEP;
+	
+	while ((TWCR & (1 << TWINT)) == 0 && tout > 0) {
+		_delay_ms(DELAYSTEP);
+		tout--;
+	}
+	if (tout == 0) TIMEOUTMSG
+	return(tout > 0 ? 1 : 0);
+}
+
+//------------------------------------------------------------------------------------------------------------------------------
+//                                       P U B L I C   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
 
 void I2C_init (void) {
 	//
@@ -56,8 +100,9 @@ void I2C_init (void) {
 	TWCR = 0x00;                            // Interrupts disabling
 	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
 	TWSR = 0x00;                            // Prescaler = 1
-	TWCR |= (1 << TWEN);                    // I2C module enabling...
-	
+
+	// TODO: abilitare le resistenze di pull-up su SCL e SDA
+
 	return;
 }
 
@@ -67,61 +112,60 @@ uint8_t I2C_Write (uint8_t data) {
 	// Description:
 	//	It sends the argument defined byte using the I2C BUS, and returns the transmission status
 	//
+	//	When an event requiring the attention of the application occurs on the TWI bus, the TWI Interrupt Flag (TWINT) is
+	//	asserted. In the next clock cycle, the TWI Status Register (TWSR) is updated with a status code identifying the
+	//	event. The TWSR only contains relevant status information when the TWI Interrupt Flag is asserted.
+	//
 	LOGTRACE
 	TWDR = data;
-	TWCR = (1 << TWINT) | (1 << TWEN);
-	
-	// Waiting for the operation end
-	while (!(TWCR & (1 << TWINT)));
-
-	return(TWSR & 0xF8);
+	TOUTFLAGSRESET ;
+	return(waitForTwint());
 }
 
 
-uint8_t I2C_Read (mbesI2CopType optType) {
+uint8_t I2C_Read (mbesI2CopType optType, uint8_t *data) {
 	//
 	// Description:
 	//	It reads a byte from the I2C bus and returns it. 
 	//
+	uint8_t err = 0;
 	LOGTRACE
 
 	if (optType == I2C_ACK) {
-		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); 
+		TOUTFLAGSRESET | (1 << TWEA); 
 		logMsg("ACK will be expected");
 	} else {
-		TWCR = (1 << TWINT) | (1 << TWEN);
+		TOUTFLAGSRESET ;
 		logMsg("NO ACK will be expected");
 	}
 
 	// Waiting  for data cknowledge
-	while (!(TWCR & (1 << TWINT)));
+	err = waitForTwint();
+	
+	*data = TWDR;
 
-	return(TWDR);
+	return(err);
 }
 
 
-void I2C_Stop (void) {
+uint8_t I2C_Stop (void) {
 	//
 	// Description:
 	//	It seands a STOP marker to the remote device on I2C
 	//
 	LOGTRACE
-
-	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
-	return;
-
+	TOUTFLAGSRESET | (1 << TWSTO);
+	return(waitForTwint());
 }
 
 
-void I2C_Start (void) {
+uint8_t I2C_Start (void) {
 	//
 	// Description:
 	//	It seands a START marker to the remote device on I2C
 	//
 	LOGTRACE
-
-	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-	while (!(TWCR & (1 << TWINT)));
-	return;
+	TOUTFLAGSRESET | (1 << TWSTA);
+	return(waitForTwint());
 }
 

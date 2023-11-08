@@ -34,6 +34,7 @@
 #include <stdint.h>
 
 #define I2C_CLOCK_FREQ 10000
+#define I2C_TIMEOUT    100
 
 typedef enum _mbesI2CopType {
 	I2C_ACK,
@@ -43,8 +44,8 @@ typedef enum _mbesI2CopType {
 
 void    I2C_init  ();
 uint8_t I2C_Write (uint8_t data);
-uint8_t I2C_Read  (mbesI2CopType optType);
-void    I2C_Stop  ();
-void    I2C_Start ();
+uint8_t I2C_Read  (mbesI2CopType optType, uint8_t *data);
+uint8_t I2C_Stop  ();
+uint8_t I2C_Start ();
 
 #endif
