@@ -35,6 +35,7 @@
 
 #define I2C_CLOCK_FREQ 10000
 #define I2C_TIMEOUT    100
+#define I2C_INTPULLUP  0
 
 typedef enum _mbesI2CopType {
 	I2C_ACK,

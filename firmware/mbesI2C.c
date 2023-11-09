@@ -26,6 +26,13 @@
 //	       [////]
 //	       TWIE: TWI Interrupt Enable
 //	
+//	Error codes convention
+//	======================
+//	All functions that returns a uint8_t error codes, respect the following convention:
+//		0 // Warning or Error
+//		1 // Success
+//
+//
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 //
@@ -65,6 +72,9 @@
 #define DELAYSTEP 10
 
 #define TOUTFLAGSRESET TWCR = (1 << TWINT) | (1 << TWEN)
+
+static uint8_t initializedFlag = 0;
+
 //------------------------------------------------------------------------------------------------------------------------------
 //                                      P R I V A T E   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
@@ -79,6 +89,7 @@ uint8_t waitForTwint() {
 	//
 	uint16_t tout = I2C_TIMEOUT / DELAYSTEP;
 	
+	LOGTRACE
 	while ((TWCR & (1 << TWINT)) == 0 && tout > 0) {
 		_delay_ms(DELAYSTEP);
 		tout--;
@@ -101,7 +112,13 @@ void I2C_init (void) {
 	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
 	TWSR = 0x00;                            // Prescaler = 1
 
-	// TODO: abilitare le resistenze di pull-up su SCL e SDA
+#if I2C_INTPULLUP == 1
+	// Internal pull-up resistors
+	PORTC |= 1;      // SCL: PC0(PIN=22)
+	PORTC |= 1 << 1; // SDA: PC1(PIN=23)
+#endif
+
+	initializedFlag = 1;
 
 	return;
 }
@@ -163,8 +180,11 @@ uint8_t I2C_Start (void) {
 	//
 	// Description:
 	//	It seands a START marker to the remote device on I2C
+	//	It should be the first function called per communication session. So, if you have not yet call the module initialization
+	//	procedure, then it will be executed automatically. 
 	//
 	LOGTRACE
+	if (initializedFlag == 0) I2C_init();
 	TOUTFLAGSRESET | (1 << TWSTA);
 	return(waitForTwint());
 }
