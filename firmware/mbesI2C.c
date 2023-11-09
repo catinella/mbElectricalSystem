@@ -83,6 +83,11 @@ uint8_t waitForTwint() {
 	// Description:
 	//	It is used to wait for data received
 	//
+	//	------+             +---------
+	//	<user>|    <MCU>    | <MCU>
+	//	      +-------//----+
+	//	  (op. start)    (op. end)
+	//
 	// Returned value
 	//	0  WARNING! timeout achieved
 	//	1  OK, data is ready
@@ -111,6 +116,7 @@ void I2C_init (void) {
 	TWCR = 0x00;                            // Interrupts disabling
 	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
 	TWSR = 0x00;                            // Prescaler = 1
+	TWCR = 1 << TWEN;
 
 #if I2C_INTPULLUP == 1
 	// Internal pull-up resistors
