@@ -52,6 +52,9 @@ void init_MC2398 (uint8_t devAddr) {
 	MC2398_devAddr = MC2398_devAddr << 1;  // The first bit is used to set the I/O operation type (read/write)
 	MC2398_devAddr |= 64;
 
+	// I2C bus initialization
+	I2C_init();
+	
 	//
 	// Sequential access disabling
 	//
