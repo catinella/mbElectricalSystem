@@ -195,3 +195,20 @@ uint8_t I2C_Start (void) {
 	return(waitForTwint());
 }
 
+
+uint8_t I2C_BusReset (void) {
+	//
+	// Description:
+	//	This function resets the I2C BUS (not the connected devices)
+	//	The delay time must be enouh long to put the slave in timeout status.
+	//
+	LOGTRACE
+	int t;
+	_delay_ms(200);
+	for (t=I2C_TIMEOUT; t>0; t--) {
+		_delay_ms(100);
+		if (I2C_Stop()) break;
+	}
+	return(t > 0 ? 1 : 0);
+}
+

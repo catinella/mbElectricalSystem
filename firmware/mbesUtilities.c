@@ -225,24 +225,36 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 		uint8_t myID = port - '0';
 		
 		// "IODIR" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(IODIR_ADDR);
+		if (
+			I2C_Start()           == 0 ||
+			I2C_Write(myID << 1)  == 0 ||
+			I2C_Write(IODIR_ADDR) == 0
+		) {
+			// ERROR
 		
 		// "IODIR" register reading
-		I2C_Start();
-		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
-		iodirValue = I2C_Read(I2C_NACK);
+		} else if (
+			I2C_Start()                     == 0 ||
+			I2C_Write((myID << 1)|1)        == 0 ||
+			I2C_Read(I2C_NACK, &iodirValue) == 0
+		) {
+			// ERROR
+
+		} else {
+			// "IODIR" register changing
+			if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
+			else               iodirValue |=  (1 << pinNumber);
 		
-		// "IODIR" register changing
-		if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
-		else               iodirValue |=  (1 << pinNumber);
-		
-		// "IODIR" register saving
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(iodirValue);
-		
+			// "IODIR" register saving
+			if (
+				I2C_Start()           == 0 ||
+				I2C_Write(myID << 1)  == 0 ||
+				I2C_Write(iodirValue) == 0
+			){
+				// ERROR
+			}
+		}
+
 		I2C_Stop();
         
 	} else {
@@ -294,7 +306,7 @@ bool getPinValue (const char *code) {
 		// "GPIO" register reading
 		I2C_Start();
 		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
-		gpioValue = I2C_Read(I2C_NACK);
+		I2C_Read(I2C_NACK, &gpioValue);
 		
 		out = gpioValue & (1 << pinNumber);
 		
@@ -443,22 +455,22 @@ void setPinValue (const char *code, uint8_t value) {
 		uint8_t gpioValue = 0;
 		
 		// "GPIO" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(GPIO_ADDR);
-		
+		if (I2C_Start() == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(GPIO_ADDR)) {
+			// ERROR
+
 		// "GPIO" register reading
-		I2C_Start();
-		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
-		gpioValue = I2C_Read(I2C_NACK);
+		} else if ( I2C_Start() == 0 || I2C_Write((myID << 1)|1) == 0 || I2C_Read(I2C_NACK, &gpioValue) == 0) {
+			// ERROR
+
+		} else {
+			if (value)  gpioValue |=  (1 << pinNumber);
+			else        gpioValue &= ~(1 << pinNumber);
 		
-		if (value)  gpioValue |=  (1 << pinNumber);
-		else        gpioValue &= ~(1 << pinNumber);
-		
-		// "GPIO" register saving
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(gpioValue);
+			// "GPIO" register saving
+			if (I2C_Start() == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(gpioValue)) {
+				// ERROR
+			}
+		}
 		
 		I2C_Stop();
 		

@@ -43,10 +43,11 @@ typedef enum _mbesI2CopType {
 } mbesI2CopType;
 
 
-void    I2C_init  ();
-uint8_t I2C_Write (uint8_t data);
-uint8_t I2C_Read  (mbesI2CopType optType, uint8_t *data);
-uint8_t I2C_Stop  ();
-uint8_t I2C_Start ();
+void    I2C_init     ();
+uint8_t I2C_Write    (uint8_t data);
+uint8_t I2C_Read     (mbesI2CopType optType, uint8_t *data);
+uint8_t I2C_Stop     ();
+uint8_t I2C_Start    ();
+uint8_t I2C_BusReset ();
 
 #endif

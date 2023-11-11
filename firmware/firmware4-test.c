@@ -53,6 +53,7 @@
 int main() {
 	uint8_t regValue = 0;
  	uint8_t mc2308_addr = MC23008_ADDR;
+	uint8_t fsm = 0;
 
 	mc2308_addr = mc2308_addr << 1;  // The LSB is used to set the I/O operation type
 	mc2308_addr |= 64;
@@ -64,71 +65,164 @@ int main() {
 	USART_writeString("************* TEST START *************\n\r");
 
 	// "IODIR" register selecting
-	I2C_Start();
-	I2C_Write(mc2308_addr);             // LSB=0 --> writing operation
-	I2C_Write(IODIR_ADDR);
 	USART_writeString("IODIR register selecting \n\r");
+	if (
+		I2C_Start()            == 0 ||
+		I2C_Write(mc2308_addr) == 0 ||
+		I2C_Write(IODIR_ADDR)
+	) {
+		// ERROR!
+		USART_writeString("ERROR!I cannot select IODIR register\n\n\r");
+		fsm = 9;
 	
-	// "IODIR" register reading
-	I2C_Start();
-	I2C_Write(mc2308_addr | 1);          // LSB=1 --> reading operation
-	regValue = I2C_Read(I2C_NACK);
-	logMsg ("IODIR: %d", regValue);
-	
-	// "IODIR" register changing
-	regValue &= ~(1 << 3);               // GP3 (bit0 --> OUTPUT)
-	regValue |=  (1 << 0);               // GP0 (bit1 --> INPUT)
-		
-	// "IODIR" register saving
-	I2C_Start();
-	I2C_Write(mc2308_addr);               // LSB=0 --> writing operation
-	I2C_Write(regValue);
-	USART_writeString("IODIR register updaing\n\r");
+	} else {
+		// "IODIR" register reading
+		USART_writeString("IODIR register reading\n\r");
+		if (
+			I2C_Start()                 == 0 ||
+			I2C_Write(mc2308_addr | 1)  == 0 ||
+			I2C_Read(I2C_NACK, &regValue)
+		) {
+			// ERROR!
+			USART_writeString("ERROR!I cannot read IODIR register\n\n\r");
+			fsm = 9;
 
-	I2C_Stop();
+		} else {
+			logMsg ("IODIR: %d", regValue);
+
+			// "IODIR" register changing
+			regValue &= ~(1 << 3);               // GP3 (bit0 --> OUTPUT)
+			regValue |=  (1 << 0);               // GP0 (bit1 --> INPUT)
+		
+			// "IODIR" register saving
+			USART_writeString("IODIR register updaing\n\r");
+			if (
+				I2C_Start()            == 0 ||
+				I2C_Write(mc2308_addr) == 0 ||
+				I2C_Write(regValue)
+			) {
+				// ERROR!
+				USART_writeString("ERROR!I cannot update the  IODIR register\n\n\r");
+				fsm = 9;
+		
+			} else {
+				// STOP
+				USART_writeString("IODIR register updaing\n\r");
+				if (I2C_Stop() == 0) {
+					// ERROR!
+					USART_writeString("ERROR!I cannot update the  IODIR register\n\n\r");
+					fsm = 9;
+				}
+			}
+		}
+	}
+
 	_delay_ms(1);
 
-		
+
 	while(1) {
-		
+		//
 		// GPIO register selecting
-		I2C_Start();
-		I2C_Write(mc2308_addr);          // LSB=0 --> writing operation
-		I2C_Write(GPIO_ADDR);
-		USART_writeString("GPIO register selecting\n\r");
-		
+		//
+		if (fsm == 0 || fsm == 3) {
+			USART_writeString("GPIO register selecting\n\r");
+			if (
+				I2C_Start()             &&
+				I2C_Write(mc2308_addr)  &&
+				I2C_Write(GPIO_ADDR)
+			) {
+				USART_writeString("OK\n\n\r");
+				if      (fsm == 0) fsm = 1;
+				else if (fsm == 3) fsm = 4;
+			} else {
+				// ERROR!
+				USART_writeString("ERROR!\n\n\r");
+				fsm = 9;
+			}
 
+		//
 		// GPIO register reading
-		I2C_Start();
-		I2C_Write(mc2308_addr | 1);       // LSB=1 --> reading operation
-		regValue = I2C_Read(I2C_NACK);
-		logMsg ("GPIO: %d", regValue);
+		//
+		} else if (fsm == 1) {
+			USART_writeString("GPIO data reading\n\r");
+			if (
+				I2C_Start()                    == 0 ||
+				I2C_Write((mc2308_addr|1))     == 0 ||
+				I2C_Read(I2C_NACK, &regValue)  == 0
+			){ 
+				logMsg ("GPIO: %d", regValue);
+				fsm =2;
+			} else {
+				// ERROR!
+				USART_writeString("ERROR!I cannot read GPIO\n\n\r");
+				fsm = 9;
+			}
 
-		I2C_Stop();
-		
-		// GPIO register selecting
-		I2C_Start();
-		I2C_Write(mc2308_addr);           // LSB=0 --> writing operation
-		I2C_Write(GPIO_ADDR);
-		USART_writeString("GPIO register selecting\n\r");
-		
+
+		//
+		// fsm == 2 --> STOP
+		//
+
+
+		//
+		// fsm == 3 --> Reg selecting
+		//
+
+
+		//
 		// GPIO updating
-		if ((regValue & 1) == 0)          // GP0 == 0 ?
-			regValue &= ~(1 << 3);      // GP3 = 0
-		else
-			regValue |= (1 << 3);       // GP3 = 1
+		//
+		} else if (fsm == 4) {
+			if ((regValue & 1) == 0)          // GP0 == 0 ?
+				regValue &= ~(1 << 3);      // GP3 = 0
+			else
+				regValue |= (1 << 3);       // GP3 = 1
+		
+
+			// GPIO register saving
+			USART_writeString("GPIO register updating\n\r");
+			if (
+				I2C_Start()            &&
+				I2C_Write(mc2308_addr) &&
+				I2C_Write(regValue)
+			) {
+				USART_writeString("OK\n\n\r");
+				fsm = 5;
+			} else {
+				// ERROR!
+				USART_writeString("ERROR!I cannot update GPIO\n\n\r");
+				fsm = 9;
+			}
 
 
-		// GPIO register saving
-		I2C_Start();
-		I2C_Write(mc2308_addr);            // LSB=0 --> writing operation
-		I2C_Write(regValue);
-		USART_writeString("GPIO register updating\n\r");
+		//
+		// Stop 
+		//
+		} else if (fsm == 5 || fsm == 2) {
+			if (I2C_Stop())
+				fsm = 0;
+			else {
+				// ERROR!
+				USART_writeString("ERROR!I cannot read GPIO\n\n\r");
+				fsm = 9;
+			}
+		
 
+		//
+		// Error (BUS reset)
+		//
+		} else if (fsm == 9) {
+			if (I2C_BusReset())
+				fsm = 0;
+			else {
+				// ERROR!
+				USART_writeString("ERROR!I cannot retes the I2C bus\n\n\r");
+				fsm = 9;
+				_delay_ms(1000);
+			}
+		}
 
-		I2C_Stop();
-
-		_delay_ms(500);
+		_delay_ms(10);
 	}
 			
 	return(0);

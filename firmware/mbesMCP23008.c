@@ -33,9 +33,9 @@
 #include <mbesI2C.h>
 #include <mbesMCP23008.h>
 
-static uint8_t MC2398_devAddr;
+static uint8_t MCP23008_devAddr;
 
-void init_MC2398 (uint8_t devAddr) {
+uint8_t init_MCP23008 (uint8_t devAddr) {
 	//
 	// Description
 	//	This function writes the device address inside the module. Every function belongs to this module will use the
@@ -44,13 +44,14 @@ void init_MC2398 (uint8_t devAddr) {
 	//	[!] According to the datasheet, the most significant half byte is fixed (0100)
 	//	   https://ww1.microchip.com/downloads/en/DeviceDoc/MCP23008-MCP23S08-Data-Sheet-20001919F.pdf
 	//
+	uint8_t ec = 0;
 
 	//
 	// Device address setting
 	//
-	MC2398_devAddr = devAddr;
-	MC2398_devAddr = MC2398_devAddr << 1;  // The first bit is used to set the I/O operation type (read/write)
-	MC2398_devAddr |= 64;
+	MCP23008_devAddr = devAddr;
+	MCP23008_devAddr = MCP23008_devAddr << 1;  // The first bit is used to set the I/O operation type (read/write)
+	MCP23008_devAddr |= 64;
 
 	// I2C bus initialization
 	I2C_init();
@@ -59,49 +60,45 @@ void init_MC2398 (uint8_t devAddr) {
 	// Sequential access disabling
 	//
 	{
+	/*
 		uint8_t reg = 0;
-		regSelecting_MC2398(IOCON);
-		regReading_MC2398(&reg);
-		reg |= (1 << SEQOPT);
-		regSaving_MC2398(reg);
+		if (regSelecting_MCP23008(MCP23008_IOCON) && regReading_MCP23008(&reg)) {
+			reg |= (1 << SEQOPT);
+			if (regSaving_MCP23008(reg)) ec = 1;
+		}
+	*/
 	}
-	return;
+	return(ec);
 }
 
-void regSelecting_MC2398 (uint8_t regAddr) {
+uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	//
 	// Description
 	//	This function allows you to select a MCD23008's register
 	//
-	I2C_Start();
-	I2C_Write(MC2398_devAddr);  // LSB=0 --> writing operation
-	I2C_Write(regAddr);
-
-	return;
+	return(
+		I2C_Start() && I2C_Write(MCP23008_devAddr) && I2C_Write(regAddr)
+	); 
 }
 
 
-void regReading_MC2398 (uint8_t *value) {
+uint8_t regReading_MCP23008 (uint8_t *value) {
 	//
 	// Description
 	//	This function allows you to read the previousle selelected registers
 	//
-	I2C_Start();
-	I2C_Write(MC2398_devAddr | 1);  // LSB=1 --> reading operation
-	*value = I2C_Read(I2C_NACK);
-	
-	return;
+	return(
+		I2C_Start() && I2C_Write(MCP23008_devAddr|1) && I2C_Read(I2C_NACK, value)
+	);
 }
 
 
-void regSaving_MC2398 (uint8_t value) {
+uint8_t regSaving_MCP23008 (uint8_t value) {
 	//
 	// Description
 	//	This function allows you to write the previouse selelected registers
 	//
-	I2C_Start();
-	I2C_Write(MC2398_devAddr);  // LSB=0 --> writing operation
-	I2C_Write(value);
-
-	return;
+	return(
+		I2C_Start() && I2C_Write(MCP23008_devAddr) && I2C_Write(value)
+	);
 }

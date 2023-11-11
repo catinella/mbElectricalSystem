@@ -34,22 +34,22 @@
 #include <stdint.h>
 #include <mbesHwConfig.h>
 
-#define IODIR   0x00
-#define IPOL    0x01
-#define GPINTEN 0x02
-#define DEFVAL  0x03
-#define INTCON  0x04
-#define IOCON   0x05
-#define GPPU    0x06
-#define INTF    0x07
-#define INTCAP  0x08
-#define GPIO    0x09
-#define OLAT    0x0A
+#define MCP23008_IODIR   0x00
+#define MCP23008_IPOL    0x01
+#define MCP23008_GPINTEN 0x02
+#define MCP23008_DEFVAL  0x03
+#define MCP23008_INTCON  0x04
+#define MCP23008_IOCON   0x05
+#define MCP23008_GPPU    0x06
+#define MCP23008_INTF    0x07
+#define MCP23008_INTCAP  0x08
+#define MCP23008_GPIO    0x09
+#define MCP23008_OLAT    0x0A
 
 
-void init_MC2398         (uint8_t devAddr);
-void regSelecting_MC2398 (uint8_t regAddr);
-void regReading_MC2398   (uint8_t *value);
-void regSaving_MC2398    (uint8_t value);
+uint8_t init_MCP23008         (uint8_t devAddr);
+uint8_t regSelecting_MCP23008 (uint8_t regAddr);
+uint8_t regReading_MCP23008   (uint8_t *value);
+uint8_t regSaving_MCP23008    (uint8_t value);
 
 #endif
