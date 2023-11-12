@@ -40,4 +40,6 @@
 // Internal 1Mhz crystal (FUSES = "99:E1")
 #define F_CPU 1000000UL
 
+// MC23008 device address
+#define MC23008_ADDR 0
 #endif

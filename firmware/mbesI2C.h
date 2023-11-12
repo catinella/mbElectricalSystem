@@ -32,7 +32,21 @@
 #define MBESI2C
 
 #include <stdint.h>
+#include <util/twi.h>
+#include <mbesUtilities.h>
 
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
+#if DEBUG == 0
+#define LOGTRACE
+#define TIMEOUTMSG
+#else
+#define LOGTRACE   logMsg("%s(): start", __FUNCTION__);
+#endif
+
+#define TIMEOUTMSG logMsg("%s(): timeout", __FUNCTION__);
 #define I2C_CLOCK_FREQ 10000
 #define I2C_TIMEOUT    100
 #define I2C_INTPULLUP  0
@@ -43,11 +57,39 @@ typedef enum _mbesI2CopType {
 } mbesI2CopType;
 
 
+//
+// Functions implemented as macros
+//
+#define I2C_STOP {                                    \
+	LOGTRACE                                        \
+	TWCR =(1 << TWINT) | (1 << TWEN)| (1 << TWSTO); \
+}
+
+#define I2C_BUSRESET {           \
+	LOGTRACE  _delay_ms(200);  \
+	for (int t=3; t>0; t--) {  \
+		_delay_ms(100);      \
+		I2C_STOP;            \
+	}                          \
+}
+
+#define I2C_START(var) {                                \
+	LOGTRACE                                          \
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA); \
+	var = waitForTwint();                             \
+}
+
+
+
+
+//
+// Functions prototypes
+//
+
 void    I2C_init     ();
 uint8_t I2C_Write    (uint8_t data);
 uint8_t I2C_Read     (mbesI2CopType optType, uint8_t *data);
-uint8_t I2C_Stop     ();
-uint8_t I2C_Start    ();
-uint8_t I2C_BusReset ();
+
+uint8_t waitForTwint ();
 
 #endif

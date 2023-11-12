@@ -223,39 +223,32 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	} else if (port >= '0' && port <= '9') {
 		uint8_t iodirValue = 0;
 		uint8_t myID = port - '0';
-		
-		// "IODIR" register selecting
-		if (
-			I2C_Start()           == 0 ||
-			I2C_Write(myID << 1)  == 0 ||
-			I2C_Write(IODIR_ADDR) == 0
-		) {
-			// ERROR
-		
-		// "IODIR" register reading
-		} else if (
-			I2C_Start()                     == 0 ||
-			I2C_Write((myID << 1)|1)        == 0 ||
-			I2C_Read(I2C_NACK, &iodirValue) == 0
-		) {
-			// ERROR
+		uint8_t status;
 
-		} else {
-			// "IODIR" register changing
-			if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
-			else               iodirValue |=  (1 << pinNumber);
+		// "IODIR" register selecting
+		I2C_START(status)
+		if (status == 0 || I2C_Write(myID << 1)  == 0 || I2C_Write(IODIR_ADDR) == 0) {
+			// ERROR
 		
-			// "IODIR" register saving
-			if (
-				I2C_Start()           == 0 ||
-				I2C_Write(myID << 1)  == 0 ||
-				I2C_Write(iodirValue) == 0
-			){
+		} else {
+			// "IODIR" register reading
+			I2C_START(status)
+			if (status == 0 || I2C_Write((myID << 1)|1) == 0 || I2C_Read(I2C_NACK, &iodirValue) == 0) {
 				// ERROR
+
+			} else {
+				// "IODIR" register changing
+				if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
+				else               iodirValue |=  (1 << pinNumber);
+		
+				// "IODIR" register saving
+				I2C_START(status)
+				if (status == 0 || I2C_Write(myID << 1)  == 0 || I2C_Write(iodirValue) == 0){
+					// ERROR
+				}
 			}
 		}
-
-		I2C_Stop();
+		I2C_STOP;
         
 	} else {
 		// ERROR!
@@ -297,20 +290,23 @@ bool getPinValue (const char *code) {
 	else if (port >= '0' && port <= '9') {
 		uint8_t myID      = port - '0';
 		uint8_t gpioValue = 0;
+		uint8_t status;
 		
 		// "GPIO" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(GPIO_ADDR);
+		I2C_START(status);
+		if (status && I2C_Write(myID << 1) && I2C_Write(GPIO_ADDR)) {
 		
-		// "GPIO" register reading
-		I2C_Start();
-		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
-		I2C_Read(I2C_NACK, &gpioValue);
-		
-		out = gpioValue & (1 << pinNumber);
-		
-		I2C_Stop();
+			// "GPIO" register reading
+			I2C_START(status);
+			if (status && I2C_Write((myID << 1) | 1) && I2C_Read(I2C_NACK, &gpioValue))
+				out = gpioValue & (1 << pinNumber);
+			else {
+				// ERROR
+			}
+		 } else {
+			// ERROR
+		 }
+		I2C_STOP;
 		
 	} else {
 		// ERROR!
@@ -404,15 +400,14 @@ void pullUpEnabling (const char *code) {
 
 	else if (port >= '0' && port <= '9') {
 		uint8_t myID      = port - '0';
-		
+		uint8_t status;
+
 		// "IODIR" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(GPPU_ADDR);
-		
-		I2C_Write(1 << pinNumber);
-		
-		I2C_Stop();
+		I2C_START(status);
+		if (status == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(GPPU_ADDR) == 0 || I2C_Write(1 << pinNumber) == 0) {
+			// ERROR!
+		}
+		I2C_STOP;
 		
 	} else {
 		// ERROR!
@@ -453,26 +448,32 @@ void setPinValue (const char *code, uint8_t value) {
 	} else if (port >= '0' && port <= '9') {
 		uint8_t myID      = port - '0';
 		uint8_t gpioValue = 0;
-		
+		uint8_t status;
+
 		// "GPIO" register selecting
-		if (I2C_Start() == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(GPIO_ADDR)) {
+		I2C_START(status);
+		if (status == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(GPIO_ADDR)) {
 			// ERROR
 
 		// "GPIO" register reading
-		} else if ( I2C_Start() == 0 || I2C_Write((myID << 1)|1) == 0 || I2C_Read(I2C_NACK, &gpioValue) == 0) {
-			// ERROR
-
 		} else {
-			if (value)  gpioValue |=  (1 << pinNumber);
-			else        gpioValue &= ~(1 << pinNumber);
-		
-			// "GPIO" register saving
-			if (I2C_Start() == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(gpioValue)) {
+			I2C_START(status);
+			if (status == 0 || I2C_Write((myID << 1)|1) == 0 || I2C_Read(I2C_NACK, &gpioValue) == 0) {
 				// ERROR
+
+			} else {
+				if (value)  gpioValue |=  (1 << pinNumber);
+				else        gpioValue &= ~(1 << pinNumber);
+		
+				// "GPIO" register saving
+				I2C_START(status);
+				if (status == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(gpioValue)) {
+					// ERROR
+				}
 			}
 		}
 		
-		I2C_Stop();
+		I2C_STOP;
 		
 	} else {
 		// ERROR!

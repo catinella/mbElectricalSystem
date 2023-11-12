@@ -51,33 +51,18 @@
 
 // AVR Libraries
 #include <avr/io.h>
-#include <util/twi.h>
 #include <util/delay.h>
 
-#include <mbesUtilities.h>
 #include <mbesI2C.h>
-
-#ifndef DEBUG
-#define DEBUG 1
-#endif
-
-#if DEBUG == 0
-#define LOGTRACE
-#define TIMEOUTMSG
-#else
-#define LOGTRACE   logMsg("%s(): start", __FUNCTION__);
-#define TIMEOUTMSG logMsg("%s(): timeout", __FUNCTION__);
-#endif
 
 #define DELAYSTEP 10
 
 #define TOUTFLAGSRESET TWCR = (1 << TWINT) | (1 << TWEN)
 
-static uint8_t initializedFlag = 0;
+//------------------------------------------------------------------------------------------------------------------------------
+//                                       P U B L I C   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
 
-//------------------------------------------------------------------------------------------------------------------------------
-//                                      P R I V A T E   F U N C T I O N S
-//------------------------------------------------------------------------------------------------------------------------------
 uint8_t waitForTwint() {
 	//
 	// Description:
@@ -94,7 +79,6 @@ uint8_t waitForTwint() {
 	//
 	uint16_t tout = I2C_TIMEOUT / DELAYSTEP;
 	
-	LOGTRACE
 	while ((TWCR & (1 << TWINT)) == 0 && tout > 0) {
 		_delay_ms(DELAYSTEP);
 		tout--;
@@ -103,9 +87,6 @@ uint8_t waitForTwint() {
 	return(tout > 0 ? 1 : 0);
 }
 
-//------------------------------------------------------------------------------------------------------------------------------
-//                                       P U B L I C   F U N C T I O N S
-//------------------------------------------------------------------------------------------------------------------------------
 
 void I2C_init (void) {
 	//
@@ -123,8 +104,6 @@ void I2C_init (void) {
 	PORTC |= 1;      // SCL: PC0(PIN=22)
 	PORTC |= 1 << 1; // SDA: PC1(PIN=23)
 #endif
-
-	initializedFlag = 1;
 
 	return;
 }
@@ -170,45 +149,4 @@ uint8_t I2C_Read (mbesI2CopType optType, uint8_t *data) {
 	return(err);
 }
 
-
-uint8_t I2C_Stop (void) {
-	//
-	// Description:
-	//	It seands a STOP marker to the remote device on I2C
-	//
-	LOGTRACE
-	TOUTFLAGSRESET | (1 << TWSTO);
-	return(waitForTwint());
-}
-
-
-uint8_t I2C_Start (void) {
-	//
-	// Description:
-	//	It seands a START marker to the remote device on I2C
-	//	It should be the first function called per communication session. So, if you have not yet call the module initialization
-	//	procedure, then it will be executed automatically. 
-	//
-	LOGTRACE
-	if (initializedFlag == 0) I2C_init();
-	TOUTFLAGSRESET | (1 << TWSTA);
-	return(waitForTwint());
-}
-
-
-uint8_t I2C_BusReset (void) {
-	//
-	// Description:
-	//	This function resets the I2C BUS (not the connected devices)
-	//	The delay time must be enouh long to put the slave in timeout status.
-	//
-	LOGTRACE
-	int t;
-	_delay_ms(200);
-	for (t=I2C_TIMEOUT; t>0; t--) {
-		_delay_ms(100);
-		if (I2C_Stop()) break;
-	}
-	return(t > 0 ? 1 : 0);
-}
 

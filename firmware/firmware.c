@@ -136,19 +136,22 @@ int main(void) {
 	// I2C Initialization
 	I2C_init();
 
-	\
+	/*
 	// 
 	// MCP23008 initialization
 	//
 	{
 		uint8_t ioconValue = 0b00100000;  // Imposta il bit 6 (INTPOL) a 0
-		I2C_Start();                      // Start transmission
-		I2C_Write(MCP23008_ADDR << 1);    // MCP23008 adderess sending with write-flag-bit set to 0
-		I2C_Write(0x05);                  // "IOCON" register selection
-		I2C_Write(ioconValue);            // "IOCON" register's value
-		I2C_Stop();                       // Stop transmission
+		uint8_t status;
+		I2C_START(status)
+		if (
+			status                        &&  // Start transmission
+			I2C_Write(MCP23008_ADDR << 1) &&  // MCP23008 adderess sending with write-flag-bit set to 0
+			I2C_Write(0x05)               &&  // "IOCON" register selection
+			I2C_Write(ioconValue)            // "IOCON" register's value
+		I2C_STOP();                       // Stop transmission
 	}
-
+	*/
 
 	//
 	// Starting conditions

@@ -76,8 +76,10 @@ uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	// Description
 	//	This function allows you to select a MCD23008's register
 	//
+	uint8_t status;
+	I2C_START(status)
 	return(
-		I2C_Start() && I2C_Write(MCP23008_devAddr) && I2C_Write(regAddr)
+		status && I2C_Write(MCP23008_devAddr) && I2C_Write(regAddr)
 	); 
 }
 
@@ -87,8 +89,10 @@ uint8_t regReading_MCP23008 (uint8_t *value) {
 	// Description
 	//	This function allows you to read the previousle selelected registers
 	//
+	uint8_t status;
+	I2C_START(status)
 	return(
-		I2C_Start() && I2C_Write(MCP23008_devAddr|1) && I2C_Read(I2C_NACK, value)
+		status && I2C_Write(MCP23008_devAddr|1) && I2C_Read(I2C_NACK, value)
 	);
 }
 
@@ -98,7 +102,9 @@ uint8_t regSaving_MCP23008 (uint8_t value) {
 	// Description
 	//	This function allows you to write the previouse selelected registers
 	//
+	uint8_t status;
+	I2C_START(status)
 	return(
-		I2C_Start() && I2C_Write(MCP23008_devAddr) && I2C_Write(value)
+		status && I2C_Write(MCP23008_devAddr) && I2C_Write(value)
 	);
 }
