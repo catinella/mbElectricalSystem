@@ -7,7 +7,7 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware1-test.c
+// File:   firmware2-test.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
@@ -37,11 +37,11 @@
 
 
 int main() {
-	USART_Init(2400);
+	USART_Init(9600);
 	
 	while (1) {
 		USART_writeString("Hello world\n\r");
-		_delay_ms(1000);
+		_delay_ms(500);
 	}
 	
 	return(0);
