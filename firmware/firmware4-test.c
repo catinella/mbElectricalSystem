@@ -115,24 +115,16 @@ int main() {
 				fsm = 127;
 			}
 
-		
-		//
-		// STOP
-		//
-		} else if (fsm == 3) {
-			I2C_STOP
-
 
 		//
 		// GPIO register selecting
 		//
-		} else if (fsm == 20 || fsm == 23) {
+		} else if (fsm == 3) {
 			USART_writeString("GPIO register selecting\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP) && I2C_Write(GPIO_ADDR)) {
 				USART_writeString("OK\n\n\r");
-				if      (fsm == 20) fsm = 21;
-				else if (fsm == 23) fsm = 24;
+				fsm = 4;
 			} else {
 				// ERROR!
 				USART_writeString("ERROR!\n\n\r");
@@ -142,12 +134,12 @@ int main() {
 		//
 		// GPIO register reading
 		//
-		} else if (fsm == 21) {
+		} else if (fsm == 4) {
 			USART_writeString("GPIO data reading\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write((MC23008AP|1)) && I2C_Read(I2C_NACK, &regValue)){ 
 				logMsg ("GPIO: %d", regValue);
-				fsm = 22;
+				fsm = 5;
 			} else {
 				// ERROR!
 				USART_writeString("ERROR!I cannot read GPIO\n\n\r");
@@ -156,19 +148,9 @@ int main() {
 
 
 		//
-		// fsm == 22 --> STOP
-		//
-
-
-		//
-		// fsm == 23 --> Reg selecting
-		//
-
-
-		//
 		// GPIO updating
 		//
-		} else if (fsm == 4) {
+		} else if (fsm == 5) {
 			if ((regValue & 1) == 0)          // GP0 == 0 ?
 				regValue &= ~(1 << 3);      // GP3 = 0
 			else
@@ -180,7 +162,7 @@ int main() {
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP) && I2C_Write(regValue)) {
 				USART_writeString("OK\n\n\r");
-				fsm = 25;
+				fsm = 10;
 			} else {
 				// ERROR!
 				USART_writeString("ERROR!I cannot update GPIO\n\n\r");
@@ -191,15 +173,16 @@ int main() {
 		//
 		// Stop 
 		//
-		} else if (fsm == 25 || fsm == 2) {
+		} else if (fsm == 10) {
+			USART_writeString("=== STOP ===\n\r");
 			I2C_STOP
-		
 
 		//
 		// Error (BUS reset)
 		//
 		} else if (fsm == 29) {
 			I2C_BUSRESET
+			//fsm = 0;
 		}
 
 		_delay_ms(10);
