@@ -43,10 +43,10 @@
 #define LOGTRACE
 #define TIMEOUTMSG
 #else
-#define LOGTRACE   logMsg("%s(): start", __FUNCTION__);
+#define LOGTRACE(X)   logMsg("%s(): start", X);
 #endif
 
-#define TIMEOUTMSG logMsg("%s(): timeout", __FUNCTION__);
+#define TIMEOUTMSG(X) logMsg("%s(): timeout", X);
 #define I2C_CLOCK_FREQ 10000
 #define I2C_TIMEOUT    100
 #define I2C_INTPULLUP  0
@@ -61,12 +61,13 @@ typedef enum _mbesI2CopType {
 // Functions implemented as macros
 //
 #define I2C_STOP {                                    \
-	LOGTRACE                                        \
+	LOGTRACE("I2C_STOP")                            \
 	TWCR =(1 << TWINT) | (1 << TWEN)| (1 << TWSTO); \
 }
 
 #define I2C_BUSRESET {           \
-	LOGTRACE  _delay_ms(200);  \
+	LOGTRACE("I2C_BUSRESET")   \
+	_delay_ms(200);            \
 	for (int t=3; t>0; t--) {  \
 		_delay_ms(100);      \
 		I2C_STOP;            \
@@ -74,7 +75,7 @@ typedef enum _mbesI2CopType {
 }
 
 #define I2C_START(var) {                                \
-	LOGTRACE                                          \
+	LOGTRACE("I2C_START")                             \
 	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTA); \
 	var = waitForTwint();                             \
 }

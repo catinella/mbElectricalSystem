@@ -83,7 +83,7 @@ uint8_t waitForTwint() {
 		_delay_ms(DELAYSTEP);
 		tout--;
 	}
-	if (tout == 0) TIMEOUTMSG
+	if (tout == 0) TIMEOUTMSG(__FUNCTION__)
 	return(tout > 0 ? 1 : 0);
 }
 
@@ -93,7 +93,7 @@ void I2C_init (void) {
 	// Description:
 	//	I2C Initialization
 	//
-	LOGTRACE
+	LOGTRACE(__FUNCTION__)
 	TWCR = 0x00;                            // Interrupts disabling
 	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
 	TWSR = 0x00;                            // Prescaler = 1
@@ -118,7 +118,7 @@ uint8_t I2C_Write (uint8_t data) {
 	//	asserted. In the next clock cycle, the TWI Status Register (TWSR) is updated with a status code identifying the
 	//	event. The TWSR only contains relevant status information when the TWI Interrupt Flag is asserted.
 	//
-	LOGTRACE
+	LOGTRACE(__FUNCTION__)
 	TWDR = data;
 	TOUTFLAGSRESET ;
 	return(waitForTwint());
@@ -131,7 +131,7 @@ uint8_t I2C_Read (mbesI2CopType optType, uint8_t *data) {
 	//	It reads a byte from the I2C bus and returns it. 
 	//
 	uint8_t err = 0;
-	LOGTRACE
+	LOGTRACE(__FUNCTION__)
 
 	if (optType == I2C_ACK) {
 		TOUTFLAGSRESET | (1 << TWEA); 
