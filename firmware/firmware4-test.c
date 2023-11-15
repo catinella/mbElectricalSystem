@@ -48,56 +48,70 @@
 #define GPIO_ADDR  0x09
 #define GPPU_ADDR  0x06
 
-
 #define MC23008AP (MC23008_ADDR << 1) | 64
 
-int main() {
-	uint8_t regValue = 0;
-	uint8_t fsm = 0;
-	uint8_t status;
+typedef enum _fsm_state {
+	IODIR_select_state,
+	IORIR_reading_state,
+	IORIR_updating_state,
+	GPIO_select_state,
+	GPIO_reading_state,
+	GPIO_updating_state,
+	STOP_state,
+	BUSRESET_state,
+	END
+} fsm_state;
 
-	USART_Init(2400);
+//------------------------------------------------------------------------------------------------------------------------------
+//                                                    M A I N
+//------------------------------------------------------------------------------------------------------------------------------
+int main() {
+	uint8_t   regValue = 0;
+	fsm_state fsm = IODIR_select_state;
+	uint8_t   status;
+
+	USART_Init(9600);
 	I2C_init();
 	_delay_ms(100);
 	
 	USART_writeString("************* TEST START *************\n\r");
 
-	while(fsm < 127) {
+	while(fsm != END) {
 		
 		//
 		// Initialization: "IODIR" register selecting
 		//
-		if (fsm == 0) {
+		if (fsm == IODIR_select_state) {
 			USART_writeString("IODIR register selecting \n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP) && I2C_Write(IODIR_ADDR)) 
-				fsm = 1;
+				fsm = IORIR_reading_state;
 
 			else {
 				// ERROR!
 				USART_writeString("ERROR!I cannot select IODIR register\n\n\r");
-				fsm = 127;
+				fsm = BUSRESET_state;
 			}
 	
 
 		//
 		// Initialization: "IODIR" register reading
 		//
-		} else if (fsm == 1) {
+		} else if (fsm == IORIR_reading_state) {
 			USART_writeString("IODIR register reading\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP|1) && I2C_Read(I2C_NACK, &regValue))
-				fsm = 2;
+				fsm = IORIR_updating_state;
 			else {
 				// ERROR!
 				USART_writeString("ERROR!I cannot read IODIR register\n\n\r");
-				fsm = 127;
+				fsm = BUSRESET_state;
 			}
 
 
 		//
 		//
-		} else if (fsm == 2) {
+		} else if (fsm == IORIR_updating_state) {
 			logMsg ("IODIR: %d", regValue);
 
 			// "IODIR" register changing
@@ -108,38 +122,39 @@ int main() {
 			USART_writeString("IODIR register updaing\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP) && I2C_Write(regValue))
-				fsm = 3;
+				fsm = GPIO_select_state;
 			else {
 				// ERROR!
 				USART_writeString("ERROR!I cannot update the  IODIR register\n\n\r");
-				fsm = 127;
+				fsm = BUSRESET_state;
 			}
 
 
 		//
 		// GPIO register selecting
 		//
-		} else if (fsm == 3) {
+		} else if (fsm == GPIO_select_state) {
+	
 			USART_writeString("GPIO register selecting\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP) && I2C_Write(GPIO_ADDR)) {
 				USART_writeString("OK\n\n\r");
-				fsm = 4;
+				fsm = GPIO_reading_state;
 			} else {
 				// ERROR!
 				USART_writeString("ERROR!\n\n\r");
-				fsm = 29;
+				fsm = BUSRESET_state;
 			}
 
 		//
 		// GPIO register reading
 		//
-		} else if (fsm == 4) {
+		} else if (fsm == GPIO_reading_state) {
 			USART_writeString("GPIO data reading\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write((MC23008AP|1)) && I2C_Read(I2C_NACK, &regValue)){ 
 				logMsg ("GPIO: %d", regValue);
-				fsm = 5;
+				fsm = GPIO_updating_state;
 			} else {
 				// ERROR!
 				USART_writeString("ERROR!I cannot read GPIO\n\n\r");
@@ -150,19 +165,21 @@ int main() {
 		//
 		// GPIO updating
 		//
-		} else if (fsm == 5) {
-			if ((regValue & 1) == 0)          // GP0 == 0 ?
+		} else if (fsm == GPIO_updating_state) {
+			if ((regValue & 1) == 0) {
+				USART_writeString("GP0 == 0\n\r");
 				regValue &= ~(1 << 3);      // GP3 = 0
-			else
+			} else {
+				USART_writeString("GP0 == 1\n\r");
 				regValue |= (1 << 3);       // GP3 = 1
-		
+			}
 
 			// GPIO register saving
 			USART_writeString("GPIO register updating\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP) && I2C_Write(regValue)) {
 				USART_writeString("OK\n\n\r");
-				fsm = 10;
+				fsm = STOP_state;
 			} else {
 				// ERROR!
 				USART_writeString("ERROR!I cannot update GPIO\n\n\r");
@@ -173,19 +190,20 @@ int main() {
 		//
 		// Stop 
 		//
-		} else if (fsm == 10) {
+		} else if (fsm == STOP_state) {
 			USART_writeString("=== STOP ===\n\r");
 			I2C_STOP
+			fsm = GPIO_select_state;
 
 		//
 		// Error (BUS reset)
 		//
-		} else if (fsm == 29) {
+		} else if (fsm == BUSRESET_state) {
 			I2C_BUSRESET
-			//fsm = 0;
+			//fsm = IODIR_select_state;
 		}
 
-		_delay_ms(10);
+		_delay_ms(1000);
 	}
 			
 	return(0);
