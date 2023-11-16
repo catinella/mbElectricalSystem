@@ -54,6 +54,7 @@ typedef enum _fsm_state {
 	IODIR_select_state,
 	IORIR_reading_state,
 	IORIR_updating_state,
+	IODIR_checking_state,
 	GPIO_select_state,
 	GPIO_reading_state,
 	GPIO_updating_state,
@@ -122,10 +123,33 @@ int main() {
 			USART_writeString("IODIR register updaing\n\r");
 			I2C_START(status)
 			if (status == 1 && I2C_Write(MC23008AP) && I2C_Write(regValue))
-				fsm = GPIO_select_state;
+				fsm = IODIR_checking_state;
 			else {
 				// ERROR!
-				USART_writeString("ERROR!I cannot update the  IODIR register\n\n\r");
+				USART_writeString("ERROR! I cannot update the IODIR register\n\n\r");
+				fsm = BUSRESET_state;
+			}
+
+		
+		//
+		// Checking for IODIR register
+		//
+		} else if (fsm == IODIR_checking_state) {
+			uint8_t tmp;
+			USART_writeString("Checking for IODIR register\n\r");
+			I2C_START(status)
+			if (status == 1 && I2C_Write(MC23008AP|1) && I2C_Read(I2C_NACK, &tmp)) {
+				if (tmp == regValue) {
+					fsm = GPIO_select_state;
+					USART_writeString("OK! IODIR register has been verified\n\r");
+				} else {
+					// ERROR!
+					USART_writeString("ERROR! IODIR register has been not updated\n\n\r");
+					fsm = BUSRESET_state;
+				}
+			} else {
+				// ERROR!
+				USART_writeString("ERROR!I cannot read IODIR register\n\n\r");
 				fsm = BUSRESET_state;
 			}
 
