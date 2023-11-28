@@ -34,13 +34,13 @@
 #include <mbesSerialConsole.h>
 #include <avr/io.h>
 #include <util/delay.h>
-
+#include <avr/pgmspace.h>
 
 int main() {
 	USART_Init(9600);
 	
 	while (1) {
-		USART_writeString("Hello world\n\r");
+		USART_writeString(PSTR("Hello world\n\r"), USART_FLASH);
 		_delay_ms(500);
 	}
 	
