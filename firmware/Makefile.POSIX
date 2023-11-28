@@ -40,6 +40,15 @@
 #	will also make a backup of the current data. The backup will have a progressive numerical suffix. In this way you should
 #	be able to keep track of you modifications and roll-back, eventually
 #
+#	
+#	Firmware optimization
+#	=====================
+#		-fpack-struct          Data structure allinging space ruduction
+#		-fmerge-all-constants  It glues duplicated constants to save code space
+#		-fno-jump-tables       Jump tables disabling to save space. But it makes the code execution slower
+#		-fno-tree-scev-cprop   Constant propagation disabling (code space reducing)
+#		-fomit-frame-pointer   It stops the frame-pointer using, where it is possible (code space reducing)
+#
 #
 #
 # License:
@@ -62,7 +71,7 @@ CC       = $(AVR-GCC_HOME)/bin/avr-gcc
 STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
 OBJCOPY  = $(AVR-GCC_HOME)/bin/avr-objcopy
 CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
-           -funsigned-bitfields 
+           -funsigned-bitfields -fpack-struct
 SYMBOLS  = 
 LDFLAGS  = 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
