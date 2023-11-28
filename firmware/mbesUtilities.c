@@ -32,6 +32,7 @@
 #include <avr/io.h>
 #include <util/twi.h>
 #include <mbesI2C.h>
+#include <avr/pgmspace.h>
 
 #else
 #include <debugTools.h>
@@ -116,28 +117,29 @@ void logMsg (const char *fmt, ...) {
 	bool    ctrvFlag = false;
 	va_list argp;
 	char    buffer[9];
+	char    c = '#';
 	
 	va_start(argp, fmt);
 
-	USART_writeString("LOGMSG: ");
+	USART_writeString(PSTR("LOGMSG: "), USART_FLASH);
 	
-	while (fmt[t] != '\0') {
+	while ((c = pgm_read_byte(fmt++)) != '\0') {
 		if (ctrvFlag == false) {
-			if (fmt[t] == '%')  ctrvFlag = true;
-			else                USART_writeChar(fmt[t]);
+			if (c == '%')  ctrvFlag = true;
+			else           USART_writeChar(c);
 		} else {
-			if (fmt[t] == 'c')
+			if (c == 'c')
 				USART_writeChar((char)va_arg(argp, int));
-				
-			else if (fmt[t] == 'd') {
+
+			else if (c == 'd') {
 				sprintf(buffer, "%d", va_arg(argp, int));
-				USART_writeString(buffer);
+				USART_writeString(buffer, USART_RAM);
 				
-			} else if (fmt[t] == 's')
-				USART_writeString(va_arg(argp, char*));
+			} else if (c == 's')
+				USART_writeString(va_arg(argp, char*), USART_RAM);
 				
 			else
-				USART_writeString("%?");
+				USART_writeString(PSTR("%?"), USART_FLASH);
 				
 			ctrvFlag = false;
 		}
@@ -227,27 +229,42 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 
 		// "IODIR" register selecting
 		I2C_START(status)
-		if (status == 0 || I2C_Write(myID << 1)  == 0 || I2C_Write(IODIR_ADDR) == 0) {
-			// ERROR
-		
-		} else {
+		if (status == 1) {
+			I2C_WRITE((myID << 1), status)
+			if (status) I2C_WRITE(IODIR_ADDR, status)
+		}
+
+		if (status) {
 			// "IODIR" register reading
 			I2C_START(status)
-			if (status == 0 || I2C_Write((myID << 1)|1) == 0 || I2C_Read(I2C_NACK, &iodirValue) == 0) {
-				// ERROR
-
-			} else {
-				// "IODIR" register changing
-				if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
-				else               iodirValue |=  (1 << pinNumber);
-		
-				// "IODIR" register saving
-				I2C_START(status)
-				if (status == 0 || I2C_Write(myID << 1)  == 0 || I2C_Write(iodirValue) == 0){
-					// ERROR
-				}
+			if (status) {
+				I2C_WRITE(((myID << 1)|1), status)
+				if (status)
+					I2C_READ(I2C_NACK, iodirValue, status);
 			}
+		} else {
+			// ERROR!
 		}
+
+		if (status) { 
+			// "IODIR" register changing
+			if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
+			else               iodirValue |=  (1 << pinNumber);
+		
+			// "IODIR" register saving
+			I2C_START(status)
+			if (status) {
+				I2C_WRITE((myID << 1), status)
+				if (status) I2C_WRITE(iodirValue, status)
+			}
+		} else {
+			// ERROR!
+		}
+
+		if (status == 0) {
+			// ERROR!
+		}
+
 		I2C_STOP;
         
 	} else {
@@ -290,22 +307,35 @@ bool getPinValue (const char *code) {
 	else if (port >= '0' && port <= '9') {
 		uint8_t myID      = port - '0';
 		uint8_t gpioValue = 0;
-		uint8_t status;
+		uint8_t status    = 0;
 		
 		// "GPIO" register selecting
 		I2C_START(status);
-		if (status && I2C_Write(myID << 1) && I2C_Write(GPIO_ADDR)) {
-		
+		if (status) {
+			I2C_WRITE((myID << 1), status)
+			if (status) 
+				I2C_WRITE(GPIO_ADDR, status);
+		}
+
+		if (status) {
 			// "GPIO" register reading
 			I2C_START(status);
-			if (status && I2C_Write((myID << 1) | 1) && I2C_Read(I2C_NACK, &gpioValue))
-				out = gpioValue & (1 << pinNumber);
-			else {
-				// ERROR
+			if (status) {
+				I2C_WRITE(((myID << 1) | 1), status)
+				if (status) {
+					I2C_READ(I2C_NACK, gpioValue, status)
+					if (status)
+						out = gpioValue & (1 << pinNumber);
+				}
 			}
-		 } else {
+		} else {
 			// ERROR
-		 }
+		}
+
+		if (status) {
+			// ERROR
+		}
+
 		I2C_STOP;
 		
 	} else {
@@ -404,7 +434,16 @@ void pullUpEnabling (const char *code) {
 
 		// "IODIR" register selecting
 		I2C_START(status);
-		if (status == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(GPPU_ADDR) == 0 || I2C_Write(1 << pinNumber) == 0) {
+		if (status) {
+			I2C_WRITE((myID << 1), status)
+			if (status) {
+				I2C_WRITE(GPPU_ADDR, status)
+				if (status)
+					I2C_WRITE((1 << pinNumber), status)
+			}
+		}
+		
+		if (status == 0) {
 			// ERROR!
 		}
 		I2C_STOP;
@@ -448,31 +487,45 @@ void setPinValue (const char *code, uint8_t value) {
 	} else if (port >= '0' && port <= '9') {
 		uint8_t myID      = port - '0';
 		uint8_t gpioValue = 0;
-		uint8_t status;
+		uint8_t status = 0;
 
 		// "GPIO" register selecting
 		I2C_START(status);
-		if (status == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(GPIO_ADDR)) {
-			// ERROR
+		if (status) {
+			I2C_WRITE((myID << 1), status)
+			if (status) I2C_WRITE(GPIO_ADDR, status)
+		}
 
 		// "GPIO" register reading
-		} else {
+		if (status) {
 			I2C_START(status);
-			if (status == 0 || I2C_Write((myID << 1)|1) == 0 || I2C_Read(I2C_NACK, &gpioValue) == 0) {
-				// ERROR
-
-			} else {
-				if (value)  gpioValue |=  (1 << pinNumber);
-				else        gpioValue &= ~(1 << pinNumber);
-		
-				// "GPIO" register saving
-				I2C_START(status);
-				if (status == 0 || I2C_Write(myID << 1) == 0 || I2C_Write(gpioValue)) {
-					// ERROR
-				}
+			if (status) {
+				I2C_WRITE(((myID << 1)|1), status)
+				if (status)
+					I2C_READ(I2C_NACK, gpioValue, status);
 			}
+		} else {
+			// ERROR
+		}
+
+		if (status) {
+			if (value)  gpioValue |=  (1 << pinNumber);
+			else        gpioValue &= ~(1 << pinNumber);
+		
+			// "GPIO" register saving
+			I2C_START(status);
+			if (status) {
+				I2C_WRITE((myID << 1), status)
+				if (status) I2C_WRITE(gpioValue, status)
+			}
+		} else {
+			// ERROR
 		}
 		
+		if (status == 0) {
+			// ERROR
+		}
+
 		I2C_STOP;
 		
 	} else {

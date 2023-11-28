@@ -54,7 +54,7 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 	MCP23008_devAddr |= 64;
 
 	// I2C bus initialization
-	I2C_init();
+	I2C_INIT
 	
 	//
 	// Sequential access disabling
@@ -78,9 +78,12 @@ uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	//
 	uint8_t status;
 	I2C_START(status)
-	return(
-		status && I2C_Write(MCP23008_devAddr) && I2C_Write(regAddr)
-	); 
+	if (status) {
+		I2C_WRITE(MCP23008_devAddr, status)
+		if (status) 
+			I2C_WRITE(regAddr, status)
+	}
+	return(status); 
 }
 
 
@@ -91,9 +94,12 @@ uint8_t regReading_MCP23008 (uint8_t *value) {
 	//
 	uint8_t status;
 	I2C_START(status)
-	return(
-		status && I2C_Write(MCP23008_devAddr|1) && I2C_Read(I2C_NACK, value)
-	);
+	if (status) {
+		I2C_WRITE(MCP23008_devAddr|1, status)
+		if (status) 
+			I2C_READ(I2C_NACK, *value, status)
+	}
+	return(status);
 }
 
 
@@ -104,7 +110,10 @@ uint8_t regSaving_MCP23008 (uint8_t value) {
 	//
 	uint8_t status;
 	I2C_START(status)
-	return(
-		status && I2C_Write(MCP23008_devAddr) && I2C_Write(value)
-	);
+	if (status) {
+		I2C_WRITE(MCP23008_devAddr, status)
+		if (status)
+			I2C_WRITE(value, status)
+	}
+	return(status);
 }
