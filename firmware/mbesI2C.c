@@ -57,96 +57,11 @@
 
 #define DELAYSTEP 10
 
-#define TOUTFLAGSRESET TWCR = (1 << TWINT) | (1 << TWEN)
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                       P U B L I C   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
 
-uint8_t waitForTwint() {
-	//
-	// Description:
-	//	It is used to wait for data received
-	//
-	//	------+             +---------
-	//	<user>|    <MCU>    | <MCU>
-	//	      +-------//----+
-	//	  (op. start)    (op. end)
-	//
-	// Returned value
-	//	0  WARNING! timeout achieved
-	//	1  OK, data is ready
-	//
-	uint16_t tout = I2C_TIMEOUT / DELAYSTEP;
-	
-	while ((TWCR & (1 << TWINT)) == 0 && tout > 0) {
-		_delay_ms(DELAYSTEP);
-		tout--;
-	}
-	if (tout == 0) TIMEOUTMSG(__FUNCTION__)
-	return(tout > 0 ? 1 : 0);
-}
-
-
-void I2C_init (void) {
-	//
-	// Description:
-	//	I2C Initialization
-	//
-	LOGTRACE(__FUNCTION__)
-	TWCR = 0x00;                            // Interrupts disabling
-	TWBR = (uint8_t)(((F_CPU / I2C_CLOCK_FREQ) - 16) / 2);
-	TWSR = 0x00;                            // Prescaler = 1
-	TWCR = 1 << TWEN;
-
-#if I2C_INTPULLUP == 1
-	// Internal pull-up resistors
-	PORTC |= 1;      // SCL: PC0(PIN=22)
-	PORTC |= 1 << 1; // SDA: PC1(PIN=23)
-#endif
-
-	return;
-}
-
-
-uint8_t I2C_Write (uint8_t data) {
-	//
-	// Description:
-	//	It sends the argument defined byte using the I2C BUS, and returns the transmission status
-	//
-	//	When an event requiring the attention of the application occurs on the TWI bus, the TWI Interrupt Flag (TWINT) is
-	//	asserted. In the next clock cycle, the TWI Status Register (TWSR) is updated with a status code identifying the
-	//	event. The TWSR only contains relevant status information when the TWI Interrupt Flag is asserted.
-	//
-	LOGTRACE(__FUNCTION__)
-	TWDR = data;
-	TOUTFLAGSRESET ;
-	return(waitForTwint());
-}
-
-
-uint8_t I2C_Read (mbesI2CopType optType, uint8_t *data) {
-	//
-	// Description:
-	//	It reads a byte from the I2C bus and returns it. 
-	//
-	uint8_t err = 0;
-	LOGTRACE(__FUNCTION__)
-
-	if (optType == I2C_ACK) {
-		TOUTFLAGSRESET | (1 << TWEA); 
-		logMsg("ACK will be expected");
-	} else {
-		TOUTFLAGSRESET ;
-		logMsg("NO ACK will be expected");
-	}
-
-	// Waiting  for data cknowledge
-	err = waitForTwint();
-	
-	*data = TWDR;
-
-	return(err);
-}
-
-
+//
+// TODO: using the macros to get the typical function APIs (when the RAM size is not so important or when the flash size is the
+//       important one)
