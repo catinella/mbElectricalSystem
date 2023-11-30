@@ -64,14 +64,14 @@
 
 #if DEBUG == 0
 #define LOGTRACE
-#define TIMEOUTMSG(X)
+#define TIMEOUTMS          ;
 #define TIMEOUTMSG(X, Y)
 #else
-#define LOGTRACE(X)        logMsg(PSTR("%s(): start"), X);
-#define LOGTRACEWP(X, Y)   logMsg(PSTR("%s(%d): start"), X, Y);
+#define LOGTRACE(X)        logMsg(PSTR("%s()"), X);
+#define LOGTRACEWP(X, Y)   logMsg(PSTR("%s(%d)"), X, Y);
 #endif
 
-#define TIMEOUTMSG(X)      logMsg(PSTR("%s(): timeout"), X);
+#define TIMEOUTMSG         logMsg(PSTR("[!] Timeout"));
 #define I2C_CLOCK_FREQ     10000
 #define I2C_TIMEOUT        100
 #define DELAYSTEP          10
@@ -190,7 +190,8 @@ typedef enum _mbesI2CopType {
 		_delay_ms(DELAYSTEP);                      \
 		tout--;                                    \
 	}                                                \
-	if (tout == 0) TIMEOUTMSG(__FUNCTION__)          \
+	if (tout == 0) TIMEOUTMSG                        \
+	_delay_ms(DELAYSTEP);                            \
 }
 
 
