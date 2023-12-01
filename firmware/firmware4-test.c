@@ -44,6 +44,7 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 
+
 //
 // I2C I/O extender MCP23008XP's regirters
 //
@@ -52,9 +53,16 @@
 #define GPPU_ADDR  0x06
 #define GPIO_ADDR  0x09
 
+
 #define MC23008AP (MC23008_ADDR << 1) | 64
 
+
+//
+// MPC23008 configuration
+//
 #define IOCON_VALUE 38
+#define IODIR_VALUE 1
+#define GPU_VALUE   1
 
 
 typedef enum _i2cMop {
@@ -74,7 +82,6 @@ int main() {
 	uint8_t  regValue = 0;
 	uint8_t  regAddr = 0;
 	uint8_t  st = 0;
-	uint8_t  iodirValue = 0;
 	uint8_t  gpioValue = 0;
 
 	USART_Init(9600);
@@ -125,7 +132,7 @@ int main() {
 		} else if (st == 4) {
 			mop = I2C_NOP;
 			if ((regValue & IOCON_VALUE) == IOCON_VALUE) {
-				USART_writeString(PSTR("[OK] Device configured (1/2)\n\r"), USART_FLASH);
+				USART_writeString(PSTR("[OK] Device configured (1/3)\n\r"), USART_FLASH);
 				st = 10;
 			} else {
 				USART_writeString(PSTR("[ERROR] IOCON setting failed\n\r"), USART_FLASH);
@@ -141,27 +148,10 @@ int main() {
 			_delay_ms(1);
 			regAddr = IODIR_ADDR;
 			mop = REGISTER_SELECTING;
-			st = 11;
-
-		} else if (st == 11) {
-			regValue = 0;
-			mop = REGISTER_READING;
-			st = 12;
-
-		} else if (st == 12) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = IODIR_ADDR;
-			mop = REGISTER_SELECTING;
 			st = 13;
 
 		} else if (st == 13) {
-			// "IODIR" register changing
-			regValue &= ~(1 << 3);            // GP3 (bit0 --> OUTPUT)
-			regValue |=  (1 << 0);            // GP0 (bit1 --> INPUT)
-			logMsg(PSTR("IODIR new value: %d"), regValue);
-			iodirValue = regValue;
-
+			regValue = IODIR_VALUE;
 			mop = REGISTER_UPDATING;
 			st = 14;
 
@@ -177,11 +167,49 @@ int main() {
 			st = 16;
 
 		} else if (st == 16) {
-			if (regValue == iodirValue) {
-				USART_writeString(PSTR("[OK] Device configured (2/2)\n\r"), USART_FLASH);
-				st = 127;
+			if (regValue == IODIR_VALUE) {
+				USART_writeString(PSTR("[OK] Device configured (2/3)\n\r"), USART_FLASH);
+				st = 20;
 			} else {
 				USART_writeString(PSTR("[ERROR] IODIR setting failed\n\r"), USART_FLASH);
+				st = 127;
+			}
+			mop = I2C_NOP;
+
+
+		//
+		// GPPU Register
+		//
+
+		} else if (st == 20) {
+			I2C_STOP
+			_delay_ms(1);
+			regAddr = GPPU_ADDR;
+			mop = REGISTER_SELECTING;
+			st = 21;
+
+		} else if (st == 21) {
+			regValue = GPU_VALUE;
+			mop = REGISTER_UPDATING;
+			st = 22;
+
+		} else if (st == 22) {
+			I2C_STOP
+			_delay_ms(1);
+			regAddr = GPPU_ADDR;
+			mop = REGISTER_SELECTING;
+			st = 23;
+
+		} else if (st == 23) {
+			mop = REGISTER_READING;
+			st = 24;
+
+		} else if (st == 24) {
+			if (regValue == GPU_VALUE) {
+				USART_writeString(PSTR("[OK] Device configured (3/3)\n\r"), USART_FLASH);
+				st = 60;
+			} else {
+				USART_writeString(PSTR("[ERROR]GPU setting failed\n\r"), USART_FLASH);
 				st = 127;
 			}
 			mop = I2C_NOP;
@@ -191,47 +219,48 @@ int main() {
 		// GPIO Register
 		//
 
-		} else if (st == 20) {
+		} else if (st == 60) {
 			I2C_STOP
 			_delay_ms(1);
 			regAddr = GPIO_ADDR;
 			mop = REGISTER_SELECTING;
-			st = 21;
+			st = 61;
 
-		} else if (st == 21) {
+		} else if (st == 61) {
 			regValue = 0;
 			mop = REGISTER_READING;
-			st = 22;
+			st = 62;
 
-		} else if (st == 22) {
+		} else if (st == 62) {
 			I2C_STOP
 			_delay_ms(1);
 			regAddr = GPIO_ADDR;
 			mop = REGISTER_SELECTING;
-			st = 23;
+			st = 63;
 
-		} else if (st == 23) {
+		} else if (st == 63) {
 			//update
-			gpioValue = regValue;
+			if ((regValue & 1) == 1) regValue |= (1 << 3);
+			else                     regValue &= ~(1 << 3);
 
 			mop = REGISTER_UPDATING;
-			st = 24;
+			st = 64;
 
-		} else if (st == 24) {
+		} else if (st == 64) {
 			I2C_STOP
 			_delay_ms(1);
 			regAddr = GPIO_ADDR;
 			mop = REGISTER_SELECTING;
-			st = 25;
+			st = 65;
 
-		} else if (st == 25) {
+		} else if (st == 65) {
 			mop = REGISTER_READING;
-			st = 26;
+			st = 66;
 		
-		} else if (st == 26) {
+		} else if (st == 66) {
 			if (gpioValue == regValue) {
 				USART_writeString(PSTR("[OK] Inputs/outputs verified\n\r"), USART_FLASH);
-				st = 20;
+				st = 60;
 			} else {
 				USART_writeString(PSTR("[ERROR] I/O acknowledge/setting failed \n\r"), USART_FLASH);
 				st = 127;
