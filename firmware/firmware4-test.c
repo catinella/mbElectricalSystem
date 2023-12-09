@@ -62,14 +62,16 @@
 //
 #define IOCON_VALUE 38
 #define IODIR_VALUE 1
-#define GPU_VALUE   1
+#define GPPU_VALUE  1
 
 
 typedef enum _i2cMop {
 	REGISTER_SELECTING,
 	REGISTER_READING,
 	REGISTER_UPDATING,
-	I2C_NOP
+	REGISTER_CHECK,
+	I2C_NOP,
+	I2CDEV_ERROR
 } i2cMop;
 
 
@@ -81,6 +83,7 @@ int main() {
 	uint8_t  status = 1;
 	uint8_t  regValue = 0;
 	uint8_t  regAddr = 0;
+	uint8_t  expRegValue = 0;
 	uint8_t  st = 0;
 	uint8_t  gpioValue = 0;
 
@@ -100,172 +103,53 @@ int main() {
 			USART_writeString(PSTR("ERROR! I2C-BUS communication failed\n\n\r"), USART_FLASH);
 			st = 127;
 			mop = I2C_NOP;
-
-		//
-		// IOCON Register
-		//
-
-		} else if (st == 0) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = IOCON_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 1;
-
-		} else if (st == 1) {
-			regValue = IOCON_VALUE;
-			mop = REGISTER_UPDATING;
-			st = 2;
-
-		} else if (st == 2) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = IOCON_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 3;
-
-		} else if (st == 3) {
-			regValue = 0;
-			mop = REGISTER_READING;
-			st = 4;
-
-		} else if (st == 4) {
-			mop = I2C_NOP;
-			if ((regValue & IOCON_VALUE) == IOCON_VALUE) {
-				USART_writeString(PSTR("[OK] Device configured (1/3)\n\r"), USART_FLASH);
-				st = 10;
-			} else {
-				USART_writeString(PSTR("[ERROR] IOCON setting failed\n\r"), USART_FLASH);
-				st = 127;
-			}
-
-		//
-		// IODIR Register
-		//
-
-		} else if (st == 10) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = IODIR_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 13;
-
-		} else if (st == 13) {
-			regValue = IODIR_VALUE;
-			mop = REGISTER_UPDATING;
-			st = 14;
-
-		} else if (st == 14) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = IODIR_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 15;
-
-		} else if (st == 15) {
-			mop = REGISTER_READING;
-			st = 16;
-
-		} else if (st == 16) {
-			if (regValue == IODIR_VALUE) {
-				USART_writeString(PSTR("[OK] Device configured (2/3)\n\r"), USART_FLASH);
-				st = 20;
-			} else {
-				USART_writeString(PSTR("[ERROR] IODIR setting failed\n\r"), USART_FLASH);
-				st = 127;
-			}
-			mop = I2C_NOP;
+		} 
 
 
 		//
-		// GPPU Register
+		// Registers loading
 		//
+		else if (st == 0)  {regAddr  = IOCON_ADDR;     mop = REGISTER_SELECTING; st = 3;}
+		else if (st == 3)  {regValue = IOCON_VALUE;    mop = REGISTER_UPDATING;  st = 6;}
+		else if (st == 6)  {regAddr  = IODIR_ADDR;     mop = REGISTER_SELECTING; st = 9;}
+		else if (st == 9)  {regValue = IODIR_VALUE;    mop = REGISTER_UPDATING;  st = 12;}
+		else if (st == 12) {regAddr  = GPPU_ADDR;      mop = REGISTER_SELECTING; st = 15;}
+		else if (st == 15) {regValue = GPPU_VALUE;     mop = REGISTER_UPDATING;  st = 20;}
 
-		} else if (st == 20) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = GPPU_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 21;
 
-		} else if (st == 21) {
-			regValue = GPU_VALUE;
-			mop = REGISTER_UPDATING;
-			st = 22;
+		//
+		// Checking for the configured registers
+		//
+		else if (st == 20) {regAddr     = IOCON_ADDR;  mop = REGISTER_SELECTING; st = 23;}
+		else if (st == 23) {regValue    = 0;           mop = REGISTER_READING;   st = 26;}
+		else if (st == 26) {expRegValue = IOCON_VALUE; mop = REGISTER_CHECK;     st = 30;}
 
-		} else if (st == 22) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = GPPU_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 23;
+		else if (st == 30) {regAddr     = IODIR_ADDR;  mop = REGISTER_SELECTING; st = 33;}
+		else if (st == 33) {regValue    = 0;           mop = REGISTER_READING;   st = 36;}
+		else if (st == 36) {expRegValue = IODIR_VALUE; mop = REGISTER_CHECK;     st = 40;}
 
-		} else if (st == 23) {
-			mop = REGISTER_READING;
-			st = 24;
-
-		} else if (st == 24) {
-			if (regValue == GPU_VALUE) {
-				USART_writeString(PSTR("[OK] Device configured (3/3)\n\r"), USART_FLASH);
-				st = 60;
-			} else {
-				USART_writeString(PSTR("[ERROR]GPU setting failed\n\r"), USART_FLASH);
-				st = 127;
-			}
-			mop = I2C_NOP;
+		else if (st == 40) {regAddr     = GPPU_ADDR;   mop = REGISTER_SELECTING; st = 43;}
+		else if (st == 43) {regValue    = 0;           mop = REGISTER_READING;   st = 46;}
+		else if (st == 46) {expRegValue = GPPU_VALUE;  mop = REGISTER_CHECK;     st = 60;}
 
 
 		//
 		// GPIO Register
 		//
 
-		} else if (st == 60) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = GPIO_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 61;
-
-		} else if (st == 61) {
-			regValue = 0;
-			mop = REGISTER_READING;
-			st = 62;
-
-		} else if (st == 62) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = GPIO_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 63;
-
-		} else if (st == 63) {
+		else if (st == 60) {regAddr  = GPIO_ADDR;      mop = REGISTER_SELECTING; st = 61;}
+		else if (st == 61) {regValue = 0;              mop = REGISTER_READING;   st = 62;}
+		else if (st == 62) {regAddr  = GPIO_ADDR;      mop = REGISTER_SELECTING; st = 63;}
+		else if (st == 63) {
 			//update
 			if ((regValue & 1) == 1) regValue |= (1 << 3);
 			else                     regValue &= ~(1 << 3);
-
-			mop = REGISTER_UPDATING;
-			st = 64;
-
-		} else if (st == 64) {
-			I2C_STOP
-			_delay_ms(1);
-			regAddr = GPIO_ADDR;
-			mop = REGISTER_SELECTING;
-			st = 65;
-
-		} else if (st == 65) {
-			mop = REGISTER_READING;
-			st = 66;
-		
-		} else if (st == 66) {
-			if (gpioValue == regValue) {
-				USART_writeString(PSTR("[OK] Inputs/outputs verified\n\r"), USART_FLASH);
-				st = 60;
-			} else {
-				USART_writeString(PSTR("[ERROR] I/O acknowledge/setting failed \n\r"), USART_FLASH);
-				st = 127;
-			}
+			expRegValue = regValue;
+			mop = REGISTER_UPDATING; st = 64;
 		}
+		else if (st == 64) {regAddr  = GPIO_ADDR;      mop = REGISTER_SELECTING; st = 65;}
+		else if (st == 65) {regValue = 0;              mop = REGISTER_READING;   st = 66;}
+		else if (st == 66) {                           mop = REGISTER_CHECK;     st = 60;}
 
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -277,6 +161,8 @@ int main() {
 		// register selecting
 		//
 		if (mop == REGISTER_SELECTING) {
+			I2C_STOP
+			_delay_ms(1);
 			status = 0;
 			USART_writeString(PSTR("\nRegister selecting \n\r"), USART_FLASH);
 			I2C_START(status)
@@ -319,6 +205,33 @@ int main() {
 				}
 			}
 
+
+		//
+		// register checking
+		//
+		} else if (mop == REGISTER_CHECK) {
+			if (regAddr != GPIO_ADDR) {
+				if (regValue == expRegValue) {
+					USART_writeString(PSTR("[OK] the register is configured\n\r"), USART_FLASH);
+					status = 1;
+				} else {
+					USART_writeString(PSTR("[ERROR] I cannot configure the register\n\r"), USART_FLASH);
+					status = 0;
+				}
+			} else {
+				if (gpioValue == regValue) {
+					USART_writeString(PSTR("[OK] Inputs/outputs verified\n\r"), USART_FLASH);
+					status = 1;
+				} else {
+					USART_writeString(PSTR("[ERROR] I/O acknowledge/setting failed \n\r"), USART_FLASH);
+					status = 0;
+				}
+			}
+
+		//
+		// ERROR
+		//
+		} else if (mop == I2CDEV_ERROR) {
 		}
 
 		_delay_ms(100);
