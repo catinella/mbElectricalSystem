@@ -29,11 +29,11 @@
 #ifndef DEBUGTOOLS
 #define DEBUGTOOLS
 
-#ifndef DEBUG
-#define DEBUG 0
+#ifndef MOCK
+#define MOCK 0
 #endif
 
-#if DEBUG > 0
+#if MOCK == 1
 #define DBGTRACE   fprintf(stdout, "---> %s::%s() pid=%d line=%d\n", __FILE__, __func__, getpid(), __LINE__); fflush(stdout);
 #define DBGBREAK   {printf("\nPress [RETURN] to continue\n\n"); fflush(stdout); getchar();}
 #define MYSYSLOG   syslog
