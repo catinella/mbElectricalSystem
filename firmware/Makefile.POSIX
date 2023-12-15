@@ -72,10 +72,11 @@ STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
 OBJCOPY  = $(AVR-GCC_HOME)/bin/avr-objcopy
 CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
            -funsigned-bitfields -fpack-struct
-SYMBOLS  = 
+SYMBOLS  = "-DDEBUG=$(DEBUG)"
 LDFLAGS  = 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
 
+DEBUG   ?= 0
 
 BUILD4MPLABX    ?= 0
 MPLABXTGTDIR     = dist/default/production
