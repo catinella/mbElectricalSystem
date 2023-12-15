@@ -27,12 +27,19 @@
 //	       [////]
 //	       TWIE: TWI Interrupt Enable
 //	
+//	
+//	DEBUG mode
+//	==========
+//	In order to enable the debug messages, you have to set the DEBUG symbol to a value that is greather then 1 
+//	[!] Consider the verbouse messages on serial console can have impact on timing and performance data.
+//	
+//	
 //	Error codes convention
 //	======================
 //	All functions that returns a uint8_t error codes, respect the following convention:
 //		0 // Warning or Error
 //		1 // Success
-//
+//	
 //
 //
 // License:
@@ -62,13 +69,12 @@
 #define DEBUG 1
 #endif
 
-#if DEBUG == 0
-#define LOGTRACE
-#define TIMEOUTMS          ;
-#define TIMEOUTMSG(X, Y)
-#else
+#if DEBUG > 1
 #define LOGTRACE(X)        logMsg(PSTR("%s()"), X);
 #define LOGTRACEWP(X, Y)   logMsg(PSTR("%s(%d)"), X, Y);
+#else
+#define LOGTRACE(X)         ;
+#define LOGTRACEWP(X, Y)    ;
 #endif
 
 #define TIMEOUTMSG         logMsg(PSTR("[!] Timeout"));
