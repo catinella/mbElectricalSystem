@@ -92,7 +92,9 @@ int main() {
 	I2C_INIT
 	_delay_ms(500);
 	
+	#if DEBUG > 0
 	USART_writeString(PSTR("************* TEST START *************\n\r"), USART_FLASH);
+	#endif
 
 	while (st < 127) {
 		
@@ -138,18 +140,14 @@ int main() {
 		//
 
 		else if (st == 60) {regAddr  = GPIO_ADDR;      mop = REGISTER_SELECTING; st = 61;}
-		else if (st == 61) {regValue = 0;              mop = REGISTER_READING;   st = 62;}
-		else if (st == 62) {regAddr  = GPIO_ADDR;      mop = REGISTER_SELECTING; st = 63;}
+		else if (st == 61) {regValue = 0;              mop = REGISTER_READING;   st = 63;}
 		else if (st == 63) {
 			//update
 			if ((regValue & 1) == 1) regValue |= (1 << 3);
 			else                     regValue &= ~(1 << 3);
 			expRegValue = regValue;
-			mop = REGISTER_UPDATING; st = 64;
+			mop = REGISTER_UPDATING; st = 60;
 		}
-		else if (st == 64) {regAddr  = GPIO_ADDR;      mop = REGISTER_SELECTING; st = 65;}
-		else if (st == 65) {regValue = 0;              mop = REGISTER_READING;   st = 66;}
-		else if (st == 66) {                           mop = REGISTER_CHECK;     st = 60;}
 
 
 		//------------------------------------------------------------------------------------------------------------------
@@ -164,7 +162,9 @@ int main() {
 			I2C_STOP
 			_delay_ms(1);
 			status = 0;
+			#if DEBUG > 0
 			USART_writeString(PSTR("\nRegister selecting \n\r"), USART_FLASH);
+			#endif
 			I2C_START(status)
 			if (status) {
 				I2C_WRITE(MC23008AP, status)
@@ -179,14 +179,18 @@ int main() {
 		} else if (mop == REGISTER_READING) {
 			status = 0;
 			regValue = 0;
+			#if DEBUG > 0
 			USART_writeString(PSTR("\nRegister reading\n\r"), USART_FLASH);
+			#endif
 			I2C_START(status)
 			if (status) {
 				I2C_WRITE(MC23008AP|1, status)
 				if (status) {
 					I2C_READ(I2C_NACK, regValue, status)
-					if (status) 
+					#if DEBUG > 0
+					if (status)
 						logMsg(PSTR("%d register's value: %d"), regAddr, regValue);
+					#endif
 				}
 			}
 
@@ -196,7 +200,9 @@ int main() {
 		//
 		} else if (mop == REGISTER_UPDATING) {
 			status = 0;
+			#if DEBUG > 0
 			USART_writeString(PSTR("\nRegister updating\n\r"), USART_FLASH);
+			#endif
 			I2C_START(status)
 			if (status == 1) {
 				I2C_WRITE(MC23008AP, status);
@@ -212,18 +218,26 @@ int main() {
 		} else if (mop == REGISTER_CHECK) {
 			if (regAddr != GPIO_ADDR) {
 				if (regValue == expRegValue) {
+					#if DEBUG > 0
 					USART_writeString(PSTR("[OK] the register is configured\n\r"), USART_FLASH);
+					#endif
 					status = 1;
 				} else {
+					#if DEBUG > 0
 					USART_writeString(PSTR("[ERROR] I cannot configure the register\n\r"), USART_FLASH);
+					#endif
 					status = 0;
 				}
 			} else {
 				if (gpioValue == regValue) {
+					#if DEBUG > 0
 					USART_writeString(PSTR("[OK] Inputs/outputs verified\n\r"), USART_FLASH);
+					#endif
 					status = 1;
 				} else {
+					#if DEBUG > 0
 					USART_writeString(PSTR("[ERROR] I/O acknowledge/setting failed \n\r"), USART_FLASH);
+					#endif
 					status = 0;
 				}
 			}
@@ -234,7 +248,11 @@ int main() {
 		} else if (mop == I2CDEV_ERROR) {
 		}
 
+		#if DEBUG > 0
 		_delay_ms(100);
+		#else
+		_delay_ms(5);
+		#endif
 	}
 			
 
