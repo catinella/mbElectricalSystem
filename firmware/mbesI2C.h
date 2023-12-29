@@ -80,7 +80,7 @@
 #define TIMEOUTMSG         logMsg(PSTR("[!] Timeout"));
 #define I2C_CLOCK_FREQ     10000
 #define I2C_TIMEOUT        100
-#define DELAYSTEP          10
+#define DELAYSTEP          2
 
 
 typedef enum _mbesI2CopType {

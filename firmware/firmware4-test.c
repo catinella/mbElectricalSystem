@@ -251,7 +251,7 @@ int main() {
 		#if DEBUG > 0
 		_delay_ms(100);
 		#else
-		_delay_ms(5);
+		_delay_ms(1);
 		#endif
 	}
 			
