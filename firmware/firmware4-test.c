@@ -54,7 +54,7 @@
 #define GPIO_ADDR  0x09
 
 
-#define MC23008AP (MC23008_ADDR << 1) | 64
+#define MC23008AP (MCP23008_ADDR << 1) | 64
 
 
 //
