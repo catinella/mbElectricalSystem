@@ -53,21 +53,28 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 	MCP23008_devAddr = MCP23008_devAddr << 1;  // The first bit is used to set the I/O operation type (read/write)
 	MCP23008_devAddr |= 64;
 
+
 	// I2C bus initialization
 	I2C_INIT
+
 	
 	//
 	// Sequential access disabling
 	//
-	{
-	/*
-		uint8_t reg = 0;
-		if (regSelecting_MCP23008(MCP23008_IOCON) && regReading_MCP23008(&reg)) {
-			reg |= (1 << SEQOPT);
-			if (regSaving_MCP23008(reg)) ec = 1;
+	if (regSelecting_MCP23008(MCP23008_IOCON)) {
+		_delay_ms(1);
+		if (regSaving_MCP23008(MCP23008_IOCON_VALUE)) {
+			I2C_STOP
+			if (regSelecting_MCP23008(MCP23008_IOCON)) {
+				uint8_t reg = 0;
+				_delay_ms(1);
+				if (regReading_MCP23008(&reg) > 0 && reg == MCP23008_IOCON_VALUE)
+					// IOCON has been successfully configured
+					ec = 1 ;
+			}
 		}
-	*/
 	}
+		
 	return(ec);
 }
 
@@ -76,13 +83,16 @@ uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	// Description
 	//	This function allows you to select a MCD23008's register
 	//
-	uint8_t status;
+	uint8_t status = 0;
+	I2C_STOP
+	_delay_ms(1);
+	#if DEBUG > 0
+	logMsg(PSTR("%d-register selecting..."), regAddr, regValue);
+	#endif
 	I2C_START(status)
-	if (status) {
-		I2C_WRITE(MCP23008_devAddr, status)
-		if (status) 
-			I2C_WRITE(regAddr, status)
-	}
+	if (status) I2C_WRITE(MCP23008_devAddr, status)
+	if (status) I2C_WRITE(regAddr, status)
+
 	return(status); 
 }
 
@@ -92,12 +102,19 @@ uint8_t regReading_MCP23008 (uint8_t *value) {
 	// Description
 	//	This function allows you to read the previousle selelected registers
 	//
-	uint8_t status;
+	uint8_t status = 0;
+	#if DEBUG > 0
+	logMsg(PSTR("Register reading..."));
+	#endif
 	I2C_START(status)
 	if (status) {
 		I2C_WRITE(MCP23008_devAddr|1, status)
-		if (status) 
+		if (status) {
 			I2C_READ(I2C_NACK, *value, status)
+			#if DEBUG > 0
+			if (status) logMsg(PSTR("Register's value: %d"), value);
+			#endif
+		}
 	}
 	return(status);
 }
@@ -108,12 +125,17 @@ uint8_t regSaving_MCP23008 (uint8_t value) {
 	// Description
 	//	This function allows you to write the previouse selelected registers
 	//
-	uint8_t status;
+	uint8_t status = 0;
+	
+	#if DEBUG > 0
+	logMsg(PSTR("Register updating..."));
+	#endif
 	I2C_START(status)
-	if (status) {
-		I2C_WRITE(MCP23008_devAddr, status)
-		if (status)
+	if (status == 1) {
+		I2C_WRITE(MCP23008_devAddr, status);
+		if (status == 1)
 			I2C_WRITE(value, status)
 	}
+	
 	return(status);
 }

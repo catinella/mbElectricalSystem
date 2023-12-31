@@ -46,6 +46,7 @@
 #define MCP23008_GPIO    0x09
 #define MCP23008_OLAT    0x0A
 
+#define MCP23008_IOCON_VALUE 38
 
 uint8_t init_MCP23008         (uint8_t devAddr);
 uint8_t regSelecting_MCP23008 (uint8_t regAddr);
