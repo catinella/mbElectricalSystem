@@ -15,6 +15,8 @@
 //	This test has been developped to ckeck for the mbesMCP23008 library. To check for lower level library, consider the
 //	firmware4-test.c firmware
 //
+//	This test will read the MCP23008-XP's GP0 (pin-10) status and will set the GP3 (pin-13) at the same status.
+
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 //
@@ -120,9 +122,15 @@ int main() {
 
 			
 		} else if (state == GPIO_WRITE) {
-			if ((regValue & 1) == 1) regValue |= (1 << 3);
-			else                     regValue &= ~(1 << 3);
-
+			if ((regValue & 1) == 1)
+				regValue |= (1 << 3);
+			else {
+				regValue &= ~(1 << 3);
+				#if DEBUG > 0
+				USART_writeString(PSTR("Pushed button!!\n\n\r"), USART_FLASH);
+				#endif
+			}
+			
 			if (regSaving_MCP23008(regValue) == 0) {
 				// ERROR
 				USART_writeString(PSTR("ERROR! GPIO register reading failed\n\n\r"), USART_FLASH);
