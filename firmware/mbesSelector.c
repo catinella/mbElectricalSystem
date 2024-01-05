@@ -31,6 +31,7 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 
+/*
 #if MOCK == 1
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -184,10 +185,7 @@ void mbesSelector_init (struct mbesSelector *item, selectorType type, const char
 	}
 	
 	// PINs direction setting
-	pinDirectionRegister(pin, INPUT);
-	
-	// PullUP resistor setting
-	pullUpEnabling(pin);
+	pinDirectionRegister(pin, type);
 	
 	item->pin[0]  = pin[0];
 	item->pin[1]  = pin[1];
@@ -218,6 +216,7 @@ void mbesSelector_update (struct mbesSelector *item) {
 	// Description:
 	//	This function updates the internal representation of the phisical device (button/switch..).
 	//
+	uint8_t pinValue = 1;
 	
 	if (item->fsm == 1) {
 		// It is the initial status: selector has been not yet activated. So its value is "false"
@@ -410,3 +409,4 @@ void mbesSelector_update (struct mbesSelector *item) {
 	
 	return;
 }
+*/
