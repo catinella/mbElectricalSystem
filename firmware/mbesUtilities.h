@@ -59,15 +59,15 @@ void mbesUtilities_init();
 
 void    logMsg               (const char *fmt, ...);
 void    codeConverter        (const char *code, char *port, uint8_t *pinNumber);
-void    pinDirectionRegister (const char *code, mbesPinDir dir);
-void    pullUpEnabling       (const char *code);
+uint8_t pinDirectionRegister (const char *code, mbesPinDir dir);
+uint8_t pullUpEnabling       (const char *code);
 
 
 //
 // I/O Functions
 //
-bool     getPinValue          (const char *code);
-void     setPinValue          (const char *code, uint8_t value);
+uint8_t getPinValue          (const char *code, uint8_t *value);
+uint8_t setPinValue          (const char *code, uint8_t value);
 
 
 #endif
