@@ -48,9 +48,9 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
 
-#define IN_A  "PC3"
+#define IN_A  "C3"
 #define IN_B  "00"
-#define OUT_A "PC2"
+#define OUT_A "C2"
 #define OUT_B "03"
 
 typedef enum _fsm {
