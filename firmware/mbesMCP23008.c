@@ -38,9 +38,11 @@
 #endif
 
 #if MBES_MCP23008_DEBUG > 1
-#define LOGMSG(X) logMsg(PSTR(X));
+#define LOGMSG(X)       logMsg(PSTR(X));
+#define W1V_LOGMSG(X,Y) logMsg(PSTR(X), Y);
 #else
-#define LOGMSG(X) ;
+#define LOGMSG(X)      ;
+#define W1V_LOGMSG(X,Y) ;
 #endif
 
 #if MBES_MCP23008_DEBUG > 0
@@ -66,6 +68,8 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 	//
 	uint8_t ec = 0;
 
+	W1V_LOGMSG("0x0%d-device initialization", devAddr);
+	
 	//
 	// Device address setting
 	//
@@ -88,10 +92,11 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 			if (regSelecting_MCP23008(MCP23008_IOCON)) {
 				uint8_t reg = 0;
 				_delay_ms(1);
-				if (regReading_MCP23008(&reg) > 0 && reg == MCP23008_IOCON_VALUE)
+				if (regReading_MCP23008(&reg) > 0 && reg == MCP23008_IOCON_VALUE) {
 					// IOCON has been successfully configured
 					ec = 1;
-				else
+					LOGMSG("IOCON register verified")
+				} else
 					LOGERR
 			} else
 				LOGERR
@@ -111,9 +116,7 @@ uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	uint8_t status = 0;
 	I2C_STOP
 	_delay_ms(1);
-	#if MBES_MCP23008_DEBUG > 1
-	logMsg(PSTR("%d-register selecting..."), regAddr);
-	#endif
+	W1V_LOGMSG("0x0%d-register selecting...", regAddr);
 	I2C_START(status)
 	if (status) I2C_WRITE(MCP23008_devAddr, status)
 	if (status) I2C_WRITE(regAddr, status)
@@ -134,9 +137,7 @@ uint8_t regReading_MCP23008 (uint8_t *value) {
 		I2C_WRITE(MCP23008_devAddr|1, status)
 		if (status) {
 			I2C_READ(I2C_NACK, *value, status)
-			#if MBES_MCP23008_DEBUG > 1
-			if (status) logMsg(PSTR("Register's value: %d"), value);
-			#endif
+			if (status) W1V_LOGMSG("Register's value: %d", *value)
 		}
 	}
 	return(status);
@@ -156,6 +157,7 @@ uint8_t regSaving_MCP23008 (uint8_t value) {
 		I2C_WRITE(MCP23008_devAddr, status);
 		if (status == 1)
 			I2C_WRITE(value, status)
+			if (status) W1V_LOGMSG("New register's value: %d", value)
 	}
 	
 	return(status);
