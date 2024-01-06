@@ -65,11 +65,11 @@
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 
-#ifndef DEBUG
-#define DEBUG 1
+#ifndef MBES_I2C_DEBUG
+#define MBES_I2C_DEBUG 0
 #endif
 
-#if DEBUG > 1
+#if MBES_I2C_DEBUG
 #define LOGTRACE(X)        logMsg(PSTR("%s()"), X);
 #define LOGTRACEWP(X, Y)   logMsg(PSTR("%s(%d)"), X, Y);
 #else

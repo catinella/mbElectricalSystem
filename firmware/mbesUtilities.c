@@ -48,11 +48,14 @@
 #include <mbesMock.h>
 #include <stdio.h>
 
+#ifndef MBES_UTILITIES_DEBUG
+#define MBES_UTILITIES_DEBUG 0
+#endif
 
-#if DEBUG > 0
-#define LOGERR(X, Y)   logMsg(PSTR("ERROR! in %s(%d)"), X, Y);
+#if MBES_UTILITIES_DEBUG > 0
+#define LOGERR   logMsg(PSTR("ERROR! in %s(%d)"), __FUNCTION__, __LINE__);
 #else
-#define LOGERR(X, Y)   ;
+#define LOGERR   ;
 #endif
 
 #if MOCK == 1
@@ -207,7 +210,7 @@ uint8_t pinDirectionRegister (const char *code, mbesPinDir dir) {
 	uint8_t pinNumber;
 	
 	codeConverter(code, &port, &pinNumber);
-	
+
 	if (port == 'A') {
 		if (dir == OUTPUT) DDRA |=  (1 << pinNumber);
 		else               DDRA &= ~(1 << pinNumber);
@@ -232,7 +235,7 @@ uint8_t pinDirectionRegister (const char *code, mbesPinDir dir) {
 		//
 		if (regSelecting_MCP23008(MCP23008_IODIR) == 0 || regReading_MCP23008(&iodirRegValue) == 0) {
 			// ERROR!
-			LOGERR(__FUNCTION__, __LINE__)
+			LOGERR
 			ecode = 0;
 			
 		} else {
@@ -241,7 +244,7 @@ uint8_t pinDirectionRegister (const char *code, mbesPinDir dir) {
 
 			if (regSaving_MCP23008(iodirRegValue) == 0) {
 				// ERROR!
-				LOGERR(__FUNCTION__, __LINE__)
+				LOGERR
 				ecode = 0;
 
 			} else {
@@ -256,7 +259,7 @@ uint8_t pinDirectionRegister (const char *code, mbesPinDir dir) {
 					regValue != iodirRegValue
 				) {
 					// ERROR! IODIR setting failed
-					LOGERR(__FUNCTION__, __LINE__)
+					LOGERR
 					ecode = 0;
 				}
 			}
@@ -264,7 +267,7 @@ uint8_t pinDirectionRegister (const char *code, mbesPinDir dir) {
 
 	} else {
 		// ERROR! (please check for your source code)
-		LOGERR(__FUNCTION__, __LINE__)
+		LOGERR
 	}
 
 	if (ecode && dir == INPUT) 
@@ -313,7 +316,7 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 		
 		if (regSelecting_MCP23008(MCP23008_GPIO) == 0 || regReading_MCP23008(&regValue) == 0) {
 			// ERROR!
-			LOGERR(__FUNCTION__, __LINE__)
+			LOGERR
 			ecode = 0;
 			
 		} else
@@ -322,7 +325,7 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 		
 	} else {
 		// ERROR!
-		LOGERR(__FUNCTION__, __LINE__)
+		LOGERR
 		ecode = 0;
 	}
 
@@ -419,7 +422,7 @@ uint8_t pullUpEnabling (const char *code) {
 		// Register reading...
 		if (regSelecting_MCP23008(MCP23008_GPPU) == 0 || regReading_MCP23008(&gppuRegValue) == 0) {
 			// ERROR!
-			LOGERR(__FUNCTION__, __LINE__)
+			LOGERR
 			ecode = 0;
 
 		} else {
@@ -428,7 +431,7 @@ uint8_t pullUpEnabling (const char *code) {
 			// Register setting...	
 			if (regSaving_MCP23008(gppuRegValue) == 0) {
 				// ERROR!
-				LOGERR(__FUNCTION__, __LINE__)
+				LOGERR
 				ecode = 0;
 
 			} else {
@@ -441,14 +444,14 @@ uint8_t pullUpEnabling (const char *code) {
 					regValue != gppuRegValue
 				) {
 					// ERROR!
-					LOGERR(__FUNCTION__, __LINE__)
+					LOGERR
 					ecode = 0;
 				}
 			}
 		}
 	} else {
 		// ERROR! (please, check fot your code)
-		LOGERR(__FUNCTION__, __LINE__)
+		LOGERR
 	}
 #endif
 
@@ -489,7 +492,7 @@ uint8_t setPinValue (const char *code, uint8_t value) {
 		
 		if (regSelecting_MCP23008(MCP23008_GPIO) == 0 || regReading_MCP23008(&regValue) == 0 ) {
 			// ERROR!
-			LOGERR(__FUNCTION__, __LINE__)
+			LOGERR
 			ecode = 0;
 
 		} else if (value == 0) {
@@ -501,13 +504,13 @@ uint8_t setPinValue (const char *code, uint8_t value) {
 			
 		if (ecode && regSaving_MCP23008(regValue) == 0) {
 			// ERROR!
-			LOGERR(__FUNCTION__, __LINE__)
+			LOGERR
 			ecode = 0;
 		}
 		
 	} else {
 		// ERROR! (please, check fot your code)
-		LOGERR(__FUNCTION__, __LINE__)
+		LOGERR
 	}
 
 	return(ecode);

@@ -67,17 +67,43 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 include Makefile.conf
 
+#
+# Debug symbols
+#
+DEBUG                 ?= 0
+MBES_ADCENGINE_DEBUG  ?= 0
+MBES_I2C_DEBUG        ?= 0
+MBES_MCP23008_DEBUG   ?= 0
+MBES_UTILITIES_DEBUG  ?= 0
+
+
+#
+# Building process settings
+#
 CC       = $(AVR-GCC_HOME)/bin/avr-gcc
 STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
 OBJCOPY  = $(AVR-GCC_HOME)/bin/avr-objcopy
-CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
-           -funsigned-bitfields -fpack-struct
-SYMBOLS  = "-DDEBUG=$(DEBUG)"
+CFLAGS   = -Wall -Os -mmcu=atmega16  \
+           -ffunction-sections       \
+           -fdata-sections           \
+           -fshort-enums             \
+           -fno-common               \
+           -funsigned-char           \
+           -funsigned-bitfields      \
+           -fpack-struct
 LDFLAGS  = 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
+SYMBOLS  =                                                  \
+           "-DDEBUG=$(DEBUG)"                               \
+           "-DMBES_ADCENGINE_DEBUG=$(MBES_ADCENGINE_DEBUG)" \
+           "-DMBES_I2C_DEBUG=$(MBES_I2C_DEBUG)"             \
+           "-DMBES_MCP23008_DEBUG=$(MBES_MCP23008_DEBUG)"   \
+           "-DMBES_UTILITIES_DEBUG=$(MBES_UTILITIES_DEBUG)"
 
-DEBUG   ?= 0
 
+#
+# MPLAB-X compatibility settings
+#
 BUILD4MPLABX    ?= 0
 MPLABXTGTDIR     = dist/default/production
 MPLABXTGTFILE    = firmware.production.hex
@@ -85,7 +111,9 @@ MPLABXTGTDBGDIR  = dist/default/debug
 MPLABXTGTDBGFILE = firmware.debug.elf
 
 
-# Lists
+#
+# Files lists
+#
 SRCs := $(shell ls mb[eE]*.c)
 OBJs := $(SRCs:%.c=%.o)
 DEPs := $(SRCs:%.c=%.d)
@@ -101,6 +129,7 @@ endif
 
 FIRMWARE = firmware
 SUFFX   := $(shell date +%s)
+
 
 
 #-------------------------------------------------------------------------------------------------------------------------------

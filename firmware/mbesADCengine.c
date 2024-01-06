@@ -38,9 +38,19 @@
 
 #include <stdio.h>
 
-#ifndef DEBUG
-#define DEBUG 1
+#ifndef MBES_ADCENGINE_DEBUG
+#define MBES_ADCENGINE_DEBUG 0
 #endif
+
+
+#if MBES_ADCENGINE_DEBUG > 0
+#define LOGERR    logMsg(PSTR("ERROR! in %s(%d)"), __FUNCTION__, __LINE__);
+#define LOGMSG(X) logMsg(PSTR(X));
+#else
+#define LOGERR    ;
+#define LOGMSG(X) ;
+#endif
+
 
 static uint8_t initFlag = 0;
 
@@ -49,9 +59,7 @@ static void ADC_initialization() {
 	// A/D converter enabling
 	//
 	ADCSRA = (1 << ADEN);
-	#if DEBUG > 0
-	logMsg("ADC engine initialized");
-	#endif
+	LOGMSG("ADC engine initialized");
 
 }
 

@@ -33,7 +33,27 @@
 #include <mbesI2C.h>
 #include <mbesMCP23008.h>
 
+#ifndef MBES_MCP23008_DEBUG
+#define MBES_MCP23008_DEBUG 0
+#endif
+
+#if MBES_MCP23008_DEBUG > 1
+#define LOGMSG(X) logMsg(PSTR(X));
+#else
+#define LOGMSG(X) ;
+#endif
+
+#if MBES_MCP23008_DEBUG > 0
+#define LOGERR   logMsg(PSTR("ERROR! in %s(%d)"), __FUNCTION__, __LINE__);
+#else
+#define LOGERR   ;
+#endif
+
 static uint8_t MCP23008_devAddr;
+
+//------------------------------------------------------------------------------------------------------------------------------
+//                                         P U B L I C   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
 
 uint8_t init_MCP23008 (uint8_t devAddr) {
 	//
@@ -70,10 +90,15 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 				_delay_ms(1);
 				if (regReading_MCP23008(&reg) > 0 && reg == MCP23008_IOCON_VALUE)
 					// IOCON has been successfully configured
-					ec = 1 ;
-			}
-		}
-	}
+					ec = 1;
+				else
+					LOGERR
+			} else
+				LOGERR
+		} else
+			LOGERR
+	} else
+		LOGERR
 		
 	return(ec);
 }
@@ -86,8 +111,8 @@ uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	uint8_t status = 0;
 	I2C_STOP
 	_delay_ms(1);
-	#if DEBUG > 0
-	logMsg(PSTR("%d-register selecting..."), regAddr, regValue);
+	#if MBES_MCP23008_DEBUG > 1
+	logMsg(PSTR("%d-register selecting..."), regAddr);
 	#endif
 	I2C_START(status)
 	if (status) I2C_WRITE(MCP23008_devAddr, status)
@@ -103,15 +128,13 @@ uint8_t regReading_MCP23008 (uint8_t *value) {
 	//	This function allows you to read the previousle selelected registers
 	//
 	uint8_t status = 0;
-	#if DEBUG > 0
-	logMsg(PSTR("Register reading..."));
-	#endif
+	LOGMSG("Register reading...");
 	I2C_START(status)
 	if (status) {
 		I2C_WRITE(MCP23008_devAddr|1, status)
 		if (status) {
 			I2C_READ(I2C_NACK, *value, status)
-			#if DEBUG > 0
+			#if MBES_MCP23008_DEBUG > 1
 			if (status) logMsg(PSTR("Register's value: %d"), value);
 			#endif
 		}
@@ -127,9 +150,7 @@ uint8_t regSaving_MCP23008 (uint8_t value) {
 	//
 	uint8_t status = 0;
 	
-	#if DEBUG > 0
-	logMsg(PSTR("Register updating..."));
-	#endif
+	LOGMSG("Register updating...");
 	I2C_START(status)
 	if (status == 1) {
 		I2C_WRITE(MCP23008_devAddr, status);
