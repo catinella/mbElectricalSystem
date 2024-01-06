@@ -18,15 +18,32 @@
 #	the following address:
 #		https://www.microchip.com/en-us/tools-resources/develop/microchip-studio/gcc-compilers
 #	
-#	After the AVR-GCC installation, you need to create the Makefile.conf where you have to set the "AVR-GCC_HOME" symbol
-#	to the installed compiler's foder.
-#	
 #	To make your life easier, Atmel/Microchip provides device-pack files at http://packs.download.atmel.com. The files have
 #	extension .atpack but apart from that, they are just ZIP files, so you can unzip them and use them. These files contain
 #	all you need
 #
 #	You can find further information about AVR-GCC, on the following web-page: https://gcc.gnu.org/wiki/avr-gcc
 #
+#
+#	Makefie configuration
+#	=====================
+#	After the AVR-GCC installation, you need to create the Makefile.conf where you have to set the "AVR-GCC_HOME" symbol
+#	to the installed compiler's foder. It is enough to build your firmware, but, if you want debug it then you could be
+#	comfortable to enable service messages defining the debug-symbols in the (Makefile.conf) configuration file.
+#	However, you can also set the symbols, explicity, when you use "make" command
+#	
+#	
+#	Debug symbols
+#	=============
+#	In ordet to allow the developer to enable/disable the debug messages of a given (mbes_<label>.o) local library, I didn't
+#	define the typical central "DEBUG" symbol. In fact, every module has its own debug-symbol that enable/disable internal
+#	error and status messages. These symbols respect the following syntax:
+#		<MBES_<label>_DEBUG = {0|1|2}
+#		0 = No messages at all
+#		1 = Error messages only
+#		2 = Status messages too
+#	
+#	
 #	MPLabX
 #	======
 #	In order to allow me to use the Microchip's IDE MPLabX, I have rewritten this file to generate all files with the same 
@@ -34,6 +51,7 @@
 #	east way. In order to enable these intergration-rules, you have to set the BUILD4MPLABX symbol to 1 in the Makefile.conf
 #	file
 #
+#	
 #	{H|L}fules backup
 #	=================
 #	Because the fuses modification is always a critical one, when you dump their values, with fuses-dump rule, the procedure
@@ -154,11 +172,11 @@ $(FIRMWARE).elf:		$(FIRMWARE).o $(OBJs)
 				@$(CC) $(CFLAGS) $(LDFLAGS) $(XC8FLAGS) $^  -o $@
 
 
-$(FIRMWARE).o:		$(FIRMWARE).c mbesHwConfig.h
+$(FIRMWARE).o:		$(FIRMWARE).c mbesHwConfig.h Makefile.conf
 				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
-$(FIRMWARE)-gdb.o:	$(FIRMWARE).c mbesHwConfig.h
+$(FIRMWARE)-gdb.o:	$(FIRMWARE).c mbesHwConfig.h Makefile.conf
 				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) -g -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
@@ -173,11 +191,11 @@ $(FIRMWARE)-gdb.o:	$(FIRMWARE).c mbesHwConfig.h
 				@echo "[STRIPP] $@"
 				@$(STRIP) --strip-all $< -o $@
 
-mbes%.o:			mbes%.c mbes%.h mbesHwConfig.h
+mbes%.o:			mbes%.c mbes%.h mbesHwConfig.h Makefile.conf
 				@echo "[  CC  ] $@"
 				@$(CC) $(CFLAGS) -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
-mbes%-dbg.o:		mbes%.c mbes%.h mbesHwConfig.h
+mbes%-dbg.o:		mbes%.c mbes%.h mbesHwConfig.h Makefile.conf
 				@echo "[CC-DBG] $@"
 				@$(CC) $(CFLAGS) -g -c $< $(SYMBOLS) $(INCLUDE) -o $@
 
