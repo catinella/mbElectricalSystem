@@ -63,6 +63,14 @@ typedef enum _fsm {
 	END
 } fsm;
 
+
+#if DEBUG > 0
+#define LOGMSG(X)      USART_writeString(PSTR(X), USART_FLASH);
+#else
+#define LOGMSG(X)      ;
+#endif
+
+
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                         M A I N
 //------------------------------------------------------------------------------------------------------------------------------
@@ -80,8 +88,10 @@ int main() {
 	pinDirectionRegister(OUT_A, OUTPUT);
 
 	while (state != END) {
-
+		
 		if (state == INITIALIZATION) {
+			LOGMSG("\nInitialization process starting...\n\r");
+			
 			if (init_MCP23008(MCP23008_ADDR) == 0) {
 				// ERROR
 				USART_writeString(PSTR("ERROR! I2C-BUS initialization failed\n\n\r"), USART_FLASH);
@@ -97,18 +107,21 @@ int main() {
 
 
 		} else if (state == PA_READING) {
+			LOGMSG("\nMCU's PINs reading...\n\r");
 			// [!] Because IN-A and OUT-A are MCU's pins, you don't need to evaluate the error
 			getPinValue(IN_A, &pinStatus);
 			state = PA_WRITING;
 
 
 		} else if (state == PA_WRITING) {
+			LOGMSG("\nMCU's PINs writing...\n\r");
 			// [!] No error evaluation
 			setPinValue(OUT_A, pinStatus);
 			state = PB_READING;
 
 			
 		} else if (state == PB_READING) {
+			LOGMSG("\nMCP23008's PINs reading...\n\r");
 			if (getPinValue(IN_B, &pinStatus) == 0) {
 				// ERROR
 				USART_writeString(PSTR("ERROR! MCP23008's registers reading failed\n\n\r"), USART_FLASH);
@@ -118,6 +131,7 @@ int main() {
 
 
 		} else if (state == PB_WRITING) {
+			LOGMSG("\nMCP23008's PINs writing...\n\r");
 			if (setPinValue(OUT_B, pinStatus) == 0) {
 				// ERROR
 				USART_writeString(PSTR("ERROR! MCP23008's registers updating failed\n\n\r"), USART_FLASH);
@@ -129,6 +143,7 @@ int main() {
 			
 			
 		} else if (state == I2CBUS_ERROR) {
+			LOGMSG("\nErrors number evaluation\n\r");
 			if (errCounter > 10)
 				state = END;
 			else {
