@@ -211,10 +211,10 @@ typedef enum _mbesI2CopType {
 	LOGTRACE("I2C_READ")                                    \
 	if (optType == I2C_ACK) {                               \
 		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA);  \
-		logMsg(PSTR("ACK will be expected"));             \
+		LOGTRACE("ACK will be expected");                 \
 	} else {                                                \
 		TWCR = (1 << TWINT) | (1 << TWEN);                \
-		logMsg(PSTR("NO ACK will be expected"));          \
+		LOGTRACE("NO ACK will be expected");              \
 	}                                                       \
 	WAIT4TWINT(status)                                      \
 	status = status > 0 ? 1: 0;                             \
