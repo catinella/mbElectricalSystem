@@ -89,6 +89,7 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 	if (
 		regSelecting_MCP23008(MCP23008_IOCON)    &&
 		regSaving_MCP23008(MCP23008_IOCON_VALUE) &&
+		regSelecting_MCP23008(MCP23008_IOCON)    &&
 		regReading_MCP23008(&reg)                &&
 		reg == MCP23008_IOCON_VALUE
 	) {
