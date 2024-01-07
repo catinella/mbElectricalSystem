@@ -67,6 +67,7 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 	//	   https://ww1.microchip.com/downloads/en/DeviceDoc/MCP23008-MCP23S08-Data-Sheet-20001919F.pdf
 	//
 	uint8_t ec = 0;
+	uint8_t reg = 0;
 
 	W1V_LOGMSG("0x0%d-device initialization", devAddr);
 	
@@ -85,19 +86,33 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 	//
 	// Sequential access disabling
 	//
-	if (regSelecting_MCP23008(MCP23008_IOCON)) {
-		_delay_ms(1);
-		if (regSaving_MCP23008(MCP23008_IOCON_VALUE)) {
-			I2C_STOP
-			if (regSelecting_MCP23008(MCP23008_IOCON)) {
-				uint8_t reg = 0;
-				_delay_ms(1);
-				if (regReading_MCP23008(&reg) > 0 && reg == MCP23008_IOCON_VALUE) {
-					// IOCON has been successfully configured
-					ec = 1;
-					LOGMSG("IOCON register verified")
-				} else
-					LOGERR
+	if (
+		regSelecting_MCP23008(MCP23008_IOCON)    &&
+		regSaving_MCP23008(MCP23008_IOCON_VALUE) &&
+		regReading_MCP23008(&reg)                &&
+		reg == MCP23008_IOCON_VALUE
+	) {
+		// IOCON has been successfully configured
+		LOGMSG("IOCON register verified")
+
+		if (
+			regSelecting_MCP23008(MCP23008_IODIR) &&
+			regSaving_MCP23008(0)                 &&
+			regReading_MCP23008(&reg)             &&
+			reg == 0
+		) {
+			// IODIR has been successfully configured
+			LOGMSG("IODIR register verified")
+
+			if (
+				regSelecting_MCP23008(MCP23008_GPPU) &&
+				regSaving_MCP23008(0)                &&
+				regReading_MCP23008(&reg)            &&
+				reg == 0
+			) {
+				// IODIR has been successfully configured
+				LOGMSG("GPPU register verified")
+				ec = 1;
 			} else
 				LOGERR
 		} else
