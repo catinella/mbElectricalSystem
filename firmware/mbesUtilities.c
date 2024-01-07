@@ -48,15 +48,29 @@
 #include <mbesMock.h>
 #include <stdio.h>
 
+
 #ifndef MBES_UTILITIES_DEBUG
 #define MBES_UTILITIES_DEBUG 0
 #endif
 
-#if MBES_UTILITIES_DEBUG > 0
-#define LOGERR   logMsg(PSTR("ERROR! in %s(%d)"), __FUNCTION__, __LINE__);
+
+#if MBES_UTILITIES_DEBUG > 1
+#define LOGMSG(X)       logMsg(PSTR(X));
+#define LOGMSG1P(X,Y)   logMsg(PSTR(X),Y);
+#define LOGMSG2P(X,Y,Z) logMsg(PSTR(X),Y,Z);
 #else
-#define LOGERR   ;
+#define LOGMSG(X)       ;
+#define LOGMSG1P(X,Y)   ;
+#define LOGMSG2P(X,Y,Z) ;
 #endif
+
+
+#if MBES_UTILITIES_DEBUG > 0
+#define LOGERR  logMsg(PSTR("[ERROR!] in %s(%d)"), __FUNCTION__, __LINE__);
+#else
+#define LOGERR  ;
+#endif
+
 
 #if MOCK == 1
 static int fd = 0;
@@ -319,10 +333,11 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 			LOGERR
 			ecode = 0;
 			
-		} else
+		} else {
 			// [!] PIN's value extraction
 			*pinValue = (regValue & (1 << pinNumber)) > 0 ? 1 : 0;
-		
+			LOGMSG2P("PIN(%s) = %d", code, *pinValue);
+		}
 	} else {
 		// ERROR!
 		LOGERR
