@@ -106,6 +106,14 @@
 	CKSEL[3:0] (Clock Selection)
 		These bits allow you to select the oscillator frequency
 
-	Default values:
+
+	Required fuses configuration:
+	=============================
+	The following table show you the factory default values:
 		HI: 1 0 0 1 1 0 0 1  dec=153 hex=99
+		LO: 1 1 1 0 0 0 0 1  dec=225 hex=e1
+
+	Unfortunately, these values are not adequate for the project. In fact, because the JTAG-port's pins have been used as I/O ones,
+	the JTAG must be disabled using the described fuses. So, you have to set the following value:
+		HI: 1 1 0 1 1 0 0 1  dec=217 hex=d9
 		LO: 1 1 1 0 0 0 0 1  dec=225 hex=e1
