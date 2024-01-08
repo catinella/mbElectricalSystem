@@ -314,16 +314,16 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 	
 #if MOCK == 0
 	if (port == 'A')
-		ecode = (PINA & (1 << pinNumber));
+		*pinValue = (PINA & (1 << pinNumber));
 		
 	else if (port == 'B')
-		ecode = (PINB & (1 << pinNumber));
+		*pinValue = (PINB & (1 << pinNumber));
 	
 	else if (port == 'C')
-		ecode = (PINC & (1 << pinNumber));
+		*pinValue = (PINC & (1 << pinNumber));
 	
 	else if (port == 'D')
-		ecode = (PIND & (1 << pinNumber));
+		*pinValue = (PIND & (1 << pinNumber));
 	
 	else if (port >= '0' && port <= '9') {
 		uint8_t regValue = 0;
@@ -335,8 +335,7 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 			
 		} else {
 			// [!] PIN's value extraction
-			*pinValue = (regValue & (1 << pinNumber)) > 0 ? 1 : 0;
-			LOGMSG2P("PIN(%s) = %d", code, *pinValue);
+			*pinValue = regValue;
 		}
 	} else {
 		// ERROR!
@@ -344,6 +343,12 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 		ecode = 0;
 	}
 
+	if (ecode) {
+		// The pin value MUST be 0 or 1
+		*pinValue = (*pinValue & (1 << pinNumber)) > 0 ? 1 : 0;
+		LOGMSG2P("PIN(%s) = %d", code, *pinValue);
+	}
+	
 #else
 	uint8_t numOfRec = 0;
 	
