@@ -22,7 +22,7 @@
 //	|   Input pin  |    Device   |  Output pin  |
 //	+--------------+-------------+--------------+
 //	| GP0 (pin-10) | MCP23008-XP | GP3 (pin-13) |
-//	| PC3 (pin 25) | AT-Mega-16  | PC2 (pin 24) |
+//	| C3  (pin 25) | AT-Mega-16  | C2  (pin 24) |
 //	+--------------+-------------+--------------+
 //
 // License:
@@ -82,6 +82,10 @@ int main() {
 
 	// Serial console initialization
 	USART_Init(9600);
+
+	// JTAG disabling
+	MCUCR |= (1 << JTD);
+	MCUCR |= (1 << JTD);
 
 	// PINs initialization
 	pinDirectionRegister(IN_A, INPUT);
