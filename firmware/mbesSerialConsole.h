@@ -33,6 +33,7 @@
 #define MBSERIALCONSOLE
 
 #include <mbesHwConfig.h>
+#include <avr/pgmspace.h>
 
 typedef enum _USART_allocationType {USART_FLASH, USART_RAM} USART_allocationType;
 
