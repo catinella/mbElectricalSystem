@@ -54,8 +54,8 @@ struct mbesSelector {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
-uint8_t mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
-bool    mbesSelector_get     (struct mbesSelector item);
-uint8_t mbesSelector_update  (struct mbesSelector *item);
+void mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
+bool mbesSelector_get     (struct mbesSelector item);
+void mbesSelector_update  (struct mbesSelector *item);
 
 #endif
