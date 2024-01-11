@@ -96,9 +96,9 @@ typedef enum _timer_cmd {
 #define W1P_ULOGMSG(X,Y)   W1P_LOGMSG(X, Y)
 #define W2P_ULOGMSG(X,Y,Z) W2P_LOGMSG(X, Y, Z)
 #else
-#define NOP_ULOGMSG(X)     MYSYSLOG(LOG_INFO, X)
-#define W1P_ULOGMSG(X,Y)   MYSYSLOG(LOG_INFO, X, Y)
-#define W2P_ULOGMSG(X,Y,Z) MYSYSLOG(LOG_INFO, X, Y, Z)
+#define NOP_ULOGMSG(X)     syslog(LOG_INFO, X)
+#define W1P_ULOGMSG(X,Y)   syslog(LOG_INFO, X, Y)
+#define W2P_ULOGMSG(X,Y,Z) syslog(LOG_INFO, X, Y, Z)
 #endif
 
 
