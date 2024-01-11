@@ -101,7 +101,7 @@ int main() {
 				USART_writeString(PSTR("ERROR! I2C-BUS initialization failed\n\n\r"), USART_FLASH);
 				state = I2CBUS_ERROR;
 				
-			} else if (pinDirectionRegister("00", INPUT)  == 0 || pinDirectionRegister("03", OUTPUT) == 0) {
+			} else if (pinDirectionRegister(IN_B, INPUT)  == 0 || pinDirectionRegister(OUT_B, OUTPUT) == 0) {
 				// ERROR
 				USART_writeString(PSTR("ERROR! MCP23008 configuration failed\n\n\r"), USART_FLASH);
 				state = I2CBUS_ERROR;
