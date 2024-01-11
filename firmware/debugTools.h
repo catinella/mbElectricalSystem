@@ -36,43 +36,15 @@
 #if MOCK == 1
 #define DBGTRACE   fprintf(stdout, "---> %s::%s() pid=%d line=%d\n", __FILE__, __func__, getpid(), __LINE__); fflush(stdout);
 #define DBGBREAK   {printf("\nPress [RETURN] to continue\n\n"); fflush(stdout); getchar();}
-#define MYSYSLOG   syslog
 #define MYOPENLOG  openlog(argv[0], LOG_NDELAY, LOG_LOCAL0);
 #define MYCLOSELOG closelog();
 
 #else
 
-#ifndef LOG_EMERG
-#define LOG_EMERG 0
-#endif
-#ifndef LOG_ALERT
-#define LOG_ALERT 0
-#endif
-#ifndef LOG_CRIT
-#define LOG_CRIT 0
-#endif
-#ifndef LOG_ERR
-#define LOG_ERR 0
-#endif
-#ifndef LOG_WARNING
-#define LOG_WARNING 0
-#endif
-#ifndef LOG_NOTICE
-#define LOG_NOTICE 0
-#endif
-#ifndef LOG_INFO
-#define LOG_INFO 0
-#endif
-#ifndef LOG_DEBUG
-#define LOG_DEBUG 0
-#endif
-
 #define DBGTRACE   ;
 #define DBGBREAK   ;
-#define MYSYSLOG   fooFunction_syslog
 #define MYOPENLOG  ;
 #define MYCLOSELOG ;
-static void fooFunction_syslog  (int priority, const char *format, ...) {return;}
 #endif
 
 
