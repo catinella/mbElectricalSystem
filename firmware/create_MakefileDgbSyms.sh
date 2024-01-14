@@ -13,7 +13,7 @@ echo -e "\n"                 >> $MKCFILE
 
 
 echo "DBGSYMBOLS = \\"                            >> $MKCFILE
-echo -e "\t\"-DDEBUG=\$(DEBUG) \\"                >> $MKCFILE
+echo -e "\t\"-DDEBUG=\$(DEBUG)\" \\"              >> $MKCFILE
 for symbol in $symsList
 do
 	echo -e "\t\"-D${symbol}=\$($symbol)\" \\"  >> $MKCFILE
