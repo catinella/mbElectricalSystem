@@ -41,6 +41,10 @@
 	Makefile.conf file with the following definitions:
 		AVR-GCC_HOME = <path>   # The AVR-GCC toolchain folder
 		BUILD4MPLABX = {0|1}    # If it is set then the produced files will be stored in the MPLabX standard folders
+	
+	Makefile.conf is not the lonely file included my Makefile, Makefile.dbgsyms in another one. But, fortunately, you do not have
+	to edit it manually, it can be generated automatically using the following script: create_MakefileDgbSyms.sh
+	For further information, please, read documentation inside the Makefile file
 
 
 	Firmware building:
