@@ -43,6 +43,10 @@
 #		1 = Error messages only
 #		2 = Status messages too
 #	
+#	In order to avoid to modify this file, everytime the developper creates a new module, I have moved the symbols inclusion
+#	Makefile's session to a the "Makefile.dbgsyms" file. You can generate this file automatically, usinf the following
+#	script: create_MakefileDgbSyms.sh
+#
 #	
 #	MPLabX
 #	======
@@ -84,16 +88,7 @@
 #
 #-------------------------------------------------------------------------------------------------------------------------------
 include Makefile.conf
-
-#
-# Debug symbols
-#
-DEBUG                 ?= 0
-MBES_ADCENGINE_DEBUG  ?= 0
-MBES_I2C_DEBUG        ?= 0
-MBES_MCP23008_DEBUG   ?= 0
-MBES_UTILITIES_DEBUG  ?= 0
-
+include Makefile.dbgsyms
 
 #
 # Building process settings
@@ -111,12 +106,7 @@ CFLAGS   = -Wall -Os -mmcu=atmega16  \
            -fpack-struct
 LDFLAGS  = 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
-SYMBOLS  =                                                  \
-           "-DDEBUG=$(DEBUG)"                               \
-           "-DMBES_ADCENGINE_DEBUG=$(MBES_ADCENGINE_DEBUG)" \
-           "-DMBES_I2C_DEBUG=$(MBES_I2C_DEBUG)"             \
-           "-DMBES_MCP23008_DEBUG=$(MBES_MCP23008_DEBUG)"   \
-           "-DMBES_UTILITIES_DEBUG=$(MBES_UTILITIES_DEBUG)"
+SYMBOLS  = $(DBGSYMBOLS)
 
 
 #
