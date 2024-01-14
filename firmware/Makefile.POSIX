@@ -106,7 +106,9 @@ CFLAGS   = -Wall -Os -mmcu=atmega16  \
            -fpack-struct
 LDFLAGS  = 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
-SYMBOLS  = $(DBGSYMBOLS)
+
+MOCK    ?= 0
+SYMBOLS  = "-DMOCK=$(MOCK)" $(DBGSYMBOLS)
 
 
 #
