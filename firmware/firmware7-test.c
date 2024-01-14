@@ -101,17 +101,17 @@ int main() {
 			
 			if (init_MCP23008(MCP23008_ADDR) == 0) {
 				// ERROR
-				USART_writeString(PSTR("ERROR! I2C-BUS initialization failed\n\n\r"), USART_FLASH);
+				LOGMSG("ERROR! I2C-BUS initialization failed\n\n\r");
 				state = I2CBUS_ERROR;
 				
 			} else if (pinDirectionRegister(OUT_B, OUTPUT) == 0) {
 				// ERROR
-				USART_writeString(PSTR("ERROR! MCP23008 (*) configuration failed\n\n\r"), USART_FLASH);
+				LOGMSG("ERROR! MCP23008 (*) configuration failed\n\n\r");
 				state = I2CBUS_ERROR;
 				
-			} else if (mbesSelector_init(&inB, BUTTON, IN_B)) {
+			} else if (mbesSelector_init(&inB, BUTTON, IN_B) == 0) {
 				// ERROR
-				USART_writeString(PSTR("ERROR! MCP23008 (**) configuration failed\n\n\r"), USART_FLASH);
+				LOGMSG("ERROR! MCP23008 (**) configuration failed\n\n\r");
 				state = I2CBUS_ERROR;
 				
 			} else
