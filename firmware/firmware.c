@@ -34,31 +34,47 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-// AVR Libraries
-#include <avr/io.h>
-#include <util/twi.h>
-
 // C standard libraries
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 // Progect's sub-modules
+#include <mbesHwConfig.h>
+#include <mbesPinsMap.h>
 #include <mbesUtilities.h>
 #include <mbesSerialConsole.h>
+#include <mbesADCengine.h>
+#include <mbesMCP23008.h>
 #include <mbesSelector.h>
-#include <mbesPinsMap.h>
 
-// I2C serial clock frequency
-#define I2C_CLOCK_FREQ 10000UL
-
-// MCP23008XP Address
-#define MCP23008_ADDR 0x00
+// AVR Libraries
+#include <avr/io.h>
+#include <util/twi.h>
+#include <util/delay.h>
 
 
+// Settings
 #define BLINK_DELAY     4000000
 #define V_TOLERANCE     10
-#define BUTTON_DEBOUNC  10000
+
+
+#if DEBUG > 0
+#define LOGMSG(X)      USART_writeString(PSTR(X), USART_FLASH);
+#else
+#define LOGMSG(X)      ;
+#endif
+
+
+typedef enum _fsmStates {
+	RKEY_EVALUATION,
+	MPC23008_INIT,
+	PINS_SETTING,
+	SELECTORS_SETTING,
+	VALUE_RESTORING,
+	NORMAL_STATUS,
+	I2CBUS_RESET
+}  fsmStates;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                 F U N C T I O N S
@@ -88,87 +104,34 @@ uint8_t blink() {
 //------------------------------------------------------------------------------------------------------------------------------
 
 int main(void) {
-	uint8_t  loop             = 1; // It enables the main loop (Just for future applications)
-	uint8_t  ready_flag       = 0; // When the flag is true (1), the motorbike is ready to accept commands
-	uint8_t  FSM              = 0;
+	bool      loop         = true;              // It enables the main loop (Just for future applications)
+	bool      canStart     = false;             // When the flag is true (1), the motorbike is ready to accept commands
+	fsmStates FSM          = RKEY_EVALUATION;
+	bool      firstRound   = true;
+	uint8_t   neutralPin   = 1;
+	uint8_t   bikeStandPin = 0;
 	
 	struct mbesSelector 
 		leftArr_sel, rightArr_sel, dLight_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel,
 		 engOn_sel
 	;
 	
-	//
-	// PINs direction setting
-	//
-	pinDirectionRegister(i_NEUTRAL,     INPUT);
-	pinDirectionRegister(i_BYKESTAND,   INPUT);
-	pinDirectionRegister(o_ENGINEON,    OUTPUT);
-	pinDirectionRegister(o_ENGINEREADY, OUTPUT);
-	pinDirectionRegister(o_NEUTRAL,     OUTPUT);
-	pinDirectionRegister(o_RIGHTARROW,  OUTPUT);
-	pinDirectionRegister(o_LEFTARROW,   OUTPUT);
-	pinDirectionRegister(o_DOWNLIGHT,   OUTPUT);
-	pinDirectionRegister(o_UPLIGHT,     OUTPUT);
-	pinDirectionRegister(o_ADDLIGHT,    OUTPUT);
-	pinDirectionRegister(o_HORN,        OUTPUT);
-	pinDirectionRegister(o_KEEPALIVE,   OUTPUT);
-	pinDirectionRegister(o_STARTENGINE, OUTPUT);
-	
-	
-	//
-	// _selectors initialization
-	//
-	mbesSelector_init(&horn_sel,     BUTTON, i_HORN);
-	mbesSelector_init(&engStart_sel, BUTTON, i_STARTBUTTON);
-	mbesSelector_init(&decomp_sel,   BUTTON, i_DECOMPRESS);
-	mbesSelector_init(&leftArr_sel,  SWITCH, i_LEFTARROW);
-	mbesSelector_init(&dLight_sel,   SWITCH, i_DOWNLIGHT);
-	mbesSelector_init(&uLight_sel,   SWITCH, i_UPLIGHT);
-	mbesSelector_init(&rightArr_sel, SWITCH, i_RIGHTARROW);
-	mbesSelector_init(&addLight_sel, SWITCH, i_ADDLIGHT);
-	mbesSelector_init(&light_sel,    SWITCH, i_LIGHTONOFF);
-	mbesSelector_init(&engOn_sel,    SWITCH, i_ENGINEON);
-
-
 	// USART port initialization
 	USART_Init(9600);
 
-	// I2C Initialization
-	I2C_init();
-
-	/*
-	// 
-	// MCP23008 initialization
 	//
-	{
-		uint8_t ioconValue = 0b00100000;  // Imposta il bit 6 (INTPOL) a 0
-		uint8_t status;
-		I2C_START(status)
-		if (
-			status                        &&  // Start transmission
-			I2C_Write(MCP23008_ADDR << 1) &&  // MCP23008 adderess sending with write-flag-bit set to 0
-			I2C_Write(0x05)               &&  // "IOCON" register selection
-			I2C_Write(ioconValue)            // "IOCON" register's value
-		I2C_STOP();                       // Stop transmission
-	}
-	*/
-
+	// Critic output initialization (these pins MUST be MCU's pins)
 	//
-	// Starting conditions
-	//
-	setPinValue(o_RIGHTARROW,  0);
-	setPinValue(o_LEFTARROW,   0);
-	setPinValue(o_DOWNLIGHT,   0);
-	setPinValue(o_UPLIGHT,     0);
-	setPinValue(o_ADDLIGHT,    0);
-	setPinValue(o_HORN,        0);
-	setPinValue(o_KEEPALIVE,   0); // IMPORTANT!!
+	pinDirectionRegister(o_KEEPALIVE,   OUTPUT);
+	pinDirectionRegister(o_STARTENGINE, OUTPUT);
+	pinDirectionRegister(o_ENGINEON,    OUTPUT);
+	setPinValue(o_KEEPALIVE,   0);
 	setPinValue(o_STARTENGINE, 0);
 	setPinValue(o_ENGINEON,    0);
 
-
 	while (loop) {
-		if (ready_flag == 0) {
+
+		if (FSM == RKEY_EVALUATION) {
 			//
 			// Resistor keys evaluation
 			//
@@ -178,14 +141,116 @@ int main(void) {
 			) {
 				// The keyword has been authenicated, you can unplug it
 				setPinValue(o_KEEPALIVE, 1);
-				ready_flag = 1;
-				FSM = 1;
-				
-			} else {
-				// Waiting (1ms) to prevent brutal-force attack and for analog circuit re-initialization
+				FSM = MPC23008_INIT;
+			} 
+
+			// [!] The following delay is used to prevent brutal-force attack (when ready_flag == 0) and to allow
+			//    the MCP23008 to boot
+			_delay_ms(100);
+
+			
+		//
+		// MCP23008 Initialization
+		//
+		} else if (FSM == MPC23008_INIT) {
+			if (init_MCP23008(MCP23008_ADDR))
+				FSM = PINS_SETTING;
+			else {
+				// ERROR!
+				LOGMSG("ERROR! MCP23008 initialization step failed")
+				FSM = I2CBUS_RESET;
 			}
+
+
+		//
+		// PINs direction setting
+		//
+		} else if (FSM == PINS_SETTING) {
+			if (
+				pinDirectionRegister(i_NEUTRAL,     INPUT)  &&
+				pinDirectionRegister(i_BYKESTAND,   INPUT)  &&
+				pinDirectionRegister(o_ENGINEREADY, OUTPUT) &&
+				pinDirectionRegister(o_NEUTRAL,     OUTPUT) &&
+				pinDirectionRegister(o_RIGHTARROW,  OUTPUT) &&
+				pinDirectionRegister(o_LEFTARROW,   OUTPUT) &&
+				pinDirectionRegister(o_DOWNLIGHT,   OUTPUT) &&
+				pinDirectionRegister(o_UPLIGHT,     OUTPUT) &&
+				pinDirectionRegister(o_ADDLIGHT,    OUTPUT) &&
+				pinDirectionRegister(o_HORN,        OUTPUT)
+			)
+				FSM = SELECTORS_SETTING;
+			else {
+				// ERROR!
+				LOGMSG("ERROR! PINs direction setting step failed")
+				FSM = I2CBUS_RESET;
+			}
+
+
+		//
+		// selectors initialization
+		//
+		} else if (FSM == SELECTORS_SETTING) {
+			if (
+				mbesSelector_init(&horn_sel,     BUTTON, i_HORN)        &&
+				mbesSelector_init(&engStart_sel, BUTTON, i_STARTBUTTON) &&
+				mbesSelector_init(&decomp_sel,   BUTTON, i_DECOMPRESS)  &&
+				mbesSelector_init(&leftArr_sel,  SWITCH, i_LEFTARROW)   &&
+				mbesSelector_init(&dLight_sel,   SWITCH, i_DOWNLIGHT)   &&
+				mbesSelector_init(&uLight_sel,   SWITCH, i_UPLIGHT)     &&
+				mbesSelector_init(&rightArr_sel, SWITCH, i_RIGHTARROW)  &&
+				mbesSelector_init(&addLight_sel, SWITCH, i_ADDLIGHT)    &&
+				mbesSelector_init(&light_sel,    SWITCH, i_LIGHTONOFF)  &&
+				mbesSelector_init(&engOn_sel,    SWITCH, i_ENGINEON)
+			)
+				FSM = VALUE_RESTORING;
+			else {
+				// ERROR!
+				LOGMSG("ERROR! selectors initialization step failed")
+				FSM = I2CBUS_RESET;
+			}
+
+
+		//
+		// Old/Default values setting
+		//
+		} else if (FSM == VALUE_RESTORING) {
+			if (firstRound) {
+				if (
+					setPinValue(o_RIGHTARROW,  0) &&
+					setPinValue(o_LEFTARROW,   0) &&
+					setPinValue(o_DOWNLIGHT,   0) &&
+					setPinValue(o_UPLIGHT,     0) &&
+					setPinValue(o_ADDLIGHT,    0) &&
+					setPinValue(o_HORN,        0)
+				) {
+					firstRound = false;
+					FSM = NORMAL_STATUS;
+				} else {
+					// ERROR!
+					LOGMSG("ERROR! Default values setting step failed")
+					FSM = I2CBUS_RESET;
+				}
+
+			} else {
+				if (restore_MCP23008())
+					FSM = NORMAL_STATUS;
+				else {
+					// ERROR!
+					LOGMSG("ERROR! Old values cannot be restored")
+					FSM = I2CBUS_RESET;
+				}
+
+			}
+
 		
-		} else {
+		} else if (FSM == NORMAL_STATUS) {
+
+			// [!] the following PINs are critic ones, and they should NEVER been linked to the I/O extender.
+			//     So, their function's error code has no meaning
+			getPinValue(i_NEUTRAL,   &neutralPin);
+			getPinValue(i_BYKESTAND, &bikeStandPin);
+
+
 			//
 			// Lights and horn
 			//
@@ -195,7 +260,7 @@ int main(void) {
 			}
 			setPinValue(o_HORN,     mbesSelector_get(horn_sel));
 			setPinValue(o_ADDLIGHT, mbesSelector_get(addLight_sel));
-			setPinValue(o_NEUTRAL,  !(getPinValue(i_NEUTRAL)));
+			setPinValue(o_NEUTRAL,  (neutralPin == 1 ? 0 : 1));
 
 
 			//
@@ -218,51 +283,44 @@ int main(void) {
 			//
 			// Protection by motorcycle stand down when the vehicle is running
 			//
-			if (getPinValue(i_NEUTRAL) != 0 && getPinValue(i_BYKESTAND) != 0) {
+			if (neutralPin == 1 && bikeStandPin == 1) {
 				setPinValue(o_ENGINEON, 0);   // Engine locked by CDI
-				FSM = 1;
-			}
-				
-				
+				canStart = false;
+
+
+			//	
 			// Decompressor sensor management
-			if (FSM == 1) {
-				// When this LED is off then the engine is not ready to be started
-				setPinValue(o_ENGINEREADY, 0);
-
-				if (mbesSelector_get(engOn_sel)) { 
-					setPinValue(o_ENGINEON, 1);
-					if (mbesSelector_get(decomp_sel)) FSM = 2;
-				} else
-					setPinValue(o_ENGINEON, 0); // 0 means eng locked
-
+			//	
+			} else if (neutralPin == 0) {
 				
-			// Electric starter engine starting...
-			} else if (FSM == 2) {
-				if (mbesSelector_get(engOn_sel) == false) 
-					FSM = 1;
-					
-				else if (getPinValue(i_NEUTRAL) == 0) {
+				if (mbesSelector_get(decomp_sel)) {
+
 					// This LED inform the biker the engine is ready to start
 					setPinValue(o_ENGINEREADY, 1);
 
-					 // The electric starter motor is rounding!!
-					 if (mbesSelector_get(engStart_sel)) {
-						setPinValue(o_STARTENGINE, 1);
-						FSM = 3;
+					canStart = true;
+				}
+
+				if (canStart && mbesSelector_get(engOn_sel)) {
+					// Decompressor MUST be released
+					if (mbesSelector_get(decomp_sel)) {
+						setPinValue(o_ENGINEON, 0); // 0 means eng locked
+					} else {
+						// *** START ***
+						setPinValue(o_ENGINEON,    1);
+						setPinValue(o_ENGINEREADY, 0);
+						canStart = false;
 					}
-				} else
-					// Electric starter engine off
-					setPinValue(o_STARTENGINE, 0);
+				}
 
+			} else
+				// Just to be paranoide
+				canStart = false;
 
-			// Electric starter engine stopping...
-			} else if (FSM == 3) {
-				// EngOn == false
-				if (mbesSelector_get(engOn_sel) == false || mbesSelector_get(engStart_sel) == false) {
-					FSM = 1;
-					setPinValue(o_STARTENGINE, 0);
-				}	
-			}
+				
+			if (mbesSelector_get(engOn_sel) == 0)
+				// STOP the electric starter engine
+				setPinValue(o_ENGINEON, 0);
 		}
 	}
 
