@@ -52,5 +52,6 @@ uint8_t init_MCP23008         (uint8_t devAddr);
 uint8_t regSelecting_MCP23008 (uint8_t regAddr);
 uint8_t regReading_MCP23008   (uint8_t *value);
 uint8_t regSaving_MCP23008    (uint8_t value);
+uint8_t restore_MCP23008      ();
 
 #endif

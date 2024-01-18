@@ -178,3 +178,8 @@ uint8_t regSaving_MCP23008 (uint8_t value) {
 	
 	return(status);
 }
+
+uint8_t restore_MCP23008 () {
+
+	return(0);
+}
