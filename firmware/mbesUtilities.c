@@ -28,6 +28,8 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+#include <mbesMock.h>
+
 #if MOCK == 0
 #include <avr/io.h>
 #include <util/twi.h>
@@ -126,44 +128,78 @@ void logMsg (const char *fmt, ...) {
 	// Description:
 	//	It sends the argument defined (printf-style) message to the debug console
 	//
-	#if DEBUG == 1
 	uint8_t t = 0;
 	bool    ctrvFlag = false;
 	va_list argp;
 	char    buffer[9];
 	char    c = '#';
 	
+	#if MOCK == 1
+	// The code is running on a {32|64}-X86 arch device
+	char   outputSring[128]
+	uin8_t outputSring_index = 0;
+	#endif
+	
 	va_start(argp, fmt);
 
+	#if MOCK == 0
 	USART_writeString(PSTR("LOGMSG: "), USART_FLASH);
+	#endif
 	
 	while ((c = pgm_read_byte(fmt++)) != '\0') {
 		if (ctrvFlag == false) {
 			if (c == '%')  ctrvFlag = true;
 			else           USART_writeChar(c);
 		} else {
-			if (c == 'c')
+			if (c == 'c') {
+				#if MOCK == 0
 				USART_writeChar((char)va_arg(argp, int));
-
-			else if (c == 'd') {
+				#else
+				sprintf((outputSring + outputSring_index), "%c", (char)va_arg(argp, int));
+				#endif
+				
+			} else if (c == 'd') {
+				#if MOCK == 0
 				sprintf(buffer, "%d", va_arg(argp, int));
 				USART_writeString(buffer, USART_RAM);
+				#else
+				sprintf((outputSring + outputSring_index), "%d", va_arg(argp, int));
+				#endif
 				
-			} else if (c == 's')
+			} else if (c == 's') {
+				#if MOCK == 0
 				USART_writeString(va_arg(argp, char*), USART_RAM);
+				#else
+				sprintf((outputSring + outputSring_index), "%s", va_arg(argp, char*));
+				#endif
 				
-			else
+			} else {
+				#if MOCK == 0
 				USART_writeString(PSTR("%?"), USART_FLASH);
-				
+				#else
+				sprintf((outputSring + outputSring_index), "%s", "%?");
+				#endif
+			}
 			ctrvFlag = false;
+
+			#if MOCK > 0
+			{
+				uint8_t size = 0;
+				size = strlen((outputSring + outputSring_index));
+				outputSring_index = outputSring_index + (sizeof(char) * size);
+			}
+			#endif
 		}
 		t++;
 	}
 	
-	USART_writeChar('\n');
-	USART_writeChar('\r');
 	va_end(argp);
 	
+	#if MOCK == 0
+	USART_writeChar('\n');
+	USART_writeChar('\r');
+	#else
+	syslog(LOG_INFO, "%s", outputSring);
 	#endif
 	
 	return;
@@ -346,7 +382,7 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 	if (ecode) {
 		// The pin value MUST be 0 or 1
 		*pinValue = (*pinValue & (1 << pinNumber)) > 0 ? 1 : 0;
-		LOGMSG2P("PIN(%s) = %d", code, *pinValue);
+		LOGMSG2P("getPinValue(): PIN(%s) = %d", code, *pinValue);
 	}
 	
 #else

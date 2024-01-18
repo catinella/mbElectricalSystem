@@ -88,20 +88,6 @@ typedef enum _timer_cmd {
 #define LOGERR   ;
 #endif
 
-//
-// Unified Log Message symbol
-//
-#if MOCK == 0
-#define NOP_ULOGMSG(X)     NOP_LOGMSG(X)
-#define W1P_ULOGMSG(X,Y)   W1P_LOGMSG(X, Y)
-#define W2P_ULOGMSG(X,Y,Z) W2P_LOGMSG(X, Y, Z)
-#else
-#define NOP_ULOGMSG(X)     syslog(LOG_INFO, X)
-#define W1P_ULOGMSG(X,Y)   syslog(LOG_INFO, X, Y)
-#define W2P_ULOGMSG(X,Y,Z) syslog(LOG_INFO, X, Y, Z)
-#endif
-
-
 
 static uint8_t timerAvailabilityCounter = 0;
 static bool    isInitialized            = false;
@@ -221,8 +207,9 @@ uint8_t mbesSelector_init (struct mbesSelector *item, selectorType type, const c
 	
 	// 16bit-timer initialization...
 	if (isInitialized == false) {
-		NOP_ULOGMSG("mbesSelector module initialization...")
+		NOP_LOGMSG("mbesSelector module initialization...")
 		_timer_init();
+		isInitialized = true;
 	}
 	
 	// PIN direction and PULL-UP resistor setting
@@ -254,6 +241,7 @@ bool mbesSelector_get (struct mbesSelector item) {
 	//		switch)        it is placed on ON-position
 	//		holdon-button) it has been activated
 	//
+	W2P_LOGMSG("mbesSelector_get(): PIN-%s = %d", item.pin, item.status);
 	return(item.status);
 }
 
@@ -284,8 +272,8 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 			ec = 0;
 
 		} else if (pinValue == 0) {
-			W1P_ULOGMSG("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
-			W2P_ULOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+			W1P_LOGMSG("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
+			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter++;
 			if (_timer_gettime() == 0) {
@@ -308,14 +296,14 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		// The button/switch... is ready to be released/deactivated
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-			W1P_ULOGMSG("Selector on pin-%s: ACTIVE\n", item->pin)
-			W2P_ULOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+			W1P_LOGMSG("Selector on pin-%s: ACTIVE\n", item->pin)
+			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter--;
 			item->fsm    = 3;
 			// item->status is still true;
 		} else {
-			W2P_ULOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
+			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
 		}
 		
 		
@@ -343,7 +331,7 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 				item->myTime = _timer_gettime();
 			}
 			
-			W1P_ULOGMSG("The hold-button (pin-%s) has been RELEASED\n", item->pin);
+			W1P_LOGMSG("The hold-button (pin-%s) has been RELEASED\n", item->pin);
 			
 			item->fsm = 14;
 			
@@ -359,8 +347,8 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		// The button/switch... is ready to be pressed/activated, again
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-			W1P_ULOGMSG("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
-			W2P_ULOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+			W1P_LOGMSG("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
+			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter--;
 			
@@ -370,7 +358,7 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 				item->fsm = 4;
 			// item->status is still false (VCC)
 		} else {
-			W2P_ULOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
+			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
 		}
 	 
 	} else if (item->fsm == 4) {
@@ -385,8 +373,8 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 			ec = 0;
 			
 		} else if (pinValue == 0) {
-			W1P_ULOGMSG("Selector on pin-%s: HOLD-BUTTON pushed again\n", item->pin)
-			W2P_ULOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+			W1P_LOGMSG("Selector on pin-%s: HOLD-BUTTON pushed again\n", item->pin)
+			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter++;
 			if (_timer_gettime() == 0) {
@@ -410,12 +398,12 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		// The button/switch... is ready to be pressed/activated, again
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-			W1P_ULOGMSG("Selector on pin-%s is not-active and available\n", item->pin)
+			W1P_LOGMSG("Selector on pin-%s is not-active and available\n", item->pin)
 			
 			timerAvailabilityCounter--;
 			item->fsm = 6;
 		} else {
-			W2P_ULOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
+			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
 		}
 	
 	
@@ -431,8 +419,8 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 			ec = 0;
 
 		} else if (pinValue == 1) {
-			W1P_ULOGMSG("Selector on pin-%s: HOLD-BUTTON released again\n", item->pin)
-			W2P_ULOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+			W1P_LOGMSG("Selector on pin-%s: HOLD-BUTTON released again\n", item->pin)
+			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter++;
 			if (_timer_gettime() == 0) {
@@ -450,14 +438,14 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		// The hold-button has been released previosely, I have to wait for debouce time
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-			W1P_ULOGMSG("Selector on pin-%s: is not-active\n", item->pin);
-			W2P_ULOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+			W1P_LOGMSG("Selector on pin-%s: is not-active\n", item->pin);
+			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter--;
 			item->fsm    = 1;
 			// item->status is still false;
 		} else {
-			W2P_ULOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
+			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
 		}
 	}
 	
