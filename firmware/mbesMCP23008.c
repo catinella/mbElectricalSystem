@@ -82,6 +82,10 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 	// I2C bus initialization
 	I2C_INIT
 
+
+	// MCP23008 hardware reset
+	reset_MCP23008();
+	
 	
 	//
 	// Sequential access disabling
@@ -123,6 +127,20 @@ uint8_t init_MCP23008 (uint8_t devAddr) {
 		
 	return(ec);
 }
+
+
+void reset_MCP23008() {
+	//
+	// Description
+	//	This function resets the MCP23008 device
+	//
+	pinDirectionRegister(o_MCPDEVRESET, OUTPUT);
+	setPinValue(o_MCPDEVRESET, 0); _delay_ms(100);
+	setPinValue(o_MCPDEVRESET, 1); _delay_ms(100);
+
+	return;
+}
+
 
 uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	//
