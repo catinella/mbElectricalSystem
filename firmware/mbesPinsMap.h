@@ -81,7 +81,7 @@
 #define i_VX2          "A1"
 #define i_VY1          "A2"
 #define i_VY2          "A3"
-// ==== available ==== "A4"
+#define o_MCPDEVRESET  "A4"
 // ==== available ==== "A5"
 #define i_SELCONFIG    "A6"
 #define i_CONFIG       "A7"
