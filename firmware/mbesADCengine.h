@@ -31,8 +31,6 @@
 #ifndef MBESADCENGINE
 #define MBESADCENGINE
 
-#include <mbesUtilities.h>
-
 uint16_t ADC_read (const char *code);
 
 #endif

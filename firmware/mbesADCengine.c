@@ -31,10 +31,13 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 
+#include <mbesHwConfig.h>
+#include <mbesUtilities.h>
+#include <mbesADCengine.h>
+
 #include <avr/io.h>
 #include <util/twi.h>
-
-#include <mbesADCengine.h>
+#include <util/delay.h>
 
 #include <stdio.h>
 
@@ -59,6 +62,7 @@ static void ADC_initialization() {
 	// A/D converter enabling
 	//
 	ADCSRA = (1 << ADEN);
+	_delay_ms(100);
 	LOGMSG("ADC engine initialized");
 
 }
