@@ -30,6 +30,8 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <mbesHwConfig.h>
+#include <mbesSerialConsole.h>
+#include <mbesUtilities.h>
 #include <mbesADCengine.h>
 
 #include <avr/io.h>
@@ -43,7 +45,7 @@ int main() {
 	while (1) {
 		for (uint8_t t=0; t<4; t++) {
 			sprintf(pin, "A%d", t);
-			logMsg ("%s: %d", pin, ADC_read(pin));
+			logMsg (PSTR("%s: %d"), pin, ADC_read(pin));
 		}
 		USART_writeChar('\n');
 		_delay_ms(1000);
