@@ -17,9 +17,17 @@
 //
 //	This test will read the MCP23008-XP's GP0 (pin-10) status and will set the GP3 (pin-13) at the same status.
 //	
-//	The MCP23008-XP configuration:
+//	MCP23008 configuration:
+//	=======================
 //		dev-address = 01000:0000 // according to the factory's address
 //		IOCON       = XX10: X11X // No sequential I/O, no interrupt generation
+//
+//	MCP23008 hard reset:
+//	====================
+//		In order to allow the MCU's to reset the I2C connected device, the MCP23008's reset pin is no more connected
+//		to the MCU's one. Set the o_MCPDEVRESET pin to 0 to reset the device 
+//
+//
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -36,6 +44,7 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <mbesHwConfig.h>
+#include <mbesPinsMap.h>
 #include <mbesUtilities.h>
 #include <mbesI2C.h>
 
@@ -87,8 +96,16 @@ int main() {
 	uint8_t  st = 0;
 	uint8_t  gpioValue = 0;
 
+	// Serial console initialization
 	USART_Init(9600);
 	_delay_ms(500);
+
+	// MCP23008 hardware reset
+	pinDirectionRegister(o_MCPDEVRESET, OUTPUT);
+	setPinValue(o_MCPDEVRESET, 0); _delay_ms(100);
+	setPinValue(o_MCPDEVRESET, 1); _delay_ms(100);
+
+	// I2C MCU's module initialization
 	I2C_INIT
 	_delay_ms(500);
 	
