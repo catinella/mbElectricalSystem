@@ -48,6 +48,7 @@
 #include <mbesUtilities.h>
 #include <mbesSerialConsole.h>
 #include <mbesMock.h>
+#include <tools/debugConsole.h>
 #include <stdio.h>
 
 
@@ -67,6 +68,13 @@
 #endif
 
 
+#if MBES_KEEPTRACK > 0
+#define KEEPTRACK(X, Y) keepTrack(X, Y);
+#else
+#define KEEPTRACK(X, Y) ;
+#endif
+
+
 #if MBES_UTILITIES_DEBUG > 0
 #define LOGERR  logMsg(PSTR("[ERROR!] in %s(%d)"), __FUNCTION__, __LINE__);
 #else
@@ -76,7 +84,13 @@
 
 #if MOCK == 1
 static int fd = 0;
+#endif
 
+//------------------------------------------------------------------------------------------------------------------------------
+//                                         P R I V A T E   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+
+#if MOCK == 1
 static int _ubRead (void *bytes, uint8_t size) {
 	int     tot = 0;
 	uint8_t part = 1;
@@ -383,6 +397,7 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 		// The pin value MUST be 0 or 1
 		*pinValue = (*pinValue & (1 << pinNumber)) > 0 ? 1 : 0;
 		LOGMSG2P("getPinValue(): PIN(%s) = %d", code, *pinValue);
+		if (ecode) KEEPTRACK(code, value);
 	}
 	
 #else
@@ -565,9 +580,11 @@ uint8_t setPinValue (const char *code, uint8_t value) {
 		}
 		
 	} else {
-		// ERROR! (please, check fot your code)
+		// ERROR! (It means an internal trouble. Please, check for your code)
 		LOGERR
 	}
+
+	if (ecode) KEEPTRACK(code, value);
 
 	return(ecode);
 }
