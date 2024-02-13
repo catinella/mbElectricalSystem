@@ -32,7 +32,7 @@
 use strict;
 use warnings;
 use Term::Size;
-use Time::HiRes qw(gettimeofday);
+use Time::HiRes qw(gettimeofday usleep);
 
 my $loop  = 1;
 my $DEBUG = 1;
@@ -125,7 +125,7 @@ sub formatLog {
 }
 #------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------
-my $serialPort    = $ARGV[1];
+my $serialPort    = $ARGV[0];
 my ($cols, $rows) = Term::Size::chars *STDOUT{IO};
 my %signalsDB     = ();
 my @msgsList      = ();
@@ -135,8 +135,8 @@ my $err           = 0;
 
 
 # Checking for arguments
-if ($serialPort eq "") {
-	print("ERROR! use ". $ARGV[0] . "<serial port>\n");
+if (not defined($serialPort) or $serialPort eq "") {
+	print("ERROR! use $0 <serial port>\n");
 	$err = 127;
 
 # Checking for arguments
@@ -150,7 +150,7 @@ if ($serialPort eq "") {
 	$err = 131;
 
 # Serial port opening...
-} elsif (open(COM, $serialPort) == 0) {
+} elsif (not open(COM, $serialPort)) {
 	print("ERROR! I cannot read the serial port \"$serialPort\"\n");
 	$err = 133;
 
