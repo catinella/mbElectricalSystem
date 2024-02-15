@@ -31,10 +31,11 @@
 #------------------------------------------------------------------------------------------------------------------------------
 use strict;
 use warnings;
+use POSIX qw(:signal_h);
 use Term::Size;
 use Time::HiRes qw(gettimeofday usleep);
 use Term::ANSIScreen qw(cls);
-use POSIX qw(:signal_h);
+use IO::Select;
 
 my $loop  = 1;
 my $DEBUG = 1;
@@ -109,7 +110,7 @@ sub formatLog {
 	my $tStamp   = (gettimeofday() - $tZero);
 	my $mxs      = 0;
 
-	$tStamp =~ s/^([0-9]+\.[0-9]{3})[0-9]*/\1/;   # 3 digits after the point
+	$tStamp =~ s/^([0-9]+\.[0-9]{3})[0-9]*/$1/;   # 3 digits after the point
 
 	chomp($sentence);
 	if    ($tStamp <      10) {$result = "00000". $tStamp . ": ";}
@@ -141,8 +142,6 @@ my $msgsListMaxSz = ((1 - $RATIO) * $rows) - 3;
 my $err           = 0;
 
 
-#foreach (keys(%SIG)) {print("SIG($_): ".$SIG{$_}."\n")}; exit;
-
 # Checking for arguments
 if (not defined($serialPort) or $serialPort eq "") {
 	print("ERROR! use $0 <serial port>\n");
@@ -159,83 +158,93 @@ if (not defined($serialPort) or $serialPort eq "") {
 	$err = 131;
 
 # Serial port opening...
-} elsif (not open(COM, $serialPort)) {
+} elsif (not open(my $spFH, "< $serialPort")) {
 	print("ERROR! I cannot read the serial port \"$serialPort\"\n");
 	$err = 133;
 
 } else {
-	my $id;
-	my $val;
 	my $x     = 0;
 	my $y     = 0;
 	my $tLine = "";
+	my $sel   = IO::Select->new();
+	my @ready = ();
+	my @arr   = ();
+
+	$sel->add($spFH);
 
 	# Signals Handlers installing
 	$SIG{INT}  = \&sigHandler;
 	$SIG{TERM} = \&sigHandler;
 	
 	while ($loop == 1) {
-		#
-		# Reading data by the serial port
-		#
-		$_ = <COM>;
-		if (defined($_)) {
-			cls();
-			chomp;
-			if (/^([A-Z0-9][0-9]) *: *([0-9]+)$/) {
-				# New pin-setting
-				$id  = $1;
-				$val = $2;
+		@ready = $sel->can_read(0.5);
+		
+		if (scalar @ready > 0) {
 
-				$signalsDB{$id} = $2 
+			#
+			# Reading data by the serial port
+			#
+			$_ = <$spFH>;
+			if (defined($_)) {
+				chomp;
+				if (/^([A-Z0-9][0-9]) *: *([0-9]+)$/) {
+					# New pin-setting
+					$signalsDB{$1} = $2 
 	
-			} else {
-				# New console message
-				if ($msgsListIndex >= $msgsListMaxSz) {
-					shift(@msgsList);
 				} else {
-					$msgsListIndex++;
-				}
-				push(@msgsList, formatLog("$_", $cols));
-			}
-	
-
-			#
-			# PINs list printing
-			#
-			printf("%s\n", line_string($cols));
-			printf("%s\n", CJ_string("P I N s   S t a t u s", $cols));
-			printf("%s\n", line_string($cols));
-		
-			$x = 0;
-			$y = 0;
-			foreach (keys(%signalsDB)) {
-				$tLine = $tLine . fill_string(($_ . ":" . $signalsDB{$_}), int($cols/4));
-				$x++;
-				if ($x == 4) {
-					print("$tLine\n");
-					$tLine = "";
-					$x = 0;
-					$y++;
+					# New console message
+					if ($msgsListIndex >= $msgsListMaxSz) {
+						shift(@msgsList);
+					} else {
+						$msgsListIndex++;
+					}
+					push(@msgsList, formatLog("$_", $cols));
 				}
 			}
-
-		
-			#
-			# Console messages printing
-			#
-			printf("%s\n", line_string($cols));
-			printf("%s\n", CJ_string("C O N S O L E   M E S S A G E S", $cols));
-			printf("%s\n", line_string($cols));
-		
-			foreach(@msgsList) {print("$_\n")};
-
-			usleep(1000);
 		}
+
+		cls();
+
+		#
+		# PINs list printing
+		#
+		printf("%s\n", line_string($cols));
+		printf("%s\n", CJ_string("P I N s   S T A T U S", $cols));
+		printf("%s\n", line_string($cols));
+		
+		$x = 0; $y = 0;
+		$tLine = "";
+		@arr = sort keys %signalsDB;
+		foreach (@arr) {
+			$tLine = $tLine . fill_string(($_ . ":" . $signalsDB{$_}), int($cols/4));
+			$x++;
+			if ($x == 4) {
+				print("$tLine\n");
+				$tLine = "";
+				$x = 0;
+				$y++;
+			}
+		}
+		if ($x < 4) {
+			print("$tLine\n");
+		}
+
+		
+		#
+		# Console messages printing
+		#
+		printf("%s\n", line_string($cols));
+		printf("%s\n", CJ_string("C O N S O L E   M E S S A G E S", $cols));
+		printf("%s\n", line_string($cols));
+
+		foreach(@msgsList) {print("$_\n")};
+
+		# STDOUT flushing..
+		$| = 1;
 	}
 
 	print("$$-process is shutting down...\n");
-	close(COM);
+	close($spFH);
 }
 
 print("\n");
