@@ -109,6 +109,8 @@ sub formatLog {
 	my $tStamp   = (gettimeofday() - $tZero);
 	my $mxs      = 0;
 
+	$tStamp =~ s/^([0-9]+\.[0-9]{3})[0-9]*/\1/;   # 3 digits after the point
+
 	chomp($sentence);
 	if    ($tStamp <      10) {$result = "00000". $tStamp . ": ";}
 	elsif ($tStamp <     100) {$result = "0000" . $tStamp . ": ";}
