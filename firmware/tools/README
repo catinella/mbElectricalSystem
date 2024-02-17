@@ -16,7 +16,16 @@
 	The code belongs to this folder allows you to get a serial debug console where the PINs status will be displayed with the
 	log-messages, in ordered and clean way
 
-2. Testing procedure
+2. Dependences:
+	The debugConsole executable file has been written in Perl-5. So, you need to install the following perl-libraries. It can be
+	a very easy procedure if you use cpan tool: use "cpan install <perl library>"
+		Term::Size
+		Time::HiRes
+		Term::ANSIScreen
+		IO::Select
+	The process also need the "stty" system-tool to configure the serial port. But this tool should be already installed by default
+
+3. Testing procedure
 	Because this console receives data from serial port, to test it you need a virtual serial port. In order to get it, you can
 	use the following command:
 		socat -d -d pty,raw,echo=0 pty,raw,echo=0
