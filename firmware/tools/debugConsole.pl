@@ -36,6 +36,7 @@ use Term::Size;
 use Time::HiRes qw(gettimeofday usleep);
 use Term::ANSIScreen qw(cls);
 use IO::Select;
+#use Device::SerialPort;
 
 my $loop  = 1;
 my $DEBUG = 1;
@@ -141,7 +142,6 @@ my $msgsListIndex = 0;
 my $msgsListMaxSz = ((1 - $RATIO) * $rows) - 3;
 my $err           = 0;
 
-
 # Checking for arguments
 if (not defined($serialPort) or $serialPort eq "") {
 	print("ERROR! use $0 <serial port>\n");
@@ -157,10 +157,15 @@ if (not defined($serialPort) or $serialPort eq "") {
 	print("ERROR! I cannot retrive the current terminal sized\n");
 	$err = 131;
 
+# Serial communication setting
+} if (system("stty", "-F", "$serialPort", "9600", "cs8", "-cstopb", "-parenb", "-raw") != 0) {
+	print("ERROR! \"$serialPort\" serial port configuration failed\n");
+	$err = 133;
+
 # Serial port opening...
 } elsif (not open(my $spFH, "< $serialPort")) {
 	print("ERROR! I cannot read the serial port \"$serialPort\"\n");
-	$err = 133;
+	$err = 135;
 
 } else {
 	my $x     = 0;
@@ -169,6 +174,15 @@ if (not defined($serialPort) or $serialPort eq "") {
 	my $sel   = IO::Select->new();
 	my @ready = ();
 	my @arr   = ();
+
+#	# Serial port interface setting
+#	{
+#		my $sPort = Device::SerialPort->($serialPort);
+#		$sPort->baudrate(9600);
+#		$sPort->databits(8);
+#		$sPort->parity(none);
+#		$sPort->stop(1);
+#	}
 
 	$sel->add($spFH);
 
