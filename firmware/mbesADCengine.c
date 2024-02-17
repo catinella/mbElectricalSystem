@@ -34,7 +34,7 @@
 #include <mbesHwConfig.h>
 #include <mbesUtilities.h>
 #include <mbesADCengine.h>
-
+#include <tools/debugConsole.h>
 #include <avr/io.h>
 #include <util/twi.h>
 #include <util/delay.h>
@@ -52,6 +52,12 @@
 #else
 #define LOGERR    ;
 #define LOGMSG(X) ;
+#endif
+
+#if MBES_KEEPTRACK > 0
+#define KEEPTRACK(X, Y) keepTrack(X, Y);
+#else
+#define KEEPTRACK(X, Y) ;
 #endif
 
 
@@ -94,12 +100,13 @@ uint16_t ADC_read (const char *code) {
 	}
 
 	if (pinNumber < ACHANS_NUMBER) {
-		ADMUX &= 0x20;                 // ADMUX register initialization
-		ADMUX |= pinNumber;              // Analog channel _selection
-	
+		ADMUX  &= 0x20;                // ADMUX register initialization
+		ADMUX  |= pinNumber;           // Analog channel _selection
 		ADCSRA |= (1 << ADSC);         // Convertion starting...
 
 		while (ADCSRA & (1 << ADSC));  // Waiting for convertion operation
+		
+		KEEPTRACK(code, ADC);
 	}
 
 	return ADC;
