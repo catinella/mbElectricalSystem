@@ -33,17 +33,18 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+#include <stdio.h>
 #include <mbesSerialConsole.h>
-#include <debugConsole.h>
+#include <tools/debugConsole.h>
 
-void keepTrack(char *code, uin8_t value) {
+void keepTrack(char *code, uint8_t value) {
 	char strVal[6] = {'\0', '\0', '\0', '\0', '\0', '\0'};
 	
-	sprintf(strVal, "%s", value);
-	USART_writeString(code,     USART_RAM);
-	USART_writeString(":",      USART_RAM);
-	USART_writeString(strValue, USART_RAM);
-	USART_writeString("\n\r",   USART_RAM);
+	sprintf(strVal, "%d", value);
+	USART_writeString(code,   USART_RAM);
+	USART_writeString(":",    USART_RAM);
+	USART_writeString(strVal, USART_RAM);
+	USART_writeString("\n\r", USART_RAM);
 
 	return;
 }
