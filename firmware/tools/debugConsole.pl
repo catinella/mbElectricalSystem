@@ -199,7 +199,7 @@ if (not defined($serialPort) or $serialPort eq "") {
 			# Reading data by the serial port
 			#
 			$_ = <$spFH>;
-			if (defined($_)) {
+			if (defined($_) and $_ ne "\n") {
 				chomp;
 				if (/^([A-Z0-9][0-9]) *: *([0-9]+)$/) {
 					# New pin-setting
