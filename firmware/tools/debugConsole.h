@@ -32,6 +32,6 @@
 #define MBES_DEBUGCONSOLE
 #include <stdint.h>
 
-void keepTrack(char *code, uint8_t value);
+void keepTrack(const char *code, uint8_t value);
 
 #endif

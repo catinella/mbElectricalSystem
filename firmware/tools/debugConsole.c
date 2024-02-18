@@ -34,17 +34,15 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <stdio.h>
+#include <string.h>
 #include <mbesSerialConsole.h>
 #include <tools/debugConsole.h>
 
-void keepTrack(char *code, uint8_t value) {
-	char strVal[6] = {'\0', '\0', '\0', '\0', '\0', '\0'};
-	
-	sprintf(strVal, "%d", value);
-	USART_writeString(code,   USART_RAM);
-	USART_writeString(":",    USART_RAM);
-	USART_writeString(strVal, USART_RAM);
-	USART_writeString("\n\r", USART_RAM);
+void keepTrack(const char *code, uint8_t value) {
+	char log[12];
+	memset(log, 0, sizeof(log));
+	sprintf(log, "%s:%d\n", code, value);
+	USART_writeString(log, USART_RAM);
 
 	return;
 }
