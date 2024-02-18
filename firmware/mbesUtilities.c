@@ -397,7 +397,7 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 		// The pin value MUST be 0 or 1
 		*pinValue = (*pinValue & (1 << pinNumber)) > 0 ? 1 : 0;
 		LOGMSG2P("getPinValue(): PIN(%s) = %d", code, *pinValue);
-		if (ecode) KEEPTRACK(code, value);
+		if (ecode) KEEPTRACK(code, *pinValue);
 	}
 	
 #else
