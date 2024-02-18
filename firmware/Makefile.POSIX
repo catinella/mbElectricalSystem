@@ -91,6 +91,13 @@ include Makefile.conf
 include Makefile.dbgsyms
 
 #
+# Symbols used in the source code
+#
+MOCK           ?= 0
+MBES_KEEPTRACK ?= 0
+
+
+#
 # Building process settings
 #
 CC       = $(AVR-GCC_HOME)/bin/avr-gcc
@@ -98,10 +105,10 @@ STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
 OBJCOPY  = $(AVR-GCC_HOME)/bin/avr-objcopy
 CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
            -funsigned-bitfields -fpack-struct
-MOCK    ?= 0
-SYMBOLS  = "-DDEBUG=$(DEBUG)" "-DMOCK=$(MOCK)"
 LDFLAGS  = 
 INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
+SYMBOLS  = -DMBES_KEEPTRACK=$(MBES_KEEPTRACK) $(DBGSYMBOLS) "-DMOCK=$(MOCK)"
+
 
 #
 # Settings for MPLABX environment
