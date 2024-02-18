@@ -142,6 +142,7 @@ int main(void) {
 				// The keyword has been authenicated, you can unplug it
 				setPinValue(o_KEEPALIVE, 1);
 				FSM = MPC23008_INIT;
+				LOGMSG("[ OK ] key has been accepted\n\r")
 			} 
 
 			// [!] The following delay is used to prevent brutal-force attack (when ready_flag == 0) and to allow
@@ -153,11 +154,12 @@ int main(void) {
 		// MCP23008 Initialization
 		//
 		} else if (FSM == MPC23008_INIT) {
-			if (init_MCP23008(MCP23008_ADDR))
+			if (init_MCP23008(MCP23008_ADDR)) {
 				FSM = PINS_SETTING;
-			else {
+				LOGMSG("[ OK ] MCP23008 initialized\n\r")
+			} else {
 				// ERROR!
-				LOGMSG("ERROR! MCP23008 initialization step failed")
+				LOGMSG("ERROR! MCP23008 initialization step failed\n\r")
 				FSM = I2CBUS_RESET;
 			}
 
@@ -177,11 +179,12 @@ int main(void) {
 				pinDirectionRegister(o_UPLIGHT,     OUTPUT) &&
 				pinDirectionRegister(o_ADDLIGHT,    OUTPUT) &&
 				pinDirectionRegister(o_HORN,        OUTPUT)
-			)
+			) {
 				FSM = SELECTORS_SETTING;
-			else {
+				LOGMSG("[ OK ] PINs initialized\n\r")
+			} else {
 				// ERROR!
-				LOGMSG("ERROR! PINs direction setting step failed")
+				LOGMSG("ERROR! PINs direction setting step failed\n\r")
 				FSM = I2CBUS_RESET;
 			}
 
@@ -201,11 +204,12 @@ int main(void) {
 				mbesSelector_init(&addLight_sel, SWITCH, i_ADDLIGHT)    &&
 				mbesSelector_init(&light_sel,    SWITCH, i_LIGHTONOFF)  &&
 				mbesSelector_init(&engOn_sel,    SWITCH, i_ENGINEON)
-			)
+			) {
 				FSM = VALUE_RESTORING;
-			else {
+				LOGMSG("[ OK ] Selectors initialized\n\r")
+			} else {
 				// ERROR!
-				LOGMSG("ERROR! selectors initialization step failed")
+				LOGMSG("ERROR! selectors initialization step failed\n\r")
 				FSM = I2CBUS_RESET;
 			}
 
@@ -225,9 +229,10 @@ int main(void) {
 				) {
 					firstRound = false;
 					FSM = NORMAL_STATUS;
+					LOGMSG("[ OK ] Output-PINs have been set to default values\n\r")
 				} else {
 					// ERROR!
-					LOGMSG("ERROR! Default values setting step failed")
+					LOGMSG("ERROR! Default values setting step failed\n\r")
 					FSM = I2CBUS_RESET;
 				}
 
@@ -236,7 +241,7 @@ int main(void) {
 					FSM = NORMAL_STATUS;
 				else {
 					// ERROR!
-					LOGMSG("ERROR! Old values cannot be restored")
+					LOGMSG("ERROR! Old values cannot be restored\n\r")
 					FSM = I2CBUS_RESET;
 				}
 
@@ -322,6 +327,11 @@ int main(void) {
 				// STOP the electric starter engine
 				setPinValue(o_ENGINEON, 0);
 		}
+
+		// delay
+		#if DEBUG > 0
+		_delay_ms(5000);
+		#endif
 	}
 
 	return(0);
