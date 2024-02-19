@@ -134,7 +134,6 @@ typedef enum _mbesI2CopType {
 #define I2C_STOP {                                    \
 	LOGTRACE("I2C_STOP")                            \
 	TWCR =(1 << TWINT) | (1 << TWEN)| (1 << TWSTO); \
-	while(TWCR & (1 << TWSTO));                     \
 }
 
 
