@@ -36,12 +36,14 @@ use Term::Size;
 use Time::HiRes qw(gettimeofday usleep);
 use Term::ANSIScreen qw(cls);
 use IO::Select;
+use Cwd qw(abs_path);
 #use Device::SerialPort;
 
 my $loop  = 1;
 my $DEBUG = 1;
 my $RATIO = 0.5;
 my $tZero = gettimeofday();
+my $PINSMAPFILE = "../mbesPinsMap.h";
 
 sub sigHandler {
 	#
@@ -132,6 +134,33 @@ sub formatLog {
 
 	return($result);
 }
+
+
+sub PinNameDB_fill {
+	#
+	# Description:
+	#	This funtion fills the argument defined pins-names-db using the C-definitions belong to the "../mbesPinsMap.h"
+	#	 header file
+	#	
+	# Returned value:
+	#	The number of valid recognized symbol definitoions
+	#
+	my $dbRef = shift;
+	my $counter = 0;
+	
+	if (open(FH, "<$PINSMAPFILE")) {
+		while (<FH>) {
+			if (/^[ \t]*#define[ \t]([^\t ]+)[ \t]+"([^ \t]+)"/) {
+				$dbRef->{"$2"} = "$1";
+				$counter++;
+			}
+		}
+	} else {
+		$counter = -1;
+	}
+	
+	return($counter);
+}
 #------------------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------------------------------------
 my $serialPort    = $ARGV[0];
@@ -141,11 +170,19 @@ my @msgsList      = ();
 my $msgsListIndex = 0;
 my $msgsListMaxSz = ((1 - $RATIO) * $rows) - 3;
 my $err           = 0;
+my %pinsMap       = ();
+
+chdir(abs_path($0));
+
+# PINs Symbols data retriving
+if (PinNameDB_fill(\%pinsMap) < 0) { 
+	print("ERROR! I cannot read the \"$PINSMAPFILE\" header file\n");
+	$err = 127;
 
 # Checking for arguments
-if (not defined($serialPort) or $serialPort eq "") {
+} elsif (not defined($serialPort) or $serialPort eq "") {
 	print("ERROR! use $0 <serial port>\n");
-	$err = 127;
+	$err = 128;
 
 # Checking for arguments
 } elsif (not -e $serialPort) {
@@ -174,6 +211,8 @@ if (not defined($serialPort) or $serialPort eq "") {
 	my $sel   = IO::Select->new();
 	my @ready = ();
 	my @arr   = ();
+	my $pin   = "";
+	
 
 #	# Serial port interface setting
 #	{
@@ -228,9 +267,13 @@ if (not defined($serialPort) or $serialPort eq "") {
 		
 		$x = 0; $y = 0;
 		$tLine = "";
-		@arr = sort keys %signalsDB;
+		@arr   = sort keys %signalsDB;
+		$pin   = "";
 		foreach (@arr) {
-			$tLine = $tLine . fill_string(($_ . ":" . $signalsDB{$_}), int($cols/4));
+			$pin = $pinsMap{"$_"};
+			if (not defined $pin) {$pin = $_};
+			
+			$tLine = $tLine . fill_string(("$pin:" . $signalsDB{$_}), int($cols/4));
 			$x++;
 			if ($x == 4) {
 				print("$tLine\n");
