@@ -41,7 +41,7 @@
 void keepTrack(const char *code, uint8_t value) {
 	char log[12];
 	memset(log, 0, sizeof(log));
-	sprintf(log, "%s:%d\n", code, value);
+	sprintf(log, "%s:%d\n\r", code, value);
 	USART_writeString(log, USART_RAM);
 
 	return;

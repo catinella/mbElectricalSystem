@@ -240,7 +240,7 @@ if (PinNameDB_fill(\%pinsMap) < 0) {
 			$_ = <$spFH>;
 			if (defined($_) and $_ ne "\n") {
 				chomp;
-				if (/^([A-Z0-9][0-9]) *: *([0-9]+)$/) {
+				if (/^[^A-Za-z\s0-9]*([A-Z0-9][0-9]) *: *([0-9]+)\s*$/) {
 					# New pin-setting
 					$signalsDB{$1} = $2 
 	
