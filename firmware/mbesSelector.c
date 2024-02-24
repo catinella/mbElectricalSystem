@@ -449,6 +449,8 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		}
 	}
 	
+	W2P_LOGMSG("mbesSelector_get(): PIN-%s = %d", item.pin, item.status);
+	
 	if (timerAvailabilityCounter == 0) _timer_reset();
 	
 	return(ec);
