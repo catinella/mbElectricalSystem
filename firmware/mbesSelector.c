@@ -52,8 +52,9 @@
 //
 // Project's libraries
 //
-#include <debugTools.h>
 #include <mbesMock.h>
+#include <debugTools.h>
+#include <tools/debugConsole.h>
 #include <mbesUtilities.h>
 #include <mbesSelector.h>
 
@@ -86,6 +87,12 @@ typedef enum _timer_cmd {
 #define LOGERR   logMsg(PSTR("ERROR! in %s(%d)"), __FUNCTION__, __LINE__);
 #else
 #define LOGERR   ;
+#endif
+
+#if MBES_KEEPTRACK > 0
+#define KEEPTRACK(X, Y) keepTrack(X, Y);
+#else
+#define KEEPTRACK(X, Y) ;
 #endif
 
 
