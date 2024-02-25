@@ -288,7 +288,7 @@ int main(void) {
 			//
 			// Protection by motorcycle stand down when the vehicle is running
 			//
-			if (neutralPin == 1 && bikeStandPin == 1) {
+			if (neutralPin == 0 && bikeStandPin == 1) {
 				setPinValue(o_ENGINEON, 0);   // Engine locked by CDI
 				canStart = false;
 
@@ -326,22 +326,26 @@ int main(void) {
 			if (mbesSelector_get(engOn_sel) == 0)
 				// STOP the electric starter engine
 				setPinValue(o_ENGINEON, 0);
+			
+			//
+			// mbesSelector items updating....
+			//	
+			mbesSelector_update(&horn_sel);
+			mbesSelector_update(&engStart_sel);
+			mbesSelector_update(&decomp_sel);
+			mbesSelector_update(&leftArr_sel);
+			mbesSelector_update(&dLight_sel);
+			mbesSelector_update(&uLight_sel);
+			mbesSelector_update(&rightArr_sel);
+			mbesSelector_update(&addLight_sel);
+			mbesSelector_update(&light_sel);
+			mbesSelector_update(&engOn_sel);
 		}
 
-		mbesSelector_update(&horn_sel);
-		mbesSelector_update(&engStart_sel);
-		mbesSelector_update(&decomp_sel);
-		mbesSelector_update(&leftArr_sel);
-		mbesSelector_update(&dLight_sel);
-		mbesSelector_update(&uLight_sel);
-		mbesSelector_update(&rightArr_sel);
-		mbesSelector_update(&addLight_sel);
-		mbesSelector_update(&light_sel);
-		mbesSelector_update(&engOn_sel);
 		
 		// delay
 		#if DEBUG > 0
-		_delay_ms(5000);
+		_delay_ms(200);
 		#endif
 	}
 
