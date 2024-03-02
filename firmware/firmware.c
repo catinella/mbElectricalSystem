@@ -288,9 +288,10 @@ int main(void) {
 			//
 			// Protection by motorcycle stand down when the vehicle is running
 			//
-			if (neutralPin == 0 && bikeStandPin == 1) {
+			if (neutralPin == 1 && bikeStandPin == 1) {
 				setPinValue(o_ENGINEON, 0);   // Engine locked by CDI
 				canStart = false;
+				LOGMSG("WARNING! bike stand is down!!\n\r");
 
 
 			//	
@@ -302,6 +303,7 @@ int main(void) {
 
 					// This LED inform the biker the engine is ready to start
 					setPinValue(o_ENGINEREADY, 1);
+					LOGMSG("OK You can start the engine\n\r");
 
 					canStart = true;
 				}
@@ -330,15 +332,15 @@ int main(void) {
 			//
 			// mbesSelector items updating....
 			//	
-			mbesSelector_update(&horn_sel);
+//			mbesSelector_update(&horn_sel);
 			mbesSelector_update(&engStart_sel);
 			mbesSelector_update(&decomp_sel);
-			mbesSelector_update(&leftArr_sel);
-			mbesSelector_update(&dLight_sel);
-			mbesSelector_update(&uLight_sel);
-			mbesSelector_update(&rightArr_sel);
-			mbesSelector_update(&addLight_sel);
-			mbesSelector_update(&light_sel);
+//			mbesSelector_update(&leftArr_sel);
+//			mbesSelector_update(&dLight_sel);
+//			mbesSelector_update(&uLight_sel);
+//			mbesSelector_update(&rightArr_sel);
+//			mbesSelector_update(&addLight_sel);
+//			mbesSelector_update(&light_sel);
 			mbesSelector_update(&engOn_sel);
 		}
 
