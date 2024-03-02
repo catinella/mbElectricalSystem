@@ -161,7 +161,25 @@ sub PinNameDB_fill {
 	
 	return($counter);
 }
+
+
+sub clearScreen {
+	#
+	# Description:
+	#	This function clears the ASCII terminal screen
+	#	[!] Consider, tput is fastest then the other methods and clear also the terminal buffer memory
+	#
+	my $tputCmd = "/usr/bin/tput";
+	if (-x $tputCmd) {
+		system("$tputCmd reset");
+	} else {
+		cls();
+	}
+
+	return(1);
+}
 #------------------------------------------------------------------------------------------------------------------------------
+#                                                       M A I N
 #------------------------------------------------------------------------------------------------------------------------------
 my $serialPort    = $ARGV[0];
 my ($cols, $rows) = Term::Size::chars *STDOUT{IO};
@@ -256,7 +274,8 @@ if (PinNameDB_fill(\%pinsMap) < 0) {
 			}
 		}
 
-		cls();
+		clearScreen();
+
 
 		#
 		# PINs list printing
