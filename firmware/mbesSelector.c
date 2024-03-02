@@ -248,7 +248,6 @@ bool mbesSelector_get (struct mbesSelector item) {
 	//		switch)        it is placed on ON-position
 	//		holdon-button) it has been activated
 	//
-	W2P_LOGMSG("mbesSelector_get(): PIN-%s = %d", item.pin, item.status);
 	return(item.status);
 }
 
@@ -279,19 +278,26 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 			ec = 0;
 
 		} else if (pinValue == 0) {
-			W1P_LOGMSG("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
-			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-			
-			timerAvailabilityCounter++;
-			if (_timer_gettime() == 0) {
-				// Nobody is using the timer, I started it
-				item->myTime = 0;
-				_timer_start();
-			} else {
-				item->myTime = _timer_gettime();
+			if (item->devType == BUTTON || item->devType == HOLDBUTTON) {
+				W1P_LOGMSG("(%d) button has been PUSHED", item->pin);
+				W2P_LOGMSG("(%d) Active timers: %d", __LINE__, timerAvailabilityCounter);
+				
+				timerAvailabilityCounter++;
+				if (_timer_gettime() == 0) {
+					// Nobody is using the timer, I started it
+					item->myTime = 0;
+					_timer_start();
+				} else {
+					item->myTime = _timer_gettime();
+				}
+				item->fsm     = 2;
+				item->status  = true;
+
+			} else if (item->devType == SWITCH) {
+				W1P_LOGMSG("(%d) switch has moved to ON", item->pin);
+				item->fsm     = 3;
+				item->status  = true;
 			}
-			item->fsm     = 2;
-			item->status  = true;
 		}
 		
 	
@@ -329,46 +335,54 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 			ec = 0;
 			
 		} else if (pinValue == 1) {
-			timerAvailabilityCounter++;
-			if (_timer_gettime() == 0) {
-				// Nobody is using the timer, I started it
-				item->myTime = 0;
-				_timer_start();
-			} else {
-				item->myTime = _timer_gettime();
-			}
-			
-			W1P_LOGMSG("The hold-button (pin-%s) has been RELEASED\n", item->pin);
-			
-			item->fsm = 14;
-			
-			if (item->devType != HOLDBUTTON) 
+			if (item->devType == BUTTON || item->devType == HOLDBUTTON) {
+				W1P_LOGMSG("(%s) button released", item->pin);
+				
+				timerAvailabilityCounter++;
+				if (_timer_gettime() == 0) {
+					// Nobody is using the timer, I started it
+					item->myTime = 0;
+					_timer_start();
+				} else {
+					item->myTime = _timer_gettime();
+				}
+				
+				item->fsm = 14;
 				item->status = false;
+
+			} else if (item->devType == SWITCH) {
+				W1P_LOGMSG("(%s) switch moved to OFF", item->pin);
+				item->status = false;
+				item->fsm = 1;
+			}
 	
 		}
 	} else if (item->fsm == 14) {
-		// If the object is in this state, then the associated selector has been released/switched-off.
-		// The selector will be disabled for a time slot
+		// If the object is in this state, the selector is a button (or hold button) and it has been released.
+		// The seelector will be disabled for a time slot
 		
 		//
 		// The button/switch... is ready to be pressed/activated, again
 		//
 		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-			W1P_LOGMSG("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
-			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-			
-			timerAvailabilityCounter--;
-			
-			if (item->devType != HOLDBUTTON)
-				item->fsm = 1;
-			else
+			W1P_LOGMSG("(%d) button's value is false", item->pin);
+			W2P_LOGMSG("(%d) Active timers: %d", __LINE__, timerAvailabilityCounter);
+
+			if (item->devType == BUTTON)
+				timerAvailabilityCounter--;
+
+			// End of cycle
+			if (item->devType == HOLDBUTTON)
 				item->fsm = 4;
-			// item->status is still false (VCC)
-		} else {
+			else
+				item->fsm = 1;
+			
+		} else 
 			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
-		}
+			
 	 
 	} else if (item->fsm == 4) {
+		//
 		// The hold-button has been pressed for the second time
 		//
 
@@ -456,7 +470,7 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		}
 	}
 	
-	W2P_LOGMSG("mbesSelector_get(): PIN-%s = %d", item.pin, item.status);
+	//W2P_LOGMSG("mbesSelector_update(): PIN-%s = %d", item->pin, item->status);
 	
 	if (timerAvailabilityCounter == 0) _timer_reset();
 	
