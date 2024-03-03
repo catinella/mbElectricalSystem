@@ -105,7 +105,8 @@ uint8_t blink() {
 
 int main(void) {
 	bool      loop         = true;              // It enables the main loop (Just for future applications)
-	bool      canStart     = false;             // When the flag is true (1), the motorbike is ready to accept commands
+	bool      canStart     = false;             // Flag true, means motorbike is ready to accept start commands
+	bool      isStarterRun = false;
 	fsmStates FSM          = RKEY_EVALUATION;
 	bool      firstRound   = true;
 	uint8_t   neutralPin   = 1;
@@ -171,7 +172,7 @@ int main(void) {
 			if (
 				pinDirectionRegister(i_NEUTRAL,     INPUT)  &&
 				pinDirectionRegister(i_BYKESTAND,   INPUT)  &&
-				pinDirectionRegister(o_ENGINEREADY, OUTPUT) &&
+				pinDirectionRegister(o_ENGINEREADY, OUTPUT) &&  // It is just the LED indicator
 				pinDirectionRegister(o_NEUTRAL,     OUTPUT) &&
 				pinDirectionRegister(o_RIGHTARROW,  OUTPUT) &&
 				pinDirectionRegister(o_LEFTARROW,   OUTPUT) &&
@@ -312,11 +313,17 @@ int main(void) {
 					// Decompressor MUST be released
 					if (mbesSelector_get(decomp_sel)) {
 						setPinValue(o_ENGINEON, 0); // 0 means eng locked
+						
 					} else {
-						// *** START ***
 						setPinValue(o_ENGINEON,    1);
-						setPinValue(o_ENGINEREADY, 0);
-						canStart = false;
+
+						// *** START ***
+						if (mbesSelector_get(engStart_sel)) {  // i_STARTBUTTON
+							setPinValue(o_STARTENGINE, 1);
+							LOGMSG("OK electric starter is running\n\r");
+							canStart = false;
+							isStarterRun = true;
+						}
 					}
 				}
 
@@ -325,23 +332,38 @@ int main(void) {
 				canStart = false;
 
 				
-			if (mbesSelector_get(engOn_sel) == 0)
-				// STOP the electric starter engine
+			// STOP the engine
+			if (mbesSelector_get(engOn_sel) == 0) {
 				setPinValue(o_ENGINEON, 0);
+				setPinValue(o_STARTENGINE, 0);
+			}
+
 			
+			// STOP the electric starter engine
+			if (
+				mbesSelector_get(engStart_sel) == false && // i_STARTBUTTON
+				isStarterRun == true
+			) {
+				LOGMSG("Electric starter STOP\n\r");
+				setPinValue(o_ENGINEREADY, 0);
+				setPinValue(o_STARTENGINE, 0);
+				isStarterRun = false;
+			}
+			
+				
 			//
 			// mbesSelector items updating....
 			//	
-//			mbesSelector_update(&horn_sel);
 			mbesSelector_update(&engStart_sel);
 			mbesSelector_update(&decomp_sel);
+			mbesSelector_update(&engOn_sel);
+//			mbesSelector_update(&horn_sel);
 //			mbesSelector_update(&leftArr_sel);
 //			mbesSelector_update(&dLight_sel);
 //			mbesSelector_update(&uLight_sel);
 //			mbesSelector_update(&rightArr_sel);
 //			mbesSelector_update(&addLight_sel);
 //			mbesSelector_update(&light_sel);
-			mbesSelector_update(&engOn_sel);
 		}
 
 		
