@@ -34,12 +34,17 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+//
 // C standard libraries
+//
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
+
+//
 // Progect's sub-modules
+//
 #include <mbesHwConfig.h>
 #include <mbesPinsMap.h>
 #include <mbesUtilities.h>
@@ -48,14 +53,25 @@
 #include <mbesMCP23008.h>
 #include <mbesSelector.h>
 
+
+//
 // AVR Libraries
+//
 #include <avr/io.h>
 #include <util/twi.h>
 #include <util/delay.h>
 
 
+//
 // Settings
-#define BLINK_DELAY     4000000
+//
+#if DEBUG > 0
+// In debug mode, exevy round is bout 200ms
+#define BLINK_DELAY     20
+#else
+#define BLINK_DELAY     400
+#endif
+
 #define V_TOLERANCE     10
 
 
@@ -89,8 +105,7 @@ uint8_t blink() {
 	static uint32_t counter = 0;
 
 	if (counter >= BLINK_DELAY) {
-		if (status == 0) status = 1;
-		else             status = 0;
+		status = status ? 0 : 1;
 		counter = 0;
 	} else
 		counter++;
@@ -263,9 +278,13 @@ int main(void) {
 			if (mbesSelector_get(light_sel)) {
 				setPinValue(o_DOWNLIGHT, mbesSelector_get(dLight_sel));
 				setPinValue(o_UPLIGHT,   mbesSelector_get(uLight_sel));
+				setPinValue(o_ADDLIGHT, mbesSelector_get(addLight_sel));
+			} else {
+				setPinValue(o_DOWNLIGHT, 0);
+				setPinValue(o_UPLIGHT,   0);
+				setPinValue(o_ADDLIGHT,  0);
 			}
 			setPinValue(o_HORN,     mbesSelector_get(horn_sel));
-			setPinValue(o_ADDLIGHT, mbesSelector_get(addLight_sel));
 			setPinValue(o_NEUTRAL,  (neutralPin == 1 ? 0 : 1));
 
 
@@ -336,7 +355,8 @@ int main(void) {
 			if (mbesSelector_get(engOn_sel) == 0) {
 				setPinValue(o_ENGINEON, 0);
 				setPinValue(o_STARTENGINE, 0);
-			}
+			} else 
+				setPinValue(o_ENGINEON, 1);
 
 			
 			// STOP the electric starter engine
@@ -353,17 +373,18 @@ int main(void) {
 				
 			//
 			// mbesSelector items updating....
-			//	
+			//
 			mbesSelector_update(&engStart_sel);
 			mbesSelector_update(&decomp_sel);
 			mbesSelector_update(&engOn_sel);
-//			mbesSelector_update(&horn_sel);
-//			mbesSelector_update(&leftArr_sel);
-//			mbesSelector_update(&dLight_sel);
-//			mbesSelector_update(&uLight_sel);
-//			mbesSelector_update(&rightArr_sel);
-//			mbesSelector_update(&addLight_sel);
-//			mbesSelector_update(&light_sel);
+			mbesSelector_update(&horn_sel);
+			mbesSelector_update(&light_sel);
+			mbesSelector_update(&leftArr_sel);
+			mbesSelector_update(&dLight_sel);
+			mbesSelector_update(&uLight_sel);
+			mbesSelector_update(&rightArr_sel);
+			mbesSelector_update(&addLight_sel);
+			mbesSelector_update(&light_sel);
 		}
 
 		
