@@ -406,6 +406,7 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 	//
 	// Description:
 	//	It upodates the argument defined item's FSM, or the ones of all registered itels
+	//	This function is a frontend of _update() private function, mainly
 	//	
 	// Returned value:
 	//	The number of successfully updated items
