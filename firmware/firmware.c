@@ -67,18 +67,18 @@
 //
 #if DEBUG > 0
 // In debug mode, exevy round is bout 200ms
-#define BLINK_DELAY     20
+#define BLINK_DELAY  0
 #else
-#define BLINK_DELAY     400
+#define BLINK_DELAY  1
 #endif
 
-#define V_TOLERANCE     10
+#define V_TOLERANCE  10
 
 
 #if DEBUG > 0
-#define LOGMSG(X)      USART_writeString(PSTR(X), USART_FLASH);
+#define LOGMSG(X)   USART_writeString(PSTR(X), USART_FLASH);
 #else
-#define LOGMSG(X)      ;
+#define LOGMSG(X)   ;
 #endif
 
 
@@ -96,15 +96,26 @@ typedef enum _fsmStates {
 //                                                 F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
 
-uint8_t blink() {
+uint8_t blink (bool reset) {
 	//
 	// Description:
 	//	It returns 1 or 0 alternating after a given time
 	//
-	static uint8_t  status = 0;
+	static uint8_t  status = 1;   // It starts with the indicator light set to ON
 	static uint32_t counter = 0;
 
-	if (counter >= BLINK_DELAY) {
+	/*
+	if (status) {
+		LOGMSG("BLINK-ON\n\r");
+	} else {
+		LOGMSG("BLINK-OFF\n\r");
+	}
+	*/
+	
+	if (reset)
+		counter = 0;
+	
+	else if (counter >= BLINK_DELAY) {
 		status = status ? 0 : 1;
 		counter = 0;
 	} else
@@ -292,16 +303,18 @@ int main(void) {
 			// Blinking lights
 			//
 			if (mbesSelector_get(leftArr_sel)) {
-				setPinValue(o_LEFTARROW,  blink());
+				setPinValue(o_LEFTARROW,  blink(false));
 				setPinValue(o_RIGHTARROW, 0);
 
 			} else if (mbesSelector_get(rightArr_sel)) {
-				setPinValue(o_RIGHTARROW, blink());
+				setPinValue(o_RIGHTARROW, blink(false));
 				setPinValue(o_LEFTARROW,  0);
 
 			} else {
 				setPinValue(o_RIGHTARROW, 0);
 				setPinValue(o_LEFTARROW,  0);
+				blink(true);
+				blink(true);
 			}
 			
 			
