@@ -384,20 +384,8 @@ int main(void) {
 			}
 			
 				
-			//
 			// mbesSelector items updating....
-			//
-			mbesSelector_update(&engStart_sel);
-			mbesSelector_update(&decomp_sel);
-			mbesSelector_update(&engOn_sel);
-			mbesSelector_update(&horn_sel);
-			mbesSelector_update(&light_sel);
-			mbesSelector_update(&leftArr_sel);
-			mbesSelector_update(&dLight_sel);
-			mbesSelector_update(&uLight_sel);
-			mbesSelector_update(&rightArr_sel);
-			mbesSelector_update(&addLight_sel);
-			mbesSelector_update(&light_sel);
+			mbesSelector_update(NULL);
 		}
 
 		
