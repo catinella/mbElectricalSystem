@@ -89,7 +89,8 @@ typedef enum _fsmStates {
 	SELECTORS_SETTING,
 	VALUE_RESTORING,
 	NORMAL_STATUS,
-	I2CBUS_RESET
+	I2CBUS_RESET,
+	PARCKING_STATUS
 }  fsmStates;
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -131,17 +132,16 @@ uint8_t blink (bool reset) {
 
 int main(void) {
 	bool      loop         = true;              // It enables the main loop (Just for future applications)
-	bool      canStart     = false;             // Flag true, means motorbike is ready to accept start commands
+	bool      decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
 	bool      isStarterRun = false;
 	fsmStates FSM          = RKEY_EVALUATION;
 	bool      firstRound   = true;
 	uint8_t   neutralPin   = 1;
-	uint8_t   bikeStandPin = 0;
+	uint8_t   bikeStandPin = 1;
+	uint8_t   clutchPin    = 1;
 	
 	struct mbesSelector 
-		leftArr_sel, rightArr_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel,
-		 engOn_sel
-	;
+		leftArr_sel, rightArr_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel, engOn_sel;
 	
 	// USART port initialization
 	USART_Init(9600);
@@ -198,6 +198,7 @@ int main(void) {
 			if (
 				pinDirectionRegister(i_NEUTRAL,     INPUT)  &&
 				pinDirectionRegister(i_BYKESTAND,   INPUT)  &&
+				pinDirectionRegister(i_CLUTCH,      INPUT)  &&
 				pinDirectionRegister(o_ENGINEREADY, OUTPUT) &&  // It is just the LED indicator
 				pinDirectionRegister(o_NEUTRAL,     OUTPUT) &&
 				pinDirectionRegister(o_RIGHTARROW,  OUTPUT) &&
@@ -280,6 +281,7 @@ int main(void) {
 			//     So, their function's error code has no meaning
 			getPinValue(i_NEUTRAL,   &neutralPin);
 			getPinValue(i_BYKESTAND, &bikeStandPin);
+			getPinValue(i_CLUTCH,    &clutchPin);
 
 
 			//
@@ -287,7 +289,7 @@ int main(void) {
 			//
 			if (mbesSelector_get(light_sel)) {
 				setPinValue(o_DOWNLIGHT, 1);
-				setPinValue(o_UPLIGHT,   mbesSelector_get(uLight_sel));
+				setPinValue(o_UPLIGHT,  mbesSelector_get(uLight_sel));
 				setPinValue(o_ADDLIGHT, mbesSelector_get(addLight_sel));
 			} else {
 				setPinValue(o_DOWNLIGHT, 0);
@@ -321,77 +323,94 @@ int main(void) {
 			}
 			
 			
+			// Decompressor sensor management
+			if (mbesSelector_get(decomp_sel)) decompPushed = true;
+			
+
+			
 			//
-			// Protection by motorcycle stand down when the vehicle is running
+			// Protection by motorcycle stand down while the vehicle is running
 			//
 			if (neutralPin == 1 && bikeStandPin == 1) {
-				setPinValue(o_ENGINEON, 0);   // Engine locked by CDI
-				canStart = false;
+				setPinValue(o_ENGINEON,    0);   // Engine locked by CDI
+				setPinValue(o_ENGINEREADY, 0);
 				LOGMSG("WARNING! bike stand is down!!\n\r");
 
 
-			//	
-			// Decompressor sensor management
-			//	
-			} else if (neutralPin == 0) {
-				
-				if (mbesSelector_get(decomp_sel)) {
-
-					// This LED inform the biker the engine is ready to start
-					setPinValue(o_ENGINEREADY, 1);
-					LOGMSG("OK You can start the engine\n\r");
-
-					canStart = true;
-				}
-
-				if (canStart && mbesSelector_get(engOn_sel)) {
-					// Decompressor MUST be released
-					if (mbesSelector_get(decomp_sel)) {
-						setPinValue(o_ENGINEON, 0); // 0 means eng locked
-						
-					} else {
-						setPinValue(o_ENGINEON,    1);
-
-						// *** START ***
-						if (mbesSelector_get(engStart_sel)) {  // i_STARTBUTTON
-							setPinValue(o_STARTENGINE, 1);
-							LOGMSG("OK electric starter is running\n\r");
-							canStart = false;
-							isStarterRun = true;
-						}
-					}
-				}
-
-			} else {
-				// Electric motor MUST NOT RUN when the gear-box is connected to the wheel!!!!
+			//
+			// STOP the engine
+			//
+			} else if (mbesSelector_get(engOn_sel) == 0) {
+				setPinValue(o_ENGINEON,    0);
 				setPinValue(o_STARTENGINE, 0);
 				setPinValue(o_ENGINEREADY, 0);
-				canStart = false;
-			}
-			
-				
-			// STOP the engine
-			if (mbesSelector_get(engOn_sel) == 0) {
-				setPinValue(o_ENGINEON, 0);
-				setPinValue(o_STARTENGINE, 0);
+
 			} else 
 				setPinValue(o_ENGINEON, 1);
 
-			
+
+
+			//
 			// STOP the electric starter engine
-			if (
-				mbesSelector_get(engStart_sel) == false && // i_STARTBUTTON
-				isStarterRun == true
-			) {
-				LOGMSG("Electric starter STOP\n\r");
-				setPinValue(o_ENGINEREADY, 0);
-				setPinValue(o_STARTENGINE, 0);
-				isStarterRun = false;
-			}
-			
+			//
+			if (isStarterRun) {
+				if (mbesSelector_get(engStart_sel) == false || (neutralPin == 1 && clutchPin == 1)) {
+					LOGMSG("Electric starter STOP\n\r");
+					setPinValue(o_STARTENGINE, 0);
+					isStarterRun = false;
+				} else {
+					LOGMSG("Electric starter is running\n\r");
+				}
 				
+			//
+			// Starting procedure
+			//
+			} else if (
+				(neutralPin == 0 || clutchPin == 0) && decompPushed && mbesSelector_get(engOn_sel)
+			) {
+				// Decompressor MUST be released
+				if (mbesSelector_get(decomp_sel)) {
+					setPinValue(o_ENGINEON, 0); // 0 means eng locked
+						
+				} else {
+					// This LED inform the biker the engine is ready to start
+					LOGMSG("OK You can start the engine\n\r");
+					setPinValue(o_ENGINEREADY, 1);
+
+					// *** START ***
+					if (mbesSelector_get(engStart_sel) == true) {  // i_STARTBUTTON
+						setPinValue(o_STARTENGINE, 1);
+						setPinValue(o_ENGINEREADY, 0);
+						LOGMSG("OK electric starter is running\n\r");
+						decompPushed = false;
+						isStarterRun = true;
+					}
+				}
+			}
+
+
+			// Parcking mode
+			if (
+				mbesSelector_get(engOn_sel)  == false &&
+				mbesSelector_get(light_sel)  == false &&
+				mbesSelector_get(uLight_sel) == false
+			) 
+				FSM = PARCKING_STATUS;
+			
+			
 			// mbesSelector items updating....
 			mbesSelector_update(NULL);
+
+			
+		} else if (FSM == PARCKING_STATUS) {
+			//
+			// Parcking status
+			//
+			setPinValue(o_LEFTARROW,  blink(false));
+			setPinValue(o_RIGHTARROW, blink(false));
+			setPinValue(o_DOWNLIGHT, 1);
+
+			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
 		}
 
 		
