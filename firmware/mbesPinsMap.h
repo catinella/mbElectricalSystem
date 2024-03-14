@@ -90,7 +90,7 @@
 #define o_DOWNLIGHT    "B0"
 #define o_UPLIGHT      "B1"
 #define i_UPLIGHT      "B2"
-#define i_DOWNLIGHT    "B3"
+// ==== available ==== "B3"
 #define o_ADDLIGHT     "B4"
 // ===== ISP =====     "B5"
 // ===== ISP =====     "B6"

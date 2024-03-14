@@ -139,7 +139,7 @@ int main(void) {
 	uint8_t   bikeStandPin = 0;
 	
 	struct mbesSelector 
-		leftArr_sel, rightArr_sel, dLight_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel,
+		leftArr_sel, rightArr_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel,
 		 engOn_sel
 	;
 	
@@ -225,7 +225,6 @@ int main(void) {
 				mbesSelector_init(&engStart_sel, BUTTON, i_STARTBUTTON) &&
 				mbesSelector_init(&decomp_sel,   BUTTON, i_DECOMPRESS)  &&
 				mbesSelector_init(&leftArr_sel,  SWITCH, i_LEFTARROW)   &&
-				mbesSelector_init(&dLight_sel,   SWITCH, i_DOWNLIGHT)   &&
 				mbesSelector_init(&uLight_sel,   SWITCH, i_UPLIGHT)     &&
 				mbesSelector_init(&rightArr_sel, SWITCH, i_RIGHTARROW)  &&
 				mbesSelector_init(&addLight_sel, SWITCH, i_ADDLIGHT)    &&
@@ -287,7 +286,7 @@ int main(void) {
 			// Lights and horn
 			//
 			if (mbesSelector_get(light_sel)) {
-				setPinValue(o_DOWNLIGHT, mbesSelector_get(dLight_sel));
+				setPinValue(o_DOWNLIGHT, 1);
 				setPinValue(o_UPLIGHT,   mbesSelector_get(uLight_sel));
 				setPinValue(o_ADDLIGHT, mbesSelector_get(addLight_sel));
 			} else {
