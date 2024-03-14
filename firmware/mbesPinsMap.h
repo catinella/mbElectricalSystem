@@ -29,7 +29,7 @@
 //		| o_KEEPALIVE   | internal only    | it keeps the system on when you unplug the key      |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| i_LEFTARROW   |                  | left turn blinking indicator switch                 |
-//		| i_DOWNLIGHT   |                  | low beam command                                    |
+//		| i_CLUTCH      |                  |                                     |
 //		| i_UPLIGHT     | left controls    | dazzling beam command                               |
 //		| i_RIGHTARROW  |                  | right turn blinking indicator switch                |
 //		| i_HORN        |                  | horn button                                         |
@@ -90,7 +90,7 @@
 #define o_DOWNLIGHT    "B0"
 #define o_UPLIGHT      "B1"
 #define i_UPLIGHT      "B2"
-// ==== available ==== "B3"
+#define i_CLUTCH       "B3"
 #define o_ADDLIGHT     "B4"
 // ===== ISP =====     "B5"
 // ===== ISP =====     "B6"
