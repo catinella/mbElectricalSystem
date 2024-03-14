@@ -283,7 +283,7 @@ int main(void) {
 
 
 			//
-			// Lights and horn
+			// Lights
 			//
 			if (mbesSelector_get(light_sel)) {
 				setPinValue(o_DOWNLIGHT, 1);
@@ -294,8 +294,12 @@ int main(void) {
 				setPinValue(o_UPLIGHT,   0);
 				setPinValue(o_ADDLIGHT,  0);
 			}
-			setPinValue(o_HORN,     mbesSelector_get(horn_sel));
-			setPinValue(o_NEUTRAL,  (neutralPin == 1 ? 0 : 1));
+
+			// Horn
+			setPinValue(o_HORN, mbesSelector_get(horn_sel));
+
+			// NEUTRAL LED indicator
+			setPinValue(o_NEUTRAL, (neutralPin == 1 ? 0 : 1));
 
 
 			//
@@ -358,10 +362,13 @@ int main(void) {
 					}
 				}
 
-			} else
-				// Just to be paranoide
+			} else {
+				// Electric motor MUST NOT RUN when the gear-box is connected to the wheel!!!!
+				setPinValue(o_STARTENGINE, 0);
+				setPinValue(o_ENGINEREADY, 0);
 				canStart = false;
-
+			}
+			
 				
 			// STOP the engine
 			if (mbesSelector_get(engOn_sel) == 0) {
