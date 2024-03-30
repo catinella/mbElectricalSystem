@@ -128,3 +128,13 @@
 	ones, the JTAG must be disabled using the described fuses. So, you have to set the following value:
 		HI: 1 1 0 1 1 0 0 1  dec=217 hex=d9
 		LO: 1 1 1 0 0 0 0 1  dec=225 hex=e1
+
+	Unfortunately, also the internal oscillator default setting (1Mhz) is too slow for this firmware. So, you have to set the
+	fuses in the following way. But, because USBASP programmer works only with 1Mhz clock, the programmer device will stop to
+	function, and you will have to choice a different one. I switched to Atmel-ICE.
+	[!] Remember to update the F_CPU's value in mbesHwConfig.h file.
+		HI: 1 1 0 1 1 0 0 1        dec=217 hex=d9
+			LO: 1 1 1 0 0 0 1 0  dec=226 hex=e2 (2Mhz)
+		or
+			LO: 1 1 1 0 0 0 1 1  dec=227 hex=e3 (4Mhz)
+		
