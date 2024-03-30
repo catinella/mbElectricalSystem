@@ -44,6 +44,8 @@ my $DEBUG = 1;
 my $RATIO = 0.5;
 my $tZero = gettimeofday();
 my $PINSMAPFILE = "../mbesPinsMap.h";
+my $HWCONFFILE = "../mbesHwConfig.h";
+
 
 sub sigHandler {
 	#
@@ -178,6 +180,30 @@ sub clearScreen {
 
 	return(1);
 }
+
+
+sub getRS232bps {
+	#
+	# Description:
+	#	It reads the RS232-bps setting from the $HWCONFFILE file
+	#
+	#
+	my $outRef = shift;
+	my $err    = -1;
+
+	if (open(FH, "< $HWCONFFILE")) {
+		while (<FH>) {
+			if (/^[ \t]*#define[ \t]+RS232_BPS[ \t]+([^ \t]+)/) {
+				$$outRef = $1;
+				$err = 1;
+			}
+		}
+		close(FH);
+	}
+
+	return($err);
+}
+
 #------------------------------------------------------------------------------------------------------------------------------
 #                                                       M A I N
 #------------------------------------------------------------------------------------------------------------------------------
@@ -189,8 +215,15 @@ my $msgsListIndex = 0;
 my $msgsListMaxSz = ((1 - $RATIO) * $rows) - 3;
 my $err           = 0;
 my %pinsMap       = ();
+my $rs232BPS      = 0;
+
 
 chdir(abs_path($0));
+
+# RS232 BPS setting reading...
+if (getRS232bps(\$rs232BPS) < 0) {
+	print("ERROR! I cannot find the RS232 settings in the \"$HWCONFFILE\" header file\n");
+	$err = 130;
 
 # PINs Symbols data retriving
 if (PinNameDB_fill(\%pinsMap) < 0) { 
