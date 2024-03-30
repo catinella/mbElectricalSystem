@@ -37,7 +37,7 @@
 #include <avr/pgmspace.h>
 
 int main() {
-	USART_Init(9600);
+	USART_Init(RS232_BPS);
 	
 	while (1) {
 		USART_writeString(PSTR("Hello world\n\r"), USART_FLASH);
