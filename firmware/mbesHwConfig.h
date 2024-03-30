@@ -34,14 +34,13 @@
 #ifndef MBESHWCONF
 #define MBESHWCONF
 
-// External 8Mhz crystal (FUSES = "99:C4")
-//#define F_CPU 8000000UL
-
-// Internal 1Mhz crystal (FUSES = "99:E1")
-#define F_CPU 1000000UL
+// System clock (4Mhz)
+#define F_CPU 4000000UL
 
 // MCP23008 I/O extender device address
 #define MCP23008_ADDR 0
 
+// Serial console speed
+#define RS232_BPS 19200
 
 #endif
