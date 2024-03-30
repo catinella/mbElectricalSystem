@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 #
-#   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+#  __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
 # |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
 # | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
 # | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
@@ -56,7 +56,7 @@
 #	file
 #
 #
-#	{H|L}fules backup
+#	{H|L}fuses backup
 #	=================
 #	Because the fuses modification is always a critical one, when you dump their values, with fuses-dump rule, the procedure
 #	will also make a backup of the current data. The backup will have a progressive numerical suffix. In this way you should
@@ -100,14 +100,15 @@ MBES_KEEPTRACK ?= 0
 #
 # Building process settings
 #
-CC       = $(AVR-GCC_HOME)/bin/avr-gcc
-STRIP    = $(AVR-GCC_HOME)/bin/avr-strip
-OBJCOPY  = $(AVR-GCC_HOME)/bin/avr-objcopy
-CFLAGS   = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
-           -funsigned-bitfields -fpack-struct
-LDFLAGS  = 
-INCLUDE  = -I$(AVR-GCC_HOME)/avr/include -I.
-SYMBOLS  = -DMBES_KEEPTRACK=$(MBES_KEEPTRACK) $(DBGSYMBOLS) "-DMOCK=$(MOCK)"
+MAKEFLAGS := --jobs=$(shell nproc)
+CC         = $(AVR-GCC_HOME)/bin/avr-gcc
+STRIP      = $(AVR-GCC_HOME)/bin/avr-strip
+OBJCOPY    = $(AVR-GCC_HOME)/bin/avr-objcopy
+CFLAGS     = -Wall -Os -mmcu=atmega16 -ffunction-sections -fdata-sections -fshort-enums -fno-common -funsigned-char \
+             -funsigned-bitfields -fpack-struct
+LDFLAGS    = 
+INCLUDE    = -I$(AVR-GCC_HOME)/avr/include -I.
+SYMBOLS    = -DMBES_KEEPTRACK=$(MBES_KEEPTRACK) $(DBGSYMBOLS) "-DMOCK=$(MOCK)"
 
 
 #
