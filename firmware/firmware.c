@@ -83,14 +83,14 @@
 
 
 typedef enum _fsmStates {
-	RKEY_EVALUATION,
-	MPC23008_INIT,
-	PINS_SETTING,
-	SELECTORS_SETTING,
-	VALUE_RESTORING,
-	NORMAL_STATUS,
-	I2CBUS_RESET,
-	PARCKING_STATUS
+	RKEY_EVALUATION   = 0,
+	MPC23008_INIT     = 1,
+	PINS_SETTING      = 2,
+	SELECTORS_SETTING = 3,
+	VALUE_RESTORING   = 4,
+	NORMAL_STATUS     = 5,
+	I2CBUS_RESET      = 6,
+	PARCKING_STATUS   = 7
 }  fsmStates;
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ int main(void) {
 		leftArr_sel, rightArr_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel, engOn_sel;
 	
 	// USART port initialization
-	USART_Init(9600);
+	USART_Init(RS232_BPS);
 
 	//
 	// Critic output initialization (these pins MUST be MCU's pins)
@@ -388,7 +388,7 @@ int main(void) {
 				}
 			}
 
-
+/*
 			// Parcking mode
 			if (
 				mbesSelector_get(engOn_sel)  == false &&
@@ -396,7 +396,7 @@ int main(void) {
 				mbesSelector_get(uLight_sel) == false
 			) 
 				FSM = PARCKING_STATUS;
-			
+*/
 			
 			// mbesSelector items updating....
 			mbesSelector_update(NULL);
@@ -406,9 +406,10 @@ int main(void) {
 			//
 			// Parcking status
 			//
+			LOGMSG("Parking mode\n\r");
 			setPinValue(o_LEFTARROW,  blink(false));
 			setPinValue(o_RIGHTARROW, blink(false));
-			setPinValue(o_DOWNLIGHT, 1);
+			setPinValue(o_DOWNLIGHT,  1);
 
 			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
 		}
