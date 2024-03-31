@@ -205,11 +205,27 @@ static uint8_t _update (struct mbesSelector *item) {
 	// Description:
 	//	This function updates the internal representation of the phisical device (button/switch..).
 	//
+	//
+	//	          (devType = switch)
+	//	+--------------------------------------+
+	//	|                                      |
+	//	|   +------+        +------+        +--+---+        +------+
+	//	+-->|      |        |      |        |      |        |      |
+	//	    |  01  +------->|  02  |------->|  03  |------->|  14  |
+	//	+-->|      |        |      |    +-->|      |        |      |
+	//	|   +--+---+        +------+    |   +------+        +---+--+
+	//	|       |                       |                       |
+	//	|       +-----------------------+                       |
+	//	|           (devType = switch)                          |
+	//	+-------------------------------------------------------+
+	//
 	uint8_t pinValue = 1;
 	uint8_t ec = 1;
 
-	
-	if (item->fsm == 1) {
+	if (item->fsm == 0) {
+		item->fsm = 1;
+
+	} else if (item->fsm == 1) {
 		
 		//
 		// The button/switch... has been pressed/activated
@@ -234,7 +250,7 @@ static uint8_t _update (struct mbesSelector *item) {
 				} else {
 					item->myTime = _timer_gettime();
 				}
-				item->fsm     = 2;
+				item->fsm = 2;
 
 				if (item->devType == BUTTON)
 					// Button's value is "true"
@@ -264,7 +280,7 @@ static uint8_t _update (struct mbesSelector *item) {
 			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter--;
-			item->fsm    = 3;
+			item->fsm = 3;
 			// item->status is still true;
 		} else {
 			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
@@ -332,8 +348,6 @@ static uint8_t _update (struct mbesSelector *item) {
 		
 	}
 	
-	//W2P_LOGMSG("mbesSelector_update(): PIN-%s = %d", item->pin, item->status);
-	
 	if (timerAvailabilityCounter == 0) _timer_reset();
 	
 	return(ec);
@@ -376,7 +390,7 @@ uint8_t mbesSelector_init (struct mbesSelector *item, selectorType type, const c
 		item->myTime  = 0;
 		item->devType = type;
 		item->status  = false;        // released status
-		item->fsm     = 1;
+		item->fsm     = 0;
 
 		itemsStorage[index] = item;
 		index++;
@@ -411,8 +425,8 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 	// Returned value:
 	//	The number of successfully updated items
 	//	
-	
 	uint8_t out = 0;
+	
 	if (item != NULL)
 		out = _update(item) ? 1 : 0;
 	else {
