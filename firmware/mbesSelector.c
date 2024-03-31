@@ -431,8 +431,12 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		out = _update(item) ? 1 : 0;
 	else {
 		uint8_t t = 0;
-		while (t<MBESSELECTOR_MAXITEMSNUMB && itemsStorage[t] != NULL)
+		while (t<MBESSELECTOR_MAXITEMSNUMB && itemsStorage[t] != NULL) {
+			//W1P_LOGMSG("mbesSelector_update(): %s", itemsStorage[t]->pin);
 			if (_update(itemsStorage[t])) out++;
+			t++;
+		}
+		W1P_LOGMSG("mbesSelector_update(): %d items have been updated", out);
 	}
 
 	return(out);
