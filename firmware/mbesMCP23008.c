@@ -149,7 +149,7 @@ uint8_t regSelecting_MCP23008 (uint8_t regAddr) {
 	//
 	uint8_t status = 0;
 	I2C_STOP
-	_delay_ms(1);
+	_delay_us(500);
 	W1V_LOGMSG("0x0%d-register selecting...", regAddr);
 	I2C_START(status)
 	if (status) I2C_WRITE(MCP23008_devAddr, status)
