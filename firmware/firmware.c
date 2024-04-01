@@ -62,15 +62,8 @@
 #include <util/delay.h>
 
 
-//
 // Settings
-//
-#if DEBUG > 0
-// In debug mode, exevy round is bout 200ms
-#define BLINK_DELAY  0
-#else
-#define BLINK_DELAY  1
-#endif
+#define BLINK_DELAY  3
 
 #define V_TOLERANCE  10
 
@@ -414,10 +407,12 @@ int main(void) {
 			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
 		}
 
-		
+
 		// delay
 		#if DEBUG > 0
 		_delay_ms(200);
+		#else
+		_delay_us(100);
 		#endif
 	}
 
