@@ -35,7 +35,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 #define MBESSELECTOR_DEBOUNCETIME 100
+
+#define MBESSELECTOR_MAXITEMSNUMB 64
+
 
 typedef enum _selectorType {
 	BUTTON,

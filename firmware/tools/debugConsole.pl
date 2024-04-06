@@ -44,6 +44,8 @@ my $DEBUG = 1;
 my $RATIO = 0.5;
 my $tZero = gettimeofday();
 my $PINSMAPFILE = "../mbesPinsMap.h";
+my $HWCONFFILE = "../mbesHwConfig.h";
+
 
 sub sigHandler {
 	#
@@ -178,6 +180,30 @@ sub clearScreen {
 
 	return(1);
 }
+
+
+sub getRS232bps {
+	#
+	# Description:
+	#	It reads the RS232-bps setting from the $HWCONFFILE file
+	#
+	#
+	my $outRef = shift;
+	my $err    = -1;
+
+	if (open(FH, "< $HWCONFFILE")) {
+		while (<FH>) {
+			if (/^[ \t]*#define[ \t]+RS232_BPS[ \t]+([^ \t]+)/) {
+				$$outRef = $1;
+				$err = 1;
+			}
+		}
+		close(FH);
+	}
+
+	return($err);
+}
+
 #------------------------------------------------------------------------------------------------------------------------------
 #                                                       M A I N
 #------------------------------------------------------------------------------------------------------------------------------
@@ -189,11 +215,22 @@ my $msgsListIndex = 0;
 my $msgsListMaxSz = ((1 - $RATIO) * $rows) - 3;
 my $err           = 0;
 my %pinsMap       = ();
+my $rs232BPS      = 0;
+
 
 chdir(abs_path($0));
 
+#
+# Configuration data retriving
+#
+
+# RS232 BPS setting reading...
+if (getRS232bps(\$rs232BPS) < 0) {
+	print("ERROR! I cannot find the RS232 settings in the \"$HWCONFFILE\" header file\n");
+	$err = 130;
+
 # PINs Symbols data retriving
-if (PinNameDB_fill(\%pinsMap) < 0) { 
+} elsif (PinNameDB_fill(\%pinsMap) < 0) { 
 	print("ERROR! I cannot read the \"$PINSMAPFILE\" header file\n");
 	$err = 127;
 
@@ -211,116 +248,117 @@ if (PinNameDB_fill(\%pinsMap) < 0) {
 } elsif ($cols == 0 or $rows == 0) {
 	print("ERROR! I cannot retrive the current terminal sized\n");
 	$err = 131;
+}
 
-# Serial communication setting
-} if (system("stty", "-F", "$serialPort", "9600", "cs8", "-cstopb", "-parenb", "-raw") != 0) {
-	print("ERROR! \"$serialPort\" serial port configuration failed\n");
-	$err = 133;
 
-# Serial port opening...
-} elsif (not open(my $spFH, "< $serialPort")) {
-	print("ERROR! I cannot read the serial port \"$serialPort\"\n");
-	$err = 135;
+if ($err == 0) {
+	chomp($rs232BPS);
+	chomp($serialPort);
 
-} else {
-	my $x     = 0;
-	my $y     = 0;
-	my $tLine = "";
-	my $sel   = IO::Select->new();
-	my @ready = ();
-	my @arr   = ();
-	my $pin   = "";
+	print("RS232: $serialPort (bps=$rs232BPS)\n");
+	sleep(1);
 	
+	# Serial communication setting
+	if (system("stty", "-F", "$serialPort", "$rs232BPS", "cs8", "-cstopb", "-parenb", "-raw") != 0) {
+		print("ERROR! \"$serialPort\" serial port configuration failed\n");
+		$err = 133;
 
-#	# Serial port interface setting
-#	{
-#		my $sPort = Device::SerialPort->($serialPort);
-#		$sPort->baudrate(9600);
-#		$sPort->databits(8);
-#		$sPort->parity(none);
-#		$sPort->stop(1);
-#	}
+	# Serial port opening...
+	} elsif (not open(my $spFH, "< $serialPort")) {
+		print("ERROR! I cannot read the serial port \"$serialPort\"\n");
+		$err = 135;
 
-	$sel->add($spFH);
-
-	# Signals Handlers installing
-	$SIG{INT}  = \&sigHandler;
-	$SIG{TERM} = \&sigHandler;
-	
-	while ($loop == 1) {
-		@ready = $sel->can_read(0.5);
+	} else {
+		my $x     = 0;
+		my $y     = 0;
+		my $tLine = "";
+		my $sel   = IO::Select->new();
+		my @ready = ();
+		my @arr   = ();
+		my $pin   = "";
 		
-		if (scalar @ready > 0) {
-
-			#
-			# Reading data by the serial port
-			#
-			$_ = <$spFH>;
-			if (defined($_) and $_ ne "\n") {
-				chomp;
-				if (/^[^A-Za-z\s0-9]*([A-Z0-9][0-9]) *: *([0-9]+)\s*$/) {
-					# New pin-setting
-					$signalsDB{$1} = $2 
 	
-				} else {
-					# New console message
-					if ($msgsListIndex >= $msgsListMaxSz) {
-						shift(@msgsList);
+		$sel->add($spFH);
+	
+		# Signals Handlers installing
+		$SIG{INT}  = \&sigHandler;
+		$SIG{TERM} = \&sigHandler;
+		
+		while ($loop == 1) {
+			@ready = $sel->can_read(0.5);
+			
+			if (scalar @ready > 0) {
+	
+				#
+				# Reading data by the serial port
+				#
+				$_ = <$spFH>;
+				if (defined($_) and $_ ne "\n") {
+					chomp;
+					if (/^[^A-Za-z\s0-9]*([A-Z0-9][0-9]) *: *([0-9]+)\s*$/) {
+						# New pin-setting
+						$signalsDB{$1} = $2 
+		
 					} else {
-						$msgsListIndex++;
+						# New console message
+						if ($msgsListIndex >= $msgsListMaxSz) {
+							shift(@msgsList);
+						} else {
+							$msgsListIndex++;
+						}
+						push(@msgsList, formatLog("$_", $cols));
 					}
-					push(@msgsList, formatLog("$_", $cols));
 				}
 			}
-		}
-
-		clearScreen();
-
-
-		#
-		# PINs list printing
-		#
-		printf("%s\n", line_string($cols));
-		printf("%s\n", CJ_string("P I N s   S T A T U S", $cols));
-		printf("%s\n", line_string($cols));
-		
-		$x = 0; $y = 0;
-		$tLine = "";
-		@arr   = sort keys %signalsDB;
-		$pin   = "";
-		foreach (@arr) {
-			$pin = $pinsMap{"$_"};
-			if (not defined $pin) {$pin = $_};
+	
+			clearScreen();
+	
+	
+			#
+			# PINs list printing
+			#
+			printf("%s\n", line_string($cols));
+			printf("%s\n", CJ_string("P I N s   S T A T U S", $cols));
+			printf("%s\n", line_string($cols));
 			
-			$tLine = $tLine . fill_string(("$pin:" . $signalsDB{$_}), int($cols/4));
-			$x++;
-			if ($x == 4) {
-				print("$tLine\n");
-				$tLine = "";
-				$x = 0;
-				$y++;
+			$x = 0; $y = 0;
+			$tLine = "";
+			@arr   = sort keys %signalsDB;
+			$pin   = "";
+			foreach (@arr) {
+				$pin = $pinsMap{"$_"};
+				if (not defined $pin) {$pin = $_};
+				
+				$tLine = $tLine . fill_string(("$pin:" . $signalsDB{$_}), int($cols/4));
+				$x++;
+				if ($x == 4) {
+					print("$tLine\n");
+					$tLine = "";
+					$x = 0;
+					$y++;
+				}
 			}
+			if ($x < 4) {
+				print("$tLine\n");
+			}
+	
+			
+			#
+			# Console messages printing
+			#
+			printf("%s\n", line_string($cols));
+			printf("%s\n", CJ_string("C O N S O L E   M E S S A G E S", $cols));
+			printf("%s\n", line_string($cols));
+	
+			foreach(@msgsList) {print("$_\n")};
+	
+			# STDOUT flushing..
+			$| = 1;
 		}
-		if ($x < 4) {
-			print("$tLine\n");
-		}
-
-		
-		#
-		# Console messages printing
-		#
-		printf("%s\n", line_string($cols));
-		printf("%s\n", CJ_string("C O N S O L E   M E S S A G E S", $cols));
-		printf("%s\n", line_string($cols));
-
-		foreach(@msgsList) {print("$_\n")};
-
-		# STDOUT flushing..
-		$| = 1;
+	
+		print("$$-process is shutting down...\n");
+		close($spFH);
 	}
-
-	print("$$-process is shutting down...\n");
-	close($spFH);
 }
 
 print("\n");

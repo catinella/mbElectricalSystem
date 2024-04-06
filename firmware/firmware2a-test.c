@@ -36,8 +36,9 @@
 #include <avr/pgmspace.h>
 
 int main() {
-	USART_Init(9600);
 	uint8_t count = 0;
+
+	USART_Init(RS232_BPS);
 
 	while (1) {
 		logMsg(PSTR("Message #%d"), count++);

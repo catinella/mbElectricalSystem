@@ -29,10 +29,9 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#define F_CPU 1000000UL
-
 #include <mbesPinsMap.h>
 #include <mbesUtilities.h>
+#include <mbesHwConfig.h>
 #include <avr/io.h>
 #include <util/delay.h>
 

@@ -62,15 +62,8 @@
 #include <util/delay.h>
 
 
-//
 // Settings
-//
-#if DEBUG > 0
-// In debug mode, exevy round is bout 200ms
-#define BLINK_DELAY  0
-#else
-#define BLINK_DELAY  1
-#endif
+#define BLINK_DELAY  3
 
 #define V_TOLERANCE  10
 
@@ -83,13 +76,14 @@
 
 
 typedef enum _fsmStates {
-	RKEY_EVALUATION,
-	MPC23008_INIT,
-	PINS_SETTING,
-	SELECTORS_SETTING,
-	VALUE_RESTORING,
-	NORMAL_STATUS,
-	I2CBUS_RESET
+	RKEY_EVALUATION   = 0,
+	MPC23008_INIT     = 1,
+	PINS_SETTING      = 2,
+	SELECTORS_SETTING = 3,
+	VALUE_RESTORING   = 4,
+	NORMAL_STATUS     = 5,
+	I2CBUS_RESET      = 6,
+	PARCKING_STATUS   = 7
 }  fsmStates;
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -131,20 +125,19 @@ uint8_t blink (bool reset) {
 
 int main(void) {
 	bool      loop         = true;              // It enables the main loop (Just for future applications)
-	bool      canStart     = false;             // Flag true, means motorbike is ready to accept start commands
+	bool      decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
 	bool      isStarterRun = false;
 	fsmStates FSM          = RKEY_EVALUATION;
 	bool      firstRound   = true;
 	uint8_t   neutralPin   = 1;
-	uint8_t   bikeStandPin = 0;
+	uint8_t   bikeStandPin = 1;
+	uint8_t   clutchPin    = 1;
 	
 	struct mbesSelector 
-		leftArr_sel, rightArr_sel, dLight_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel,
-		 engOn_sel
-	;
+		leftArr_sel, rightArr_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel, engOn_sel;
 	
 	// USART port initialization
-	USART_Init(9600);
+	USART_Init(RS232_BPS);
 
 	//
 	// Critic output initialization (these pins MUST be MCU's pins)
@@ -198,6 +191,7 @@ int main(void) {
 			if (
 				pinDirectionRegister(i_NEUTRAL,     INPUT)  &&
 				pinDirectionRegister(i_BYKESTAND,   INPUT)  &&
+				pinDirectionRegister(i_CLUTCH,      INPUT)  &&
 				pinDirectionRegister(o_ENGINEREADY, OUTPUT) &&  // It is just the LED indicator
 				pinDirectionRegister(o_NEUTRAL,     OUTPUT) &&
 				pinDirectionRegister(o_RIGHTARROW,  OUTPUT) &&
@@ -225,7 +219,6 @@ int main(void) {
 				mbesSelector_init(&engStart_sel, BUTTON, i_STARTBUTTON) &&
 				mbesSelector_init(&decomp_sel,   BUTTON, i_DECOMPRESS)  &&
 				mbesSelector_init(&leftArr_sel,  SWITCH, i_LEFTARROW)   &&
-				mbesSelector_init(&dLight_sel,   SWITCH, i_DOWNLIGHT)   &&
 				mbesSelector_init(&uLight_sel,   SWITCH, i_UPLIGHT)     &&
 				mbesSelector_init(&rightArr_sel, SWITCH, i_RIGHTARROW)  &&
 				mbesSelector_init(&addLight_sel, SWITCH, i_ADDLIGHT)    &&
@@ -281,22 +274,27 @@ int main(void) {
 			//     So, their function's error code has no meaning
 			getPinValue(i_NEUTRAL,   &neutralPin);
 			getPinValue(i_BYKESTAND, &bikeStandPin);
+			getPinValue(i_CLUTCH,    &clutchPin);
 
 
 			//
-			// Lights and horn
+			// Lights
 			//
 			if (mbesSelector_get(light_sel)) {
-				setPinValue(o_DOWNLIGHT, mbesSelector_get(dLight_sel));
-				setPinValue(o_UPLIGHT,   mbesSelector_get(uLight_sel));
+				setPinValue(o_DOWNLIGHT, 1);
+				setPinValue(o_UPLIGHT,  mbesSelector_get(uLight_sel));
 				setPinValue(o_ADDLIGHT, mbesSelector_get(addLight_sel));
 			} else {
 				setPinValue(o_DOWNLIGHT, 0);
 				setPinValue(o_UPLIGHT,   0);
 				setPinValue(o_ADDLIGHT,  0);
 			}
-			setPinValue(o_HORN,     mbesSelector_get(horn_sel));
-			setPinValue(o_NEUTRAL,  (neutralPin == 1 ? 0 : 1));
+
+			// Horn
+			setPinValue(o_HORN, mbesSelector_get(horn_sel));
+
+			// NEUTRAL LED indicator
+			setPinValue(o_NEUTRAL, (neutralPin == 1 ? 0 : 1));
 
 
 			//
@@ -318,92 +316,103 @@ int main(void) {
 			}
 			
 			
+			// Decompressor sensor management
+			if (mbesSelector_get(decomp_sel)) decompPushed = true;
+			
+
+			
 			//
-			// Protection by motorcycle stand down when the vehicle is running
+			// Protection by motorcycle stand down while the vehicle is running
 			//
 			if (neutralPin == 1 && bikeStandPin == 1) {
-				setPinValue(o_ENGINEON, 0);   // Engine locked by CDI
-				canStart = false;
+				setPinValue(o_ENGINEON,    0);   // Engine locked by CDI
+				setPinValue(o_ENGINEREADY, 0);
 				LOGMSG("WARNING! bike stand is down!!\n\r");
 
 
-			//	
-			// Decompressor sensor management
-			//	
-			} else if (neutralPin == 0) {
-				
-				if (mbesSelector_get(decomp_sel)) {
-
-					// This LED inform the biker the engine is ready to start
-					setPinValue(o_ENGINEREADY, 1);
-					LOGMSG("OK You can start the engine\n\r");
-
-					canStart = true;
-				}
-
-				if (canStart && mbesSelector_get(engOn_sel)) {
-					// Decompressor MUST be released
-					if (mbesSelector_get(decomp_sel)) {
-						setPinValue(o_ENGINEON, 0); // 0 means eng locked
-						
-					} else {
-						setPinValue(o_ENGINEON,    1);
-
-						// *** START ***
-						if (mbesSelector_get(engStart_sel)) {  // i_STARTBUTTON
-							setPinValue(o_STARTENGINE, 1);
-							LOGMSG("OK electric starter is running\n\r");
-							canStart = false;
-							isStarterRun = true;
-						}
-					}
-				}
-
-			} else
-				// Just to be paranoide
-				canStart = false;
-
-				
+			//
 			// STOP the engine
-			if (mbesSelector_get(engOn_sel) == 0) {
-				setPinValue(o_ENGINEON, 0);
+			//
+			} else if (mbesSelector_get(engOn_sel) == 0) {
+				setPinValue(o_ENGINEON,    0);
 				setPinValue(o_STARTENGINE, 0);
+				setPinValue(o_ENGINEREADY, 0);
+
 			} else 
 				setPinValue(o_ENGINEON, 1);
 
-			
+
+
+			//
 			// STOP the electric starter engine
-			if (
-				mbesSelector_get(engStart_sel) == false && // i_STARTBUTTON
-				isStarterRun == true
-			) {
-				LOGMSG("Electric starter STOP\n\r");
-				setPinValue(o_ENGINEREADY, 0);
-				setPinValue(o_STARTENGINE, 0);
-				isStarterRun = false;
-			}
-			
+			//
+			if (isStarterRun) {
+				if (mbesSelector_get(engStart_sel) == false || (neutralPin == 1 && clutchPin == 1)) {
+					LOGMSG("Electric starter STOP\n\r");
+					setPinValue(o_STARTENGINE, 0);
+					isStarterRun = false;
+				} else {
+					LOGMSG("Electric starter is running\n\r");
+				}
 				
 			//
-			// mbesSelector items updating....
+			// Starting procedure
 			//
-			mbesSelector_update(&engStart_sel);
-			mbesSelector_update(&decomp_sel);
-			mbesSelector_update(&engOn_sel);
-			mbesSelector_update(&horn_sel);
-			mbesSelector_update(&light_sel);
-			mbesSelector_update(&leftArr_sel);
-			mbesSelector_update(&dLight_sel);
-			mbesSelector_update(&uLight_sel);
-			mbesSelector_update(&rightArr_sel);
-			mbesSelector_update(&addLight_sel);
-			mbesSelector_update(&light_sel);
+			} else if (
+				(neutralPin == 0 || clutchPin == 0) && decompPushed && mbesSelector_get(engOn_sel)
+			) {
+				// Decompressor MUST be released
+				if (mbesSelector_get(decomp_sel)) {
+					setPinValue(o_ENGINEON, 0); // 0 means eng locked
+						
+				} else {
+					// This LED inform the biker the engine is ready to start
+					LOGMSG("OK You can start the engine\n\r");
+					setPinValue(o_ENGINEREADY, 1);
+
+					// *** START ***
+					if (mbesSelector_get(engStart_sel) == true) {  // i_STARTBUTTON
+						setPinValue(o_STARTENGINE, 1);
+						setPinValue(o_ENGINEREADY, 0);
+						LOGMSG("OK electric starter is running\n\r");
+						decompPushed = false;
+						isStarterRun = true;
+					}
+				}
+			}
+
+/*
+			// Parcking mode
+			if (
+				mbesSelector_get(engOn_sel)  == false &&
+				mbesSelector_get(light_sel)  == false &&
+				mbesSelector_get(uLight_sel) == false
+			) 
+				FSM = PARCKING_STATUS;
+*/
+			
+			// mbesSelector items updating....
+			mbesSelector_update(NULL);
+
+			
+		} else if (FSM == PARCKING_STATUS) {
+			//
+			// Parcking status
+			//
+			LOGMSG("Parking mode\n\r");
+			setPinValue(o_LEFTARROW,  blink(false));
+			setPinValue(o_RIGHTARROW, blink(false));
+			setPinValue(o_DOWNLIGHT,  1);
+
+			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
 		}
 
-		
+
 		// delay
 		#if DEBUG > 0
 		_delay_ms(200);
+		#else
+		_delay_us(100);
 		#endif
 	}
 

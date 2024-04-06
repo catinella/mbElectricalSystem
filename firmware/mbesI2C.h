@@ -78,9 +78,9 @@
 #endif
 
 #define TIMEOUTMSG         logMsg(PSTR("[!] Timeout"));
-#define I2C_CLOCK_FREQ     10000
-#define I2C_TIMEOUT        100
-#define DELAYSTEP          2
+#define I2C_CLOCK_FREQ     200000
+#define I2C_TIMEOUT        200
+#define DELAYSTEP          500
 
 
 typedef enum _mbesI2CopType {
@@ -191,13 +191,11 @@ typedef enum _mbesI2CopType {
 //
 //
 #define WAIT4TWINT(tout) {                             \
-	tout = I2C_TIMEOUT / DELAYSTEP;                  \
-	while ((TWCR & (1 << TWINT)) == 0 && tout > 0) { \
-		_delay_ms(DELAYSTEP);                      \
-		tout--;                                    \
-	}                                                \
-	if (tout == 0) TIMEOUTMSG                        \
-	_delay_ms(DELAYSTEP);                            \
+	tout = I2C_TIMEOUT;                              \
+	do {                                             \
+		_delay_us(DELAYSTEP); tout--;              \
+	} while ((TWCR & (1 << TWINT)) == 0 && tout > 0);\
+	if (tout == 0) TIMEOUTMSG;                       \
 }
 
 

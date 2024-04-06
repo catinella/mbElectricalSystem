@@ -34,7 +34,6 @@
 #if MOCK == 1
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
@@ -48,6 +47,8 @@
 # else
 #include <avr/io.h>
 #endif
+
+#include <stdio.h>
 
 //
 // Project's libraries
@@ -98,6 +99,8 @@ typedef enum _timer_cmd {
 
 static uint8_t timerAvailabilityCounter = 0;
 static bool    isInitialized            = false;
+
+static struct mbesSelector *itemsStorage[MBESSELECTOR_MAXITEMSNUMB];
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                     P R I V A T E   F U N C T I O N S
@@ -197,71 +200,32 @@ static uint16_t _timer_gettime() {
 }
 
 
-//------------------------------------------------------------------------------------------------------------------------------
-//                                           P U B L I C   F U N C T I O N S
-//------------------------------------------------------------------------------------------------------------------------------
-
-uint8_t mbesSelector_init (struct mbesSelector *item, selectorType type, const char *pin) {
-	//
-	// Description:
-	//	The function initializes the argument defined input selector (button, switch, hold-button...) 
-	//
-	// Returned value:
-	//	0   Some problem occurred with the I2C connected device
-	//	1   SUCCESS
-	//
-	uint8_t ec = 1;
-	
-	// 16bit-timer initialization...
-	if (isInitialized == false) {
-		NOP_LOGMSG("mbesSelector module initialization...")
-		_timer_init();
-		isInitialized = true;
-	}
-	
-	// PIN direction and PULL-UP resistor setting
-	ec = pinDirectionRegister(pin, INPUT);
-
-	if (ec == 1) {
-		item->pin[0]  = pin[0];
-		item->pin[1]  = pin[1];
-		item->pin[2]  = '\0';
-		item->myTime  = 0;
-		item->devType = type;
-		item->status  = false;        // released status
-		item->fsm     = 1;
-
-	} else {
-		// ERROR! (MPC23008 problems)
-		LOGERR
-	}
-	
-	return(ec);
-}
-
-
-bool mbesSelector_get (struct mbesSelector item) {
-	//
-	// Description:
-	//	It returns the control device's status. The true value mining depends by the device-type as shown following:
-	//		button)        the user is pushing it
-	//		switch)        it is placed on ON-position
-	//		holdon-button) it has been activated
-	//
-	return(item.status);
-}
-
-
-uint8_t mbesSelector_update (struct mbesSelector *item) {
+static uint8_t _update (struct mbesSelector *item) {
 	//
 	// Description:
 	//	This function updates the internal representation of the phisical device (button/switch..).
 	//
+	//
+	//	          (devType = switch)
+	//	+--------------------------------------+
+	//	|                                      |
+	//	|   +------+        +------+        +--+---+        +------+
+	//	+-->|      |        |      |        |      |        |      |
+	//	    |  01  +------->|  02  |------->|  03  |------->|  14  |
+	//	+-->|      |        |      |    +-->|      |        |      |
+	//	|   +--+---+        +------+    |   +------+        +---+--+
+	//	|       |                       |                       |
+	//	|       +-----------------------+                       |
+	//	|           (devType = switch)                          |
+	//	+-------------------------------------------------------+
+	//
 	uint8_t pinValue = 1;
 	uint8_t ec = 1;
 
-	
-	if (item->fsm == 1) {
+	if (item->fsm == 0) {
+		item->fsm = 1;
+
+	} else if (item->fsm == 1) {
 		
 		//
 		// The button/switch... has been pressed/activated
@@ -286,7 +250,7 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 				} else {
 					item->myTime = _timer_gettime();
 				}
-				item->fsm     = 2;
+				item->fsm = 2;
 
 				if (item->devType == BUTTON)
 					// Button's value is "true"
@@ -316,7 +280,7 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
 			
 			timerAvailabilityCounter--;
-			item->fsm    = 3;
+			item->fsm = 3;
 			// item->status is still true;
 		} else {
 			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
@@ -384,9 +348,96 @@ uint8_t mbesSelector_update (struct mbesSelector *item) {
 		
 	}
 	
-	//W2P_LOGMSG("mbesSelector_update(): PIN-%s = %d", item->pin, item->status);
-	
 	if (timerAvailabilityCounter == 0) _timer_reset();
 	
 	return(ec);
+}
+//------------------------------------------------------------------------------------------------------------------------------
+//                                           P U B L I C   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+
+uint8_t mbesSelector_init (struct mbesSelector *item, selectorType type, const char *pin) {
+	//
+	// Description:
+	//	The function initializes the argument defined input selector (button, switch, hold-button...) 
+	//
+	// Returned value:
+	//	0   Some problem occurred with the I2C connected device
+	//	1   SUCCESS
+	//
+	uint8_t        ec = 1;
+	static uint8_t index = 0;
+	
+	// 16bit-timer initialization...
+	if (isInitialized == false) {
+		NOP_LOGMSG("mbesSelector module initialization...")
+
+		_timer_init();
+
+		for (uint8_t t=0; t<MBESSELECTOR_MAXITEMSNUMB; t++)
+			itemsStorage[t] = NULL;
+			
+		isInitialized = true;
+	}
+	
+	// PIN direction and PULL-UP resistor setting
+	ec = pinDirectionRegister(pin, INPUT);
+
+	if (ec == 1) {
+		item->pin[0]  = pin[0];
+		item->pin[1]  = pin[1];
+		item->pin[2]  = '\0';
+		item->myTime  = 0;
+		item->devType = type;
+		item->status  = false;        // released status
+		item->fsm     = 0;
+
+		itemsStorage[index] = item;
+		index++;
+		
+	} else {
+		// ERROR! (MPC23008 problems)
+		LOGERR
+	}
+	
+	return(ec);
+}
+
+
+bool mbesSelector_get (struct mbesSelector item) {
+	//
+	// Description:
+	//	It returns the control device's status. The true value mining depends by the device-type as shown following:
+	//		button)        the user is pushing it
+	//		switch)        it is placed on ON-position
+	//		holdon-button) it has been activated
+	//
+	return(item.status);
+}
+
+
+uint8_t mbesSelector_update (struct mbesSelector *item) {
+	//
+	// Description:
+	//	It upodates the argument defined item's FSM, or the ones of all registered itels
+	//	This function is a frontend of _update() private function, mainly
+	//	
+	// Returned value:
+	//	The number of successfully updated items
+	//	
+	uint8_t out = 0;
+	
+	if (item != NULL)
+		out = _update(item) ? 1 : 0;
+	else {
+		uint8_t t = 0;
+		while (t<MBESSELECTOR_MAXITEMSNUMB && itemsStorage[t] != NULL) {
+			//W1P_LOGMSG("mbesSelector_update(): %s", itemsStorage[t]->pin);
+			if (_update(itemsStorage[t])) out++;
+			t++;
+		}
+		W1P_LOGMSG("mbesSelector_update(): %d items have been updated", out);
+	}
+
+	return(out);
 }

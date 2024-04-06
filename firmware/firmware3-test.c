@@ -40,7 +40,8 @@
 
 int main() {
 	char pin[3];
-	USART_Init(9600);
+
+	USART_Init(RS232_BPS);
 
 	while (1) {
 		for (uint8_t t=0; t<4; t++) {
