@@ -3288,7 +3288,7 @@
     (property "Value" "MAX232I" (at 200.1617 24.892 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 199.2376 79.9592 0)
+    (property "Footprint" "Package_DIP:CERDIP-16_W7.62mm_SideBrazed_LongPads" (at 199.2376 79.9592 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
     (property "Datasheet" "http://www.ti.com/lit/ds/symlink/max232.pdf" (at 197.9676 50.7492 0)
