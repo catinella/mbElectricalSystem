@@ -7,13 +7,13 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware1-test.c
+// File:   firmware3-test.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This is another very simple test. It uses the project's library mbesUtitities to flash the selected PIN, alternately
-//	
+//	This test has been developped to ckeck for the AT-Mega16 analog inputs. You should change the trimmers setting and
+//	verify their voltage values printed on the serial console
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -29,20 +29,26 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesPinsMap.h>
-#include <mbesUtilities.h>
 #include <mbesHwConfig.h>
+#include <mbesSerialConsole.h>
+#include <mbesUtilities.h>
+#include <mbesADCengine.h>
+
 #include <avr/io.h>
 #include <util/delay.h>
-
+#include <stdio.h>
 
 int main() {
-	char *pin = o_KEEPALIVE;
+	char pin[3];
+
+	USART_Init(RS232_BPS);
 
 	while (1) {
-		setPinValue (pin, 1);
-		_delay_ms(1000);
-		setPinValue (pin, 0);
+		for (uint8_t t=0; t<4; t++) {
+			sprintf(pin, "A%d", t);
+			logMsg (PSTR("%s: %d"), pin, ADC_read(pin));
+		}
+		USART_writeChar('\n');
 		_delay_ms(1000);
 	}
 	

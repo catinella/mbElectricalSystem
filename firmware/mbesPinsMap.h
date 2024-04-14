@@ -29,7 +29,7 @@
 //		| o_KEEPALIVE   | internal only    | it keeps the system on when you unplug the key      |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| i_LEFTARROW   |                  | left turn blinking indicator switch                 |
-//		| i_DOWNLIGHT   |                  | low beam command                                    |
+//		| i_CLUTCH      |                  |                                     |
 //		| i_UPLIGHT     | left controls    | dazzling beam command                               |
 //		| i_RIGHTARROW  |                  | right turn blinking indicator switch                |
 //		| i_HORN        |                  | horn button                                         |
@@ -81,7 +81,7 @@
 #define i_VX2          "A1"
 #define i_VY1          "A2"
 #define i_VY2          "A3"
-// ==== available ==== "A4"
+#define o_MCPDEVRESET  "A4"
 // ==== available ==== "A5"
 #define i_SELCONFIG    "A6"
 #define i_CONFIG       "A7"
@@ -90,7 +90,7 @@
 #define o_DOWNLIGHT    "B0"
 #define o_UPLIGHT      "B1"
 #define i_UPLIGHT      "B2"
-#define i_DOWNLIGHT    "B3"
+#define i_CLUTCH       "B3"
 #define o_ADDLIGHT     "B4"
 // ===== ISP =====     "B5"
 // ===== ISP =====     "B6"
@@ -125,5 +125,9 @@
 #define o_LEFTARROW    "05"
 #define i_LEFTARROW    "06"
 #define i_RIGHTARROW   "07"
+
+
+// Number of used analog input
+#define ACHANS_NUMBER   4
 
 #endif

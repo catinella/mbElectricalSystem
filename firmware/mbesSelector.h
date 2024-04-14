@@ -35,7 +35,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 #define MBESSELECTOR_DEBOUNCETIME 100
+
+#define MBESSELECTOR_MAXITEMSNUMB 64
+
 
 typedef enum _selectorType {
 	BUTTON,
@@ -54,8 +58,8 @@ struct mbesSelector {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
-void mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
-bool mbesSelector_get     (struct mbesSelector item);
-void mbesSelector_update  (struct mbesSelector *item);
+uint8_t mbesSelector_init    (struct mbesSelector *item, selectorType type, const char *pin);
+bool    mbesSelector_get     (struct mbesSelector item);
+uint8_t mbesSelector_update  (struct mbesSelector *item);
 
 #endif

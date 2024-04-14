@@ -7,13 +7,17 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware1-test.c
+// File: debugConsole.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This is another very simple test. It uses the project's library mbesUtitities to flash the selected PIN, alternately
-//	
+//	This library is used to keep track of the I/O pins status.
+//	When the degìbug session become a too much chaotic one, it is useful to monitor the PINs status. This small lib allows
+//	you to achieve the result. The function keepTrack() must be called in all low-level functions where they set or get
+//	a value to/from a pin. The function will send an ascii log with the following llayout ""<PIN-name>:<value>", to an
+//	external (Perl) process, that will show all pins status.
+//
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -29,22 +33,16 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesPinsMap.h>
-#include <mbesUtilities.h>
-#include <mbesHwConfig.h>
-#include <avr/io.h>
-#include <util/delay.h>
+#include <stdio.h>
+#include <string.h>
+#include <mbesSerialConsole.h>
+#include <tools/debugConsole.h>
 
+void keepTrack(const char *code, uint8_t value) {
+	char log[12];
+	memset(log, 0, sizeof(log));
+	sprintf(log, "%s:%d\n\r", code, value);
+	USART_writeString(log, USART_RAM);
 
-int main() {
-	char *pin = o_KEEPALIVE;
-
-	while (1) {
-		setPinValue (pin, 1);
-		_delay_ms(1000);
-		setPinValue (pin, 0);
-		_delay_ms(1000);
-	}
-	
-	return(0);
+	return;
 }

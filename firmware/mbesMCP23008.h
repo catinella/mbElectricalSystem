@@ -7,13 +7,12 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware1-test.c
+// File:   mbesMCP23008.h
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This is another very simple test. It uses the project's library mbesUtitities to flash the selected PIN, alternately
-//	
+//	This lib allows to use the MCP23008-XP I/O bus extension in easy way
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -29,22 +28,31 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesPinsMap.h>
-#include <mbesUtilities.h>
+#ifndef MCP23008_LIB
+#define MCP23008_LIB
+
+#include <stdint.h>
 #include <mbesHwConfig.h>
-#include <avr/io.h>
-#include <util/delay.h>
 
+#define MCP23008_IODIR   0x00
+#define MCP23008_IPOL    0x01
+#define MCP23008_GPINTEN 0x02
+#define MCP23008_DEFVAL  0x03
+#define MCP23008_INTCON  0x04
+#define MCP23008_IOCON   0x05
+#define MCP23008_GPPU    0x06
+#define MCP23008_INTF    0x07
+#define MCP23008_INTCAP  0x08
+#define MCP23008_GPIO    0x09
+#define MCP23008_OLAT    0x0A
 
-int main() {
-	char *pin = o_KEEPALIVE;
+#define MCP23008_IOCON_VALUE 38
 
-	while (1) {
-		setPinValue (pin, 1);
-		_delay_ms(1000);
-		setPinValue (pin, 0);
-		_delay_ms(1000);
-	}
-	
-	return(0);
-}
+uint8_t init_MCP23008         (uint8_t devAddr);
+uint8_t regSelecting_MCP23008 (uint8_t regAddr);
+uint8_t regReading_MCP23008   (uint8_t *value);
+uint8_t regSaving_MCP23008    (uint8_t value);
+uint8_t restore_MCP23008      ();
+void    reset_MCP23008        ();
+
+#endif

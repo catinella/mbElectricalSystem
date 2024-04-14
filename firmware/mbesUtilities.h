@@ -36,6 +36,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include <mbesPinsMap.h>
+#include <mbesSerialConsole.h>
 
 #ifndef DEBUG
 #define DEBUG 1
@@ -45,11 +47,6 @@ typedef enum _mbesPinDir {
 	INPUT,
 	OUTPUT
 } mbesPinDir;
-
-typedef enum _mbesI2CopType {
-	I2C_ACK,
-	I2C_NACK
-} mbesI2CopType;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S 
@@ -62,14 +59,15 @@ void mbesUtilities_init();
 
 void    logMsg               (const char *fmt, ...);
 void    codeConverter        (const char *code, char *port, uint8_t *pinNumber);
-void    pinDirectionRegister (const char *code, mbesPinDir dir);
-void    pullUpEnabling       (const char *code);
-bool    getPinValue          (const char *code);
-void    setPinValue          (const char *code, uint8_t value);
+uint8_t pinDirectionRegister (const char *code, mbesPinDir dir);
+uint8_t pullUpEnabling       (const char *code);
 
-uint8_t I2C_Write            (uint8_t data);
-uint8_t I2C_Read             (mbesI2CopType optType);
-void    I2C_Stop             ();
-void    I2C_Start            ();
+
+//
+// I/O Functions
+//
+uint8_t getPinValue          (const char *code, uint8_t *value);
+uint8_t setPinValue          (const char *code, uint8_t value);
+
 
 #endif

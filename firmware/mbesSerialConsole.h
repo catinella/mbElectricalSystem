@@ -33,10 +33,13 @@
 #define MBSERIALCONSOLE
 
 #include <mbesHwConfig.h>
+#include <avr/pgmspace.h>
+
+typedef enum _USART_allocationType {USART_FLASH, USART_RAM} USART_allocationType;
 
 void USART_Init        (unsigned int baud_rate);
 void USART_writeChar   (char data);
-void USART_writeString (const char *msg);
+void USART_writeString (const char *msg, USART_allocationType allocType);
 
 #if MOCK == 1
 extern void USART_close();

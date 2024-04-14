@@ -28,9 +28,13 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+#include <mbesMock.h>
+
 #if MOCK == 0
 #include <avr/io.h>
 #include <util/twi.h>
+#include <mbesMCP23008.h>
+#include <avr/pgmspace.h>
 
 #else
 #include <debugTools.h>
@@ -44,21 +48,49 @@
 #include <mbesUtilities.h>
 #include <mbesSerialConsole.h>
 #include <mbesMock.h>
+#include <tools/debugConsole.h>
 #include <stdio.h>
 
 
-#if MOCK == 0
-//
-// I2C I/O extender MCP23008XP's regirters
-//
-#define IODIR_ADDR 0x00
-#define GPIO_ADDR  0x09
-#define GPPU_ADDR  0x06
+#ifndef MBES_UTILITIES_DEBUG
+#define MBES_UTILITIES_DEBUG 0
+#endif
 
 
+#if MBES_UTILITIES_DEBUG > 1
+#define LOGMSG(X)       logMsg(PSTR(X));
+#define LOGMSG1P(X,Y)   logMsg(PSTR(X),Y);
+#define LOGMSG2P(X,Y,Z) logMsg(PSTR(X),Y,Z);
 #else
-static int fd = 0;
+#define LOGMSG(X)       ;
+#define LOGMSG1P(X,Y)   ;
+#define LOGMSG2P(X,Y,Z) ;
+#endif
 
+
+#if MBES_KEEPTRACK > 0
+#define KEEPTRACK(X, Y) keepTrack(X, Y);
+#else
+#define KEEPTRACK(X, Y) ;
+#endif
+
+
+#if MBES_UTILITIES_DEBUG > 0
+#define LOGERR  logMsg(PSTR("[ERROR!] in %s(%d)"), __FUNCTION__, __LINE__);
+#else
+#define LOGERR  ;
+#endif
+
+
+#if MOCK == 1
+static int fd = 0;
+#endif
+
+//------------------------------------------------------------------------------------------------------------------------------
+//                                         P R I V A T E   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+
+#if MOCK == 1
 static int _ubRead (void *bytes, uint8_t size) {
 	int     tot = 0;
 	uint8_t part = 1;
@@ -110,41 +142,78 @@ void logMsg (const char *fmt, ...) {
 	// Description:
 	//	It sends the argument defined (printf-style) message to the debug console
 	//
-	#if DEBUG == 1
 	uint8_t t = 0;
 	bool    ctrvFlag = false;
 	va_list argp;
 	char    buffer[9];
+	char    c = '#';
+	
+	#if MOCK == 1
+	// The code is running on a {32|64}-X86 arch device
+	char   outputSring[128]
+	uin8_t outputSring_index = 0;
+	#endif
 	
 	va_start(argp, fmt);
 
-	USART_writeString("LOGMSG: ");
+	#if MOCK == 0
+	USART_writeString(PSTR("LOGMSG: "), USART_FLASH);
+	#endif
 	
-	while (fmt[t] != '\0') {
+	while ((c = pgm_read_byte(fmt++)) != '\0') {
 		if (ctrvFlag == false) {
-			if (fmt[t] == '%')  ctrvFlag = true;
-			else                USART_writeChar(fmt[t]);
+			if (c == '%')  ctrvFlag = true;
+			else           USART_writeChar(c);
 		} else {
-			if (fmt[t] == 'c')
+			if (c == 'c') {
+				#if MOCK == 0
 				USART_writeChar((char)va_arg(argp, int));
+				#else
+				sprintf((outputSring + outputSring_index), "%c", (char)va_arg(argp, int));
+				#endif
 				
-			else if (fmt[t] == 'd') {
+			} else if (c == 'd') {
+				#if MOCK == 0
 				sprintf(buffer, "%d", va_arg(argp, int));
-				USART_writeString(buffer);
+				USART_writeString(buffer, USART_RAM);
+				#else
+				sprintf((outputSring + outputSring_index), "%d", va_arg(argp, int));
+				#endif
 				
-			} else if (fmt[t] == 's')
-				USART_writeString(va_arg(argp, char*));
+			} else if (c == 's') {
+				#if MOCK == 0
+				USART_writeString(va_arg(argp, char*), USART_RAM);
+				#else
+				sprintf((outputSring + outputSring_index), "%s", va_arg(argp, char*));
+				#endif
 				
-			else
-				USART_writeString("%?");
-				
+			} else {
+				#if MOCK == 0
+				USART_writeString(PSTR("%?"), USART_FLASH);
+				#else
+				sprintf((outputSring + outputSring_index), "%s", "%?");
+				#endif
+			}
 			ctrvFlag = false;
+
+			#if MOCK > 0
+			{
+				uint8_t size = 0;
+				size = strlen((outputSring + outputSring_index));
+				outputSring_index = outputSring_index + (sizeof(char) * size);
+			}
+			#endif
 		}
 		t++;
 	}
 	
 	va_end(argp);
 	
+	#if MOCK == 0
+	USART_writeChar('\n');
+	USART_writeChar('\r');
+	#else
+	syslog(LOG_INFO, "%s", outputSring);
 	#endif
 	
 	return;
@@ -164,7 +233,7 @@ void codeConverter (const char *code, char *port, uint8_t *pinNumber) {
 }
 
 
-void pinDirectionRegister (const char *code, mbesPinDir dir) {
+uint8_t pinDirectionRegister (const char *code, mbesPinDir dir) {
 	//
 	// Description:
 	//	It sets the argument defined PIN with the given direction (INPUT|OUTPUT). The PIN can belong to the MCU or an
@@ -194,17 +263,22 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 	//		bitN == 0 --> pinN = output
 	//		bitN == 1 --> pinN = input
 	//
+	// Returned code:
+	//	0	I2C BUS returned error
+	//	1     Operation completed successfully
 	//
+	uint8_t ecode = 1; // SUCCESS
+	
 #if MOCK == 0
 	char    port;
 	uint8_t pinNumber;
 	
 	codeConverter(code, &port, &pinNumber);
-	
+
 	if (port == 'A') {
 		if (dir == OUTPUT) DDRA |=  (1 << pinNumber);
 		else               DDRA &= ~(1 << pinNumber);
-	
+		
 	} else if (port == 'B') {
 		if (dir == OUTPUT) DDRB |=  (1 << pinNumber);
 		else               DDRB &= ~(1 << pinNumber);
@@ -218,90 +292,114 @@ void pinDirectionRegister (const char *code, mbesPinDir dir) {
 		else               DDRD &= ~(1 << pinNumber);
 		
 	} else if (port >= '0' && port <= '9') {
-		uint8_t iodirValue = 0;
-		uint8_t myID = port - '0';
-		
-		// "IODIR" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(IODIR_ADDR);
-		
-		// "IODIR" register reading
-		I2C_Start();
-		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
-		iodirValue = I2C_Read(I2C_NACK);
-		
-		// "IODIR" register changing
-		if (dir == OUTPUT) iodirValue &= ~(1 << pinNumber);
-		else               iodirValue |=  (1 << pinNumber);
-		
-		// "IODIR" register saving
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(iodirValue);
-		
-		I2C_Stop();
-        
+		uint8_t iodirRegValue = 0;
+
+		//
+		// "IODIR" register configuration...
+		//
+		if (regSelecting_MCP23008(MCP23008_IODIR) == 0 || regReading_MCP23008(&iodirRegValue) == 0) {
+			// ERROR!
+			LOGERR
+			ecode = 0;
+			
+		} else {
+			if (dir == INPUT)  iodirRegValue |= (1 << pinNumber);
+			else               iodirRegValue &= ~(1 << pinNumber);
+
+			if (regSaving_MCP23008(iodirRegValue) == 0) {
+				// ERROR!
+				LOGERR
+				ecode = 0;
+
+			} else {
+				uint8_t regValue = 0;
+
+				//
+				// Check for register setting
+				//
+				if (
+					regSelecting_MCP23008(MCP23008_IODIR) == 0 ||
+					regReading_MCP23008(&regValue)        == 0 ||
+					regValue != iodirRegValue
+				) {
+					// ERROR! IODIR setting failed
+					LOGERR
+					ecode = 0;
+				}
+			}
+		}
+
 	} else {
-		// ERROR!
+		// ERROR! (please check for your source code)
+		LOGERR
 	}
+
+	if (ecode && dir == INPUT) 
+		ecode = pullUpEnabling(code);
+	
 #endif
 
-	return;
+	return(ecode);
 }
 
 
-bool getPinValue (const char *code) {
+uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 	//
 	// Description:
 	//	It returns the argument defined input pin's value
 	//
+	//	pinValue:
+	//		1 ---> button/switch = VCC ---> button = RFELEASED
+	//		0 ---> button/switch = GND ---> button = PUSHED
+	//
 	// Returned value:
-	//	true ---> pin=1 ---> button/switch = VCC ---> button = RFELEASED
-	//	false --> pin=0 ---> button/switch = GND ---> button = PUSHED
+	//	1 SUCCESS
+	//	0 An error occurred in I2C bus or MCP23008 operations
 	//
 	char    port;
 	uint8_t pinNumber;
-	uint8_t out = 0;
+	uint8_t ecode = 1;
 
 	codeConverter(code, &port, &pinNumber);
 	
 #if MOCK == 0
 	if (port == 'A')
-		out = (PINA & (1 << pinNumber));
+		*pinValue = (PINA & (1 << pinNumber));
 		
 	else if (port == 'B')
-		out = (PINB & (1 << pinNumber));
+		*pinValue = (PINB & (1 << pinNumber));
 	
 	else if (port == 'C')
-		out = (PINC & (1 << pinNumber));
+		*pinValue = (PINC & (1 << pinNumber));
 	
 	else if (port == 'D')
-		out = (PIND & (1 << pinNumber));
+		*pinValue = (PIND & (1 << pinNumber));
 	
 	else if (port >= '0' && port <= '9') {
-		uint8_t myID      = port - '0';
-		uint8_t gpioValue = 0;
+		uint8_t regValue = 0;
 		
-		// "IODIR" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(GPIO_ADDR);
-		
-		// "IODIR" register reading
-		I2C_Start();
-		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
-		gpioValue = I2C_Read(I2C_NACK);
-		
-		out = gpioValue & (1 << pinNumber);
-		
-		I2C_Stop();
-		
+		if (regSelecting_MCP23008(MCP23008_GPIO) == 0 || regReading_MCP23008(&regValue) == 0) {
+			// ERROR!
+			LOGERR
+			ecode = 0;
+			
+		} else {
+			// [!] PIN's value extraction
+			*pinValue = regValue;
+		}
 	} else {
 		// ERROR!
-		logMsg("ERROR(%d)! \"%c\" is not a valid port\n", __LINE__, port);
+		LOGERR
+		ecode = 0;
 	}
 
+	if (ecode) {
+		// The pin value MUST be 0 or 1
+		*pinValue = (*pinValue & (1 << pinNumber)) > 0 ? 1 : 0;
+		LOGMSG2P("getPinValue(): PIN(%s) = %d", code, *pinValue);
+		if (ecode) KEEPTRACK(code, *pinValue);
+	}
+	
 #else
 	uint8_t numOfRec = 0;
 	
@@ -341,7 +439,7 @@ bool getPinValue (const char *code) {
 				_exit(127);
 				
 			} else {
-				out = buffer[2];
+				ecode = buffer[2];
 				buffer[2] = '\0';
 				if (strcmp(buffer, code) == 0) break;
 			}
@@ -360,16 +458,18 @@ bool getPinValue (const char *code) {
 	}
 #endif
 
-	return(out > 0 ? true : false);
+	return(ecode);
 }
 
 
 
-void pullUpEnabling (const char *code) {
+uint8_t pullUpEnabling (const char *code) {
 	//
 	// Description:
 	//	It enable the pull-up resistor for the argument defined input pin
 	//
+	uint8_t ecode = 1;
+	
 #if MOCK == 0
 	char    port;
 	uint8_t pinNumber;
@@ -388,34 +488,57 @@ void pullUpEnabling (const char *code) {
 		PORTD |= (1 << pinNumber);
 
 	else if (port >= '0' && port <= '9') {
-		uint8_t myID      = port - '0';
+		uint8_t gppuRegValue = 0;
 		
-		// "IODIR" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(GPPU_ADDR);
-		
-		I2C_Write(1 << pinNumber);
-		
-		I2C_Stop();
-		
+		// Register reading...
+		if (regSelecting_MCP23008(MCP23008_GPPU) == 0 || regReading_MCP23008(&gppuRegValue) == 0) {
+			// ERROR!
+			LOGERR
+			ecode = 0;
+
+		} else {
+			gppuRegValue |= (1 << pinNumber);
+			
+			// Register setting...	
+			if (regSaving_MCP23008(gppuRegValue) == 0) {
+				// ERROR!
+				LOGERR
+				ecode = 0;
+
+			} else {
+				uint8_t regValue = 0;
+
+				// Checking for the register's value
+				if (
+					regSelecting_MCP23008(MCP23008_GPPU)  == 0 ||
+					regReading_MCP23008(&regValue)        == 0 ||
+					regValue != gppuRegValue
+				) {
+					// ERROR!
+					LOGERR
+					ecode = 0;
+				}
+			}
+		}
 	} else {
-		// ERROR!
-		logMsg("ERROR(%d)! \"%c\" is not a valid port\n", __LINE__, port);
+		// ERROR! (please, check fot your code)
+		LOGERR
 	}
 #endif
 
-	return;
+	return(ecode);
 }
 
 
-void setPinValue (const char *code, uint8_t value) {
+uint8_t setPinValue (const char *code, uint8_t value) {
 	//
 	// Description:
-	//	It set the argument defined boolean value to the output pin
+	//	It sets the argument defined output pin with the defined value
+	//	Because the target is a single PIN, the value MUST be 0 or 1
 	//
 	char    port;
 	uint8_t pinNumber;
+	uint8_t ecode = 1;
 
 	codeConverter(code, &port, &pinNumber);
 
@@ -436,81 +559,32 @@ void setPinValue (const char *code, uint8_t value) {
 		else       PORTD &= ~(1 << pinNumber);
 		
 	} else if (port >= '0' && port <= '9') {
-		uint8_t myID      = port - '0';
-		uint8_t gpioValue = 0;
+		uint8_t regValue = 0;
 		
-		// "IODIR" register selecting
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(GPIO_ADDR);
-		
-		I2C_Start();
-		I2C_Write((myID << 1) | 1);   // LSB=1 --> reading operation
-		gpioValue = I2C_Read(I2C_NACK);
-		
-		if (value)  gpioValue |=  (1 << pinNumber);
-		else        gpioValue &= ~(1 << pinNumber);
-		
-		// "IODIR" register saving
-		I2C_Start();
-		I2C_Write(myID << 1);         // LSB=0 --> writing operation
-		I2C_Write(gpioValue);
-		
-		I2C_Stop();
+		if (regSelecting_MCP23008(MCP23008_GPIO) == 0 || regReading_MCP23008(&regValue) == 0 ) {
+			// ERROR!
+			LOGERR
+			ecode = 0;
+
+		} else if (value == 0) {
+			regValue &= ~(1 << pinNumber);
+			
+		} else {
+			regValue |= (1 << pinNumber);
+		}
+			
+		if (ecode && regSaving_MCP23008(regValue) == 0) {
+			// ERROR!
+			LOGERR
+			ecode = 0;
+		}
 		
 	} else {
-		// ERROR!
+		// ERROR! (It means an internal trouble. Please, check for your code)
+		LOGERR
 	}
 
-	return;
-}
+	if (ecode) KEEPTRACK(code, value);
 
-uint8_t I2C_Write (uint8_t data) {
-	//
-	// Description:
-	//	It sends the argument defined byte using the I2C BUS, and returns the transmission status
-	//
-	TWDR = data;
-	TWCR = (1 << TWINT) | (1 << TWEN);
-	
-	// Waiting for the operation end
-	while (!(TWCR & (1 << TWINT)));
-	
-	return(TWSR & 0xF8);
-}
-
-
-uint8_t I2C_Read (mbesI2CopType optType) {
-	//
-	// Description:
-	//	It reads a byte from the I2C bus and returns it. 
-	//
-	if (optType == I2C_ACK)
-		TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); 
-	else
-		TWCR = (1 << TWINT) | (1 << TWEN);
-		
-	// Waiting  for data cknowledge
-	while (!(TWCR & (1 << TWINT)));
-	
-	return(TWDR);
-}
-
-
-void I2C_Stop() {
-	//
-	// Description:
-	//	It seands a STOP marker to the remote device on I2C
-	//
-	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
-}
-
-
-void I2C_Start() {
-	//
-	// Description:
-	//	It seands a START marker to the remote device on I2C
-	//
-	TWCR = (1 << TWINT) | (1 << TWSTA) | (1 << TWEN);
-	while (!(TWCR & (1 << TWINT)));
+	return(ecode);
 }

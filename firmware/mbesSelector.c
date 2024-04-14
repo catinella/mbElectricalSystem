@@ -34,7 +34,6 @@
 #if MOCK == 1
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
@@ -49,13 +48,16 @@
 #include <avr/io.h>
 #endif
 
+#include <stdio.h>
+
 //
 // Project's libraries
 //
+#include <mbesMock.h>
 #include <debugTools.h>
-#include "mbesMock.h"
-#include "mbesUtilities.h"
-#include "mbesSelector.h"
+#include <tools/debugConsole.h>
+#include <mbesUtilities.h>
+#include <mbesSelector.h>
 
 
 #if MOCK == 1
@@ -66,9 +68,39 @@ typedef enum _timer_cmd {
 } timer_cmd;
 #endif
 
+//
+// Status log messages in not-MOCKed mode
+//
+#if MBES_SELECTOR_DEBUG > 1
+#define NOP_LOGMSG(X)     logMsg(PSTR(X));
+#define W1P_LOGMSG(X,Y)   logMsg(PSTR(X), Y);
+#define W2P_LOGMSG(X,Y,Z) logMsg(PSTR(X), Y, Z);
+#else
+#define NOP_LOGMSG(X)     ;
+#define W1P_LOGMSG(X,Y)   ;
+#define W2P_LOGMSG(X,Y,Z) ;
+#endif
+
+//
+// ERROR messages in not-MOCKed mode
+//
+#if MBES_SELECTOR_DEBUG > 0
+#define LOGERR   logMsg(PSTR("ERROR! in %s(%d)"), __FUNCTION__, __LINE__);
+#else
+#define LOGERR   ;
+#endif
+
+#if MBES_KEEPTRACK > 0
+#define KEEPTRACK(X, Y) keepTrack(X, Y);
+#else
+#define KEEPTRACK(X, Y) ;
+#endif
+
+
 static uint8_t timerAvailabilityCounter = 0;
 static bool    isInitialized            = false;
 
+static struct mbesSelector *itemsStorage[MBESSELECTOR_MAXITEMSNUMB];
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                     P R I V A T E   F U N C T I O N S
@@ -167,37 +199,208 @@ static uint16_t _timer_gettime() {
 #endif
 }
 
+
+static uint8_t _update (struct mbesSelector *item) {
+	//
+	// Description:
+	//	This function updates the internal representation of the phisical device (button/switch..).
+	//
+	//
+	//	          (devType = switch)
+	//	+--------------------------------------+
+	//	|                                      |
+	//	|   +------+        +------+        +--+---+        +------+
+	//	+-->|      |        |      |        |      |        |      |
+	//	    |  01  +------->|  02  |------->|  03  |------->|  14  |
+	//	+-->|      |        |      |    +-->|      |        |      |
+	//	|   +--+---+        +------+    |   +------+        +---+--+
+	//	|       |                       |                       |
+	//	|       +-----------------------+                       |
+	//	|           (devType = switch)                          |
+	//	+-------------------------------------------------------+
+	//
+	uint8_t pinValue = 1;
+	uint8_t ec = 1;
+
+	if (item->fsm == 0) {
+		item->fsm = 1;
+
+	} else if (item->fsm == 1) {
+		
+		//
+		// The button/switch... has been pressed/activated
+		//
+		if (getPinValue(item->pin, &pinValue) == 0) {
+			// ERROR!
+			LOGERR
+			
+			//TODO: reset
+			ec = 0;
+
+		} else if (pinValue == 0) {
+			if (item->devType == BUTTON || item->devType == HOLDBUTTON) {
+				W1P_LOGMSG("(%s) button has been PUSHED", item->pin);
+				W2P_LOGMSG("(%d) Active timers: %d", __LINE__, timerAvailabilityCounter);
+				
+				timerAvailabilityCounter++;
+				if (_timer_gettime() == 0) {
+					// Nobody is using the timer, I started it
+					item->myTime = 0;
+					_timer_start();
+				} else {
+					item->myTime = _timer_gettime();
+				}
+				item->fsm = 2;
+
+				if (item->devType == BUTTON)
+					// Button's value is "true"
+					item->status  = true;
+				else
+					// Swapping the old value
+					item->status  = item->status ? false : true; 
+
+			} else if (item->devType == SWITCH) {
+				W1P_LOGMSG("(%s) switch has moved to ON", item->pin);
+				item->fsm     = 3;
+				item->status  = true;
+
+			}
+		}
+		
+	
+	} else if (item->fsm == 2) {
+		// If the object is in this state, then the associated selector has been pressed/switched-on.
+		// The selector will be disabled for a time slot
+		
+		//
+		// The button/switch... is ready to be released/deactivated
+		//
+		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+			W1P_LOGMSG("(%s) selector: ACTIVE\n", item->pin)
+			W2P_LOGMSG("(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
+			
+			timerAvailabilityCounter--;
+			item->fsm = 3;
+			// item->status is still true;
+		} else {
+			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
+		}
+		
+		
+	} else if (item->fsm == 3) {
+		// The selector is ready to be released/switched-off
+		// New activities will be acknowledged
+		
+		if (getPinValue(item->pin, &pinValue) == 0) {
+			// ERROR!
+			LOGERR
+			
+			//TODO: reset
+			ec = 0;
+			
+		} else if (pinValue == 1) {
+			//
+			// Selector releasing...
+			//
+			if (item->devType == BUTTON || item->devType == HOLDBUTTON) {
+				W1P_LOGMSG("(%s) button released", item->pin);
+				
+				timerAvailabilityCounter++;
+				if (_timer_gettime() == 0) {
+					// Nobody is using the timer, I started it
+					item->myTime = 0;
+					_timer_start();
+				} else {
+					item->myTime = _timer_gettime();
+				}
+				
+				item->fsm = 14;
+				
+				if (item->devType == BUTTON)
+					item->status = false;
+
+			} else if (item->devType == SWITCH) {
+				W1P_LOGMSG("(%s) switch moved to OFF", item->pin);
+				item->status = false;
+				item->fsm = 1;
+			}
+	
+		}
+	} else if (item->fsm == 14) {
+		// If the object is in this state, the selector is a button (or hold button) and it has been released.
+		// The seelector will be disabled for a time slot
+		
+		//
+		// The button/switch... is ready to be pressed/activated, again
+		//
+		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
+			W1P_LOGMSG("(%s) button's value is false", item->pin);
+			W2P_LOGMSG("(%d) Active timers: %d", __LINE__, timerAvailabilityCounter);
+
+			if (item->devType == BUTTON)
+				timerAvailabilityCounter--;
+
+			// End of cycle
+			item->fsm = 1;
+			
+		} else 
+			W2P_LOGMSG("deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME))
+		
+	}
+	
+	if (timerAvailabilityCounter == 0) _timer_reset();
+	
+	return(ec);
+}
 //------------------------------------------------------------------------------------------------------------------------------
 //                                           P U B L I C   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
 
-void mbesSelector_init (struct mbesSelector *item, selectorType type, const char *pin) {
+uint8_t mbesSelector_init (struct mbesSelector *item, selectorType type, const char *pin) {
 	//
 	// Description:
-	//	Thi function initializes the argument defined input selector (button, switch, hold-button...) 
+	//	The function initializes the argument defined input selector (button, switch, hold-button...) 
 	//
+	// Returned value:
+	//	0   Some problem occurred with the I2C connected device
+	//	1   SUCCESS
+	//
+	uint8_t        ec = 1;
+	static uint8_t index = 0;
 	
 	// 16bit-timer initialization...
 	if (isInitialized == false) {
-		logMsg("mbesSelector module initialization...\n");
+		NOP_LOGMSG("mbesSelector module initialization...")
+
 		_timer_init();
+
+		for (uint8_t t=0; t<MBESSELECTOR_MAXITEMSNUMB; t++)
+			itemsStorage[t] = NULL;
+			
+		isInitialized = true;
 	}
 	
-	// PINs direction setting
-	pinDirectionRegister(pin, INPUT);
+	// PIN direction and PULL-UP resistor setting
+	ec = pinDirectionRegister(pin, INPUT);
+
+	if (ec == 1) {
+		item->pin[0]  = pin[0];
+		item->pin[1]  = pin[1];
+		item->pin[2]  = '\0';
+		item->myTime  = 0;
+		item->devType = type;
+		item->status  = false;        // released status
+		item->fsm     = 0;
+
+		itemsStorage[index] = item;
+		index++;
+		
+	} else {
+		// ERROR! (MPC23008 problems)
+		LOGERR
+	}
 	
-	// PullUP resistor setting
-	pullUpEnabling(pin);
-	
-	item->pin[0]  = pin[0];
-	item->pin[1]  = pin[1];
-	item->pin[2]  = '\0';
-	item->myTime  = 0;
-	item->devType = type;
-	item->status  = false;        // released status
-	item->fsm     = 1;
-	
-	return;
+	return(ec);
 }
 
 
@@ -213,200 +416,28 @@ bool mbesSelector_get (struct mbesSelector item) {
 }
 
 
-void mbesSelector_update (struct mbesSelector *item) {
+uint8_t mbesSelector_update (struct mbesSelector *item) {
 	//
 	// Description:
-	//	This function updates the internal representation of the phisical device (button/switch..).
-	//
+	//	It upodates the argument defined item's FSM, or the ones of all registered itels
+	//	This function is a frontend of _update() private function, mainly
+	//	
+	// Returned value:
+	//	The number of successfully updated items
+	//	
+	uint8_t out = 0;
 	
-	if (item->fsm == 1) {
-		// It is the initial status: selector has been not yet activated. So its value is "false"
-		// The selector is ready to be activated
-		
-		item->status  = false;
-		
-		//
-		// The button/switch... has been pressed/activated
-		//
-		if (getPinValue(item->pin) == false) {
-#if MOCK == 0
-			logMsg("Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "Selector on pin-%s: just PUSHED/SWITCHED-ON\n", item->pin);
-			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-#endif
-			timerAvailabilityCounter++;
-			if (_timer_gettime() == 0) {
-				// Nobody is using the timer, I started it
-				item->myTime = 0;
-				_timer_start();
-			} else {
-				item->myTime = _timer_gettime();
-			}
-			item->fsm     = 2;
-			item->status  = true;
+	if (item != NULL)
+		out = _update(item) ? 1 : 0;
+	else {
+		uint8_t t = 0;
+		while (t<MBESSELECTOR_MAXITEMSNUMB && itemsStorage[t] != NULL) {
+			//W1P_LOGMSG("mbesSelector_update(): %s", itemsStorage[t]->pin);
+			if (_update(itemsStorage[t])) out++;
+			t++;
 		}
-		
-	
-	} else if (item->fsm == 2) {
-		// If the object is in this state, then the associated selector has been pressed/switched-on.
-		// The selector will be disabled for a time slot
-		
-		//
-		// The button/switch... is ready to be released/deactivated
-		//
-		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-#if MOCK == 0
-			logMsg("Selector on pin-%s: ACTIVE\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "Selector on pin-%s: ACTIVE\n", item->pin);
-			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-#endif
-			timerAvailabilityCounter--;
-			item->fsm    = 3;
-			// item->status is still true;
-		} else {
-			MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
-		}
-		
-		
-	} else if (item->fsm == 3) {
-		// The selector is ready to be released/switched-off
-		// New activities will be acknowledged
-		
-		//
-		// Selector releasing...
-		//
-		if (getPinValue(item->pin) == true) {
-			timerAvailabilityCounter++;
-			if (_timer_gettime() == 0) {
-				// Nobody is using the timer, I started it
-				item->myTime = 0;
-				_timer_start();
-			} else {
-				item->myTime = _timer_gettime();
-			}
-#if MOCK == 0
-			logMsg("The hold-button (pin-%s) has been RELEASED\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "The hold-button (pin-%s) has been RELEASED\n", item->pin);
-#endif
-			item->fsm = 14;
-			
-			if (item->devType != HOLDBUTTON) 
-				item->status = false;
-			
-	
-		}
-	} else if (item->fsm == 14) {
-		// If the object is in this state, then the associated selector has been released/switched-off.
-		// The selector will be disabled for a time slot
-		
-		//
-		// The button/switch... is ready to be pressed/activated, again
-		//
-		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-#if MOCK == 0
-			logMsg("Selector on pin-%s: NOT-ACTIVE\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "Selector on pin-%s: NOT-ACTIVE\n", item->pin);
-			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-#endif
-			timerAvailabilityCounter--;
-			
-			if (item->devType != HOLDBUTTON)
-				item->fsm = 1;
-			else
-				item->fsm = 4;
-			// item->status is still false (VCC)
-		} else
-			MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
-	
-	 
-	} else if (item->fsm == 4) {
-		// The hold-button has been pressed fot the second tine
-		//
-		if (getPinValue(item->pin) == false) {
-#if MOCK == 0
-			logMsg("Selector on pin-%s: HOLD-BUTTON pushed again\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "Selector on pin-%s: HOLD-BUTTON pushed again\n", item->pin);
-			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-#endif
-			timerAvailabilityCounter++;
-			if (_timer_gettime() == 0) {
-				// Nobody is using the timer, I started it
-				item->myTime = 0;
-				_timer_start();
-			} else {
-				item->myTime = _timer_gettime();
-			}
-			item->fsm     = 5;
-			item->status  = false;
-		}
-
-		
-	} else if (item->fsm == 5) {
-		// If the object is in this state, then the associated selector is an hold-button and it has been released for the
-		// second time. The selector value will be not-active soon
-		// The selector will be disabled for a time slot
-		
-		//
-		// The button/switch... is ready to be pressed/activated, again
-		//
-		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-#if MOCK == 0
-			logMsg("Selector on pin-%s is not-active and available\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "Selector on pin-%s is not-active and available\n", item->pin);
-#endif
-			timerAvailabilityCounter--;
-			item->fsm = 6;
-		} else
-			MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
-	
-	
-	} else if (item->fsm == 6) {
-		// The hold-button has been released for the second tine
-		//
-		if (getPinValue(item->pin) == true) {
-#if MOCK == 0
-			logMsg("Selector on pin-%s: HOLD-BUTTON released again\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "Selector on pin-%s: HOLD-BUTTON released again\n", item->pin);
-			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-#endif
-			timerAvailabilityCounter++;
-			if (_timer_gettime() == 0) {
-				// Nobody is using the timer, I started it
-				item->myTime = 0;
-				_timer_start();
-			} else {
-				item->myTime = _timer_gettime();
-			}
-			item->fsm     = 7;
-			// item->status is still false;
-		}	
-			
-	} else if (item->fsm == 7) {
-		// The hold-button has been released previosely, I have to wait for debouce time
-		//
-		if (item->myTime + MBESSELECTOR_DEBOUNCETIME < _timer_gettime()) {
-#if MOCK == 0
-			logMsg("Selector on pin-%s: is not-active\n", item->pin);
-#else
-			MYSYSLOG(LOG_INFO, "Selector on pin-%s: NOT-ACTIVE\n", item->pin);
-			MYSYSLOG(LOG_INFO, "(%d) Active timers: %d\n", __LINE__, timerAvailabilityCounter);
-#endif
-			timerAvailabilityCounter--;
-			item->fsm    = 1;
-			// item->status is still false;
-		} else {
-			MYSYSLOG(LOG_INFO, "deathline: %d/%d", _timer_gettime(), (item->myTime + MBESSELECTOR_DEBOUNCETIME));
-		}
+		W1P_LOGMSG("mbesSelector_update(): %d items have been updated", out);
 	}
-	
-	if (timerAvailabilityCounter == 0) _timer_reset();
-	
-	return;
+
+	return(out);
 }

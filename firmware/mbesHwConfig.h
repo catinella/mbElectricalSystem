@@ -34,7 +34,13 @@
 #ifndef MBESHWCONF
 #define MBESHWCONF
 
+// System clock (4Mhz)
+#define F_CPU 4000000UL
 
-#define F_CPU 1000000UL
+// MCP23008 I/O extender device address
+#define MCP23008_ADDR 0
+
+// Serial console speed
+#define RS232_BPS 19200
 
 #endif

@@ -75,6 +75,7 @@
 
 #if MOCK == 0
 #include <avr/io.h>
+#include <avr/pgmspace.h>
 
 #else
 #include <sys/types.h>
@@ -133,14 +134,17 @@ extern void USART_writeChar (char data) {
 }
 
 
-extern void USART_writeString (const char *data) {
+extern void USART_writeString (const char *data, USART_allocationType allocType) {
 	//
 	// Description:
 	//	It sends the argument defined characters string
 	//
 #if MOCK == 0
-	uint16_t counter = 0;
-	while (data[counter] != '\0') USART_writeChar(data[counter++]);
+	char c;
+	if (allocType == USART_FLASH) 
+		while ((c = pgm_read_byte(data++)) != '\0') USART_writeChar(c);
+	else
+		while ((c = *(data++)) != '\0') USART_writeChar(c);
 	USART_writeChar('\0');
 #else
 	if (initialized == false) USART_Init(0);

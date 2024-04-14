@@ -7,13 +7,12 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware1-test.c
+// File:   firmware2a-test.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This is another very simple test. It uses the project's library mbesUtitities to flash the selected PIN, alternately
-//	
+//	This test has been developped to ckeck for the logMsg() function that belongs to the mbesUtilities.h
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -29,21 +28,21 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesPinsMap.h>
-#include <mbesUtilities.h>
 #include <mbesHwConfig.h>
+#include <mbesUtilities.h>
+
 #include <avr/io.h>
 #include <util/delay.h>
-
+#include <avr/pgmspace.h>
 
 int main() {
-	char *pin = o_KEEPALIVE;
+	uint8_t count = 0;
+
+	USART_Init(RS232_BPS);
 
 	while (1) {
-		setPinValue (pin, 1);
-		_delay_ms(1000);
-		setPinValue (pin, 0);
-		_delay_ms(1000);
+		logMsg(PSTR("Message #%d"), count++);
+		_delay_ms(500);
 	}
 	
 	return(0);

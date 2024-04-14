@@ -1,19 +1,18 @@
 /*------------------------------------------------------------------------------------------------------------------------------
 //
-//   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+//  __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
 // |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
-// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \
 // | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware1-test.c
+// File:   mbesADCengine.h
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This is another very simple test. It uses the project's library mbesUtitities to flash the selected PIN, alternately
-//	
+//	Thif file contains useful functions to convert analog inputs in digital numbers
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -29,22 +28,9 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesPinsMap.h>
-#include <mbesUtilities.h>
-#include <mbesHwConfig.h>
-#include <avr/io.h>
-#include <util/delay.h>
+#ifndef MBESADCENGINE
+#define MBESADCENGINE
 
+uint16_t ADC_read (const char *code);
 
-int main() {
-	char *pin = o_KEEPALIVE;
-
-	while (1) {
-		setPinValue (pin, 1);
-		_delay_ms(1000);
-		setPinValue (pin, 0);
-		_delay_ms(1000);
-	}
-	
-	return(0);
-}
+#endif
