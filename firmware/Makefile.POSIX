@@ -55,19 +55,13 @@
 #	east way. In order to enable these intergration-rules, you have to set the BUILD4MPLABX symbol to 1 in the Makefile.conf
 #	file
 #
-<<<<<<< HEAD
-#	{H|L}fules backup
-=======
 #
 #	{H|L}fuses backup
->>>>>>> remotes/origin/external-oscillator
 #	=================
 #	Because the fuses modification is always a critical one, when you dump their values, with fuses-dump rule, the procedure
 #	will also make a backup of the current data. The backup will have a progressive numerical suffix. In this way you should
 #	be able to keep track of you modifications and roll-back, eventually
 #
-<<<<<<< HEAD
-=======
 #	
 #	Firmware optimization
 #	=====================
@@ -77,7 +71,6 @@
 #		-fno-tree-scev-cprop   Constant propagation disabling (code space reducing)
 #		-fomit-frame-pointer   It stops the frame-pointer using, where it is possible (code space reducing)
 #
->>>>>>> remotes/origin/external-oscillator
 #
 #
 # License:
@@ -104,8 +97,6 @@ MOCK           ?= 0
 MBES_KEEPTRACK ?= 0
 
 
-<<<<<<< HEAD
-=======
 #
 # Building process settings
 #
@@ -123,16 +114,11 @@ SYMBOLS    = -DMBES_KEEPTRACK=$(MBES_KEEPTRACK) $(DBGSYMBOLS) "-DMOCK=$(MOCK)"
 #
 # Settings for MPLABX environment
 #
->>>>>>> remotes/origin/external-oscillator
 BUILD4MPLABX    ?= 0
 MPLABXTGTDIR     = dist/default/production
 MPLABXTGTFILE    = firmware.production.hex
 MPLABXTGTDBGDIR  = dist/default/debug
 MPLABXTGTDBGFILE = firmware.debug.elf
-<<<<<<< HEAD
-
-=======
->>>>>>> remotes/origin/external-oscillator
 
 
 #
