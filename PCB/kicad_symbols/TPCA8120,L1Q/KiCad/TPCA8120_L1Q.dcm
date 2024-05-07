@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP TPCA8120,L1Q
+D MOSFETs Silicon P-Channel MOS (U-MOS)
+K
+F https://www.mouser.com/datasheet/2/408/TPCA8120_datasheet_en_20140214-3223135.pdf
+$ENDCMP
+#
+#End Doc Library

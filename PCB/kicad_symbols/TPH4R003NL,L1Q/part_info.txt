@@ -1,0 +1,9 @@
+Manufacturer=Toshiba
+PartNumber=TPH4R003NL,L1Q
+PartCategory=MOSFET (N-Channel)
+PackageCategory=Other
+PinCount=9
+Version=1.1
+Released=2021-04-15 10:46:59
+Downloaded=2024-05-07 07:43:14
+3D=Y

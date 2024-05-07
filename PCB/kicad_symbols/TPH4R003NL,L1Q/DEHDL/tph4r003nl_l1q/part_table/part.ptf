@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'TPH4R003NL_L1Q'
+CLASS = DISCRETE
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "Toshiba", "TPH4R003NL,L1Q" (!) = "", "TPH4R003NLL1Q", "Other", "757-TPH4R003NLL1Q", "https://www.mouser.co.uk/ProductDetail/Toshiba/TPH4R003NLL1Q?qs=lqaQjFBflhnR92QwUsl5tg%3D%3D", "Trans MOSFET N-CH Si 30V 68A 8-Pin SOP Advance T/R", "https://toshiba.semicon-storage.com/info/docget.jsp?did=14427&prodName=TPH4R003NL", "1 mm"
+END_PART
+
+END.

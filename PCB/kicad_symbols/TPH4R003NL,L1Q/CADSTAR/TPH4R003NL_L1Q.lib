@@ -1,0 +1,16 @@
+.TPH4R003NL_L1Q :1 ;Trans MOSFET N-CH Si 30V 68A 8-Pin SOP Advance T/R
+TPH4R003NLL1Q
+*STM Q
+*NGS
+*PLB 1="S_1" 2="S_2" 3="S_3" 4="G" 5="D_1" 6="D_2" 7="D_3" 8="D_4" 9="D_5"
+*MXP 9
+*DFN TPH4R003NL_L1Q
+~!Mouser Part Number (757-TPH4R003NLL1Q)
+~!Link Mouser Price/Stock (https://www.mouser.co.uk/ProductDetail/Toshiba/TPH4R003NLL1Q?qs=lqaQjFBflhnR92QwUsl5tg%3D%3D)
+~!Manufacturer_Name (Toshiba)
+~!Manufacturer_Part_Number (TPH4R003NL,L1Q)
+~!Link Datasheet (https://toshiba.semicon-storage.com/info/docget.jsp?did=14427&prodName=TPH4R003NL)
+~!Height (1mm)
+~!3D_Model (TPH4R003NL,L1Q)
+TPH4R003NL_L1Q
+1.1!U 2.1!U 3.1!U 4.1!U 5.1!U 6.1!U 7.1!U 8.1!U 9.1!U 

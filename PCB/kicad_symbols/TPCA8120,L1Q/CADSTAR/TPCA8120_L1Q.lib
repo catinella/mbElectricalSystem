@@ -1,0 +1,18 @@
+.TPCA8120_L1Q :1 ;MOSFETs Silicon P-Channel MOS (U-MOS)
+TPH4R003NLL1Q
+*STM Q
+*NGS
+*PLB 1="S_1" 2="S_2" 3="S_3" 4="G" 5="D_1" 6="D_2" 7="D_3" 8="D_4" 9="D_5"
+*MXP 9
+*DFN TPCA8120_L1Q
+~!Manufacturer_Name (Toshiba)
+~!Manufacturer_Part_Number (TPCA8120,L1Q)
+~!Mouser Part Number (757-TPCA8120L1Q)
+~!Link Mouser Price/Stock (https://www.mouser.co.uk/ProductDetail/Toshiba/TPCA8120L1Q?qs=B6kkDfuK7%2FD2wO%2FgucdpPg%3D%3D)
+~!Arrow Part Number (-)
+~!Arrow Price/Stock (-)
+~!Link Datasheet (https://www.mouser.com/datasheet/2/408/TPCA8120_datasheet_en_20140214-3223135.pdf)
+~!Height (1mm)
+~!3D_Model (TPCA8120,L1Q)
+TPCA8120_L1Q
+1.1!U 2.1!U 3.1!U 4.1!U 5.1!U 6.1!U 7.1!U 8.1!U 9.1!U 

@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'TPCA8120_L1Q'
+CLASS = DISCRETE
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "ARROW_PART_NUMBER", "ARROW_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "Toshiba", "TPCA8120,L1Q" (!) = "", "TPH4R003NLL1Q", "Other", "757-TPCA8120L1Q", "https://www.mouser.co.uk/ProductDetail/Toshiba/TPCA8120L1Q?qs=B6kkDfuK7%2FD2wO%2FgucdpPg%3D%3D", "", "", "MOSFETs Silicon P-Channel MOS (U-MOS)", "https://www.mouser.com/datasheet/2/408/TPCA8120_datasheet_en_20140214-3223135.pdf", "1 mm"
+END_PART
+
+END.

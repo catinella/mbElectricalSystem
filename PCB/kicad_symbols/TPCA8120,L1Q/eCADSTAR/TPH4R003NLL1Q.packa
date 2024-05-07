@@ -1,0 +1,13 @@
+(unit MM)
+
+(package "TPCA8120_L1Q"
+    (type UNDEF)
+    (uver 2)
+    (cuser "SamacSys")
+    (uuser "SamacSys")
+    (utime 2021-04-15-10:46:59)
+    (mountForm default
+        (footprintRef "TPH4R003NLL1Q")
+        (spec "System")
+    )
+)

@@ -1,0 +1,9 @@
+Manufacturer=Toshiba
+PartNumber=TPCA8120,L1Q
+PartCategory=MOSFET (P-Channel)
+PackageCategory=Other
+PinCount=9
+Version=1.1
+Released=2024-02-19 09:55:15
+Downloaded=2024-05-07 07:49:24
+3D=Y
