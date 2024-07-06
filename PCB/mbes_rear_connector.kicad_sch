@@ -1,299 +1,838 @@
-(kicad_sch (version 20230121) (generator eeschema)
-
-  (uuid 89806ec8-640a-4225-87bf-4fd9936e8714)
-
-  (paper "A4")
-
-  (title_block
-    (title "Motorbike lights and services controller")
-    (rev "4.0")
-    (company "Panicosoft")
-    (comment 1 "Logic controller unit")
-    (comment 2 "Connector to the rear motorbike side services")
-  )
-
-  (lib_symbols
-    (symbol "Connector_Generic:Conn_01x08" (pin_names (offset 1.016) hide) (in_bom yes) (on_board yes)
-      (property "Reference" "J" (at 0 10.16 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Value" "Conn_01x08" (at 0 -12.7 0)
-        (effects (font (size 1.27 1.27)))
-      )
-      (property "Footprint" "" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "Datasheet" "~" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_keywords" "connector" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_description" "Generic connector, single row, 01x08, script generated (kicad-library-utils/schlib/autogen/connector/)" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (property "ki_fp_filters" "Connector*:*_1x??_*" (at 0 0 0)
-        (effects (font (size 1.27 1.27)) hide)
-      )
-      (symbol "Conn_01x08_1_1"
-        (rectangle (start -1.27 -10.033) (end 0 -10.287)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 -7.493) (end 0 -7.747)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 -4.953) (end 0 -5.207)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 -2.413) (end 0 -2.667)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 0.127) (end 0 -0.127)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 2.667) (end 0 2.413)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 5.207) (end 0 4.953)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 7.747) (end 0 7.493)
-          (stroke (width 0.1524) (type default))
-          (fill (type none))
-        )
-        (rectangle (start -1.27 8.89) (end 1.27 -11.43)
-          (stroke (width 0.254) (type default))
-          (fill (type background))
-        )
-        (pin passive line (at -5.08 7.62 0) (length 3.81)
-          (name "Pin_1" (effects (font (size 1.27 1.27))))
-          (number "1" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at -5.08 5.08 0) (length 3.81)
-          (name "Pin_2" (effects (font (size 1.27 1.27))))
-          (number "2" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at -5.08 2.54 0) (length 3.81)
-          (name "Pin_3" (effects (font (size 1.27 1.27))))
-          (number "3" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at -5.08 0 0) (length 3.81)
-          (name "Pin_4" (effects (font (size 1.27 1.27))))
-          (number "4" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at -5.08 -2.54 0) (length 3.81)
-          (name "Pin_5" (effects (font (size 1.27 1.27))))
-          (number "5" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at -5.08 -5.08 0) (length 3.81)
-          (name "Pin_6" (effects (font (size 1.27 1.27))))
-          (number "6" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at -5.08 -7.62 0) (length 3.81)
-          (name "Pin_7" (effects (font (size 1.27 1.27))))
-          (number "7" (effects (font (size 1.27 1.27))))
-        )
-        (pin passive line (at -5.08 -10.16 0) (length 3.81)
-          (name "Pin_8" (effects (font (size 1.27 1.27))))
-          (number "8" (effects (font (size 1.27 1.27))))
-        )
-      )
-    )
-  )
-
-
-  (no_connect (at 72.644 57.658) (uuid 43374cec-57c4-4428-8543-2fa4adfde292))
-
-  (wire (pts (xy 72.644 52.578) (xy 93.98 52.578))
-    (stroke (width 0) (type default))
-    (uuid 1e7dc59a-9976-4079-a15e-bdd547fe4872)
-  )
-  (wire (pts (xy 91.313 55.118) (xy 91.313 57.15))
-    (stroke (width 0) (type default))
-    (uuid 20fa21c2-9689-45b4-ba88-5f31fbd7b80f)
-  )
-  (wire (pts (xy 93.98 52.578) (xy 93.98 53.594))
-    (stroke (width 0) (type default))
-    (uuid 2e8827fa-6bec-49cf-9786-d7fa37b150d2)
-  )
-  (wire (pts (xy 72.644 65.278) (xy 80.518 65.278))
-    (stroke (width 0) (type default))
-    (uuid 80134057-d555-45cf-a916-128ef262e834)
-  )
-  (wire (pts (xy 86.0044 63.8556) (xy 86.0044 60.198))
-    (stroke (width 0) (type default))
-    (uuid 84fdaaf3-e4bb-4312-a46f-74d9175ea452)
-  )
-  (wire (pts (xy 72.644 55.118) (xy 91.313 55.118))
-    (stroke (width 0) (type default))
-    (uuid 9c6f631d-55b3-40c8-bdce-d3c4b85c4d2f)
-  )
-  (wire (pts (xy 72.644 60.198) (xy 86.0044 60.198))
-    (stroke (width 0) (type default))
-    (uuid 9f0f9fd1-ae60-40d2-a568-7e71999ef918)
-  )
-  (wire (pts (xy 83.058 62.738) (xy 83.058 70.104))
-    (stroke (width 0) (type default))
-    (uuid a40b2be1-7aa8-4b99-aa1b-a7fc24b29a2e)
-  )
-  (wire (pts (xy 80.518 73.6092) (xy 98.0948 73.6092))
-    (stroke (width 0) (type default))
-    (uuid a8309d02-ad2d-4fe0-ab57-76cde3b7602d)
-  )
-  (wire (pts (xy 93.98 53.594) (xy 98.044 53.594))
-    (stroke (width 0) (type default))
-    (uuid aa649b66-3a85-4223-be03-9faea4e3e623)
-  )
-  (wire (pts (xy 91.2876 67.818) (xy 91.2622 60.452))
-    (stroke (width 0) (type default))
-    (uuid b99933fe-e23a-4be3-bfd4-b4b11f336308)
-  )
-  (wire (pts (xy 72.644 62.738) (xy 83.058 62.738))
-    (stroke (width 0) (type default))
-    (uuid ddeb6faa-c293-4bd1-b608-41043a14ccc7)
-  )
-  (wire (pts (xy 72.644 50.038) (xy 98.044 50.038))
-    (stroke (width 0) (type default))
-    (uuid e1bcace6-1bc5-4b84-a719-14724da3c15b)
-  )
-  (wire (pts (xy 97.8916 63.8556) (xy 86.0044 63.8556))
-    (stroke (width 0) (type default))
-    (uuid e628a2f3-42eb-4955-9bec-bf989b828f1e)
-  )
-  (wire (pts (xy 91.2622 60.452) (xy 97.917 60.452))
-    (stroke (width 0) (type default))
-    (uuid e630668a-71c9-400b-b10e-6df5ee7ec964)
-  )
-  (wire (pts (xy 80.518 65.278) (xy 80.518 73.6092))
-    (stroke (width 0) (type default))
-    (uuid ebb90994-390a-479e-ab6d-ea782479c0e9)
-  )
-  (wire (pts (xy 83.058 70.104) (xy 98.044 70.104))
-    (stroke (width 0) (type default))
-    (uuid ecb14853-ce70-445c-ab7d-c9a1799af6f6)
-  )
-  (wire (pts (xy 91.313 57.15) (xy 98.044 57.15))
-    (stroke (width 0) (type default))
-    (uuid f8f59d46-f456-45d0-aa1b-4aedffcccb02)
-  )
-  (wire (pts (xy 72.644 67.818) (xy 91.2876 67.818))
-    (stroke (width 0) (type default))
-    (uuid fb92adfa-8565-4d4d-b146-2257ab88fbf3)
-  )
-
-  (text "1) Rear light\n2) Left arrow\n3) Right arrow\n4) NC\n5) Rear brake\n6) START relay\n7) Neutral gear\n8) Eng-off CDI"
-    (at 46.99 68.58 0)
-    (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid bb123191-209e-4210-a063-15307a13fcc8)
-  )
-
-  (global_label "c_startEngine" (shape input) (at 98.044 70.104 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 20baa82f-bba5-4666-ac9b-98a183324d47)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 98.044 70.104 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Riferimenti inter-foglio" "${INTERSHEET_REFS}" (at 113.2176 70.0246 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-  (global_label "c_rightArrow" (shape input) (at 98.044 57.15 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 44c32ec1-2975-4af0-9898-e6c88b82d563)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 98.044 57.15 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Riferimenti inter-foglio" "${INTERSHEET_REFS}" (at 112.0685 57.0706 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-  (global_label "i_neutral" (shape input) (at 98.0948 73.6092 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 7388acbd-abda-4804-850d-d2a0f9914343)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 98.0948 73.6092 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Riferimenti inter-foglio" "${INTERSHEET_REFS}" (at 108.7931 73.5298 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-  (global_label "c_brakeSwitch" (shape input) (at 97.8916 63.8556 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid d935b865-9cad-4f89-9d02-ea1f0da5f90c)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 97.8916 63.8556 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Riferimenti inter-foglio" "${INTERSHEET_REFS}" (at 113.6699 63.7762 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-  (global_label "i_lightON{slash}OFF" (shape input) (at 98.044 50.038 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid de720ca4-f477-4ec5-8fdf-ba951bc711cf)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 98.044 50.038 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Riferimenti inter-foglio" "${INTERSHEET_REFS}" (at 113.8223 49.9586 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-  (global_label "c_leftArrow" (shape input) (at 98.044 53.594 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid f5c91aaf-5d19-467a-9d7d-4d3ed5be759f)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 98.044 53.594 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Riferimenti inter-foglio" "${INTERSHEET_REFS}" (at 110.859 53.5146 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-  (global_label "c_engineOFF" (shape input) (at 97.917 60.452 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid fd2f9fc4-8aee-4d41-8736-1d77b9d4fb09)
-    (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 97.917 60.452 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Riferimenti inter-foglio" "${INTERSHEET_REFS}" (at 112.123 60.3726 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-
-  (symbol (lib_id "Connector_Generic:Conn_01x08") (at 67.564 57.658 0) (mirror y) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 5510d55d-0f19-462b-b63a-fa24c3d3dcc7)
-    (property "Reference" "RearDevs1" (at 65.1764 59.3852 90)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Value" "Conn_01x08" (at 67.564 71.9328 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical" (at 67.564 57.658 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (at 67.564 57.658 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 0e21233c-c50a-4df6-8ffe-7e3b31098522))
-    (pin "2" (uuid 950b1cde-e42d-4a37-a0e4-562b1ff09a22))
-    (pin "3" (uuid 0eeb6ede-b0ba-4059-bdaa-88a19accf06c))
-    (pin "4" (uuid 68f5da3e-7224-4f6b-8a56-f55b35e32b67))
-    (pin "5" (uuid 08460e9d-ffab-4dba-9aad-862d6749bd56))
-    (pin "6" (uuid e4f54529-c0d5-40a3-8910-b211f1b15d8a))
-    (pin "7" (uuid c5d59458-a0f9-493b-8704-b0156103ac4b))
-    (pin "8" (uuid 29a438c4-e12a-46eb-85ff-b51eed74c5cf))
-    (instances
-      (project "pcb-a"
-        (path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/937463ea-d3fe-417a-91f3-c7891b585b2f"
-          (reference "RearDevs1") (unit 1)
-        )
-      )
-    )
-  )
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "89806ec8-640a-4225-87bf-4fd9936e8714")
+	(paper "A4")
+	(title_block
+		(title "Motorbike lights and services controller")
+		(rev "4.0")
+		(company "Panicosoft")
+		(comment 1 "Logic controller unit")
+		(comment 2 "Connector to the rear motorbike side services")
+	)
+	(lib_symbols
+		(symbol "Connector_Generic:Conn_01x08"
+			(pin_names
+				(offset 1.016) hide)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "J"
+				(at 0 10.16 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "Conn_01x08"
+				(at 0 -12.7 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Footprint" ""
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "~"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Generic connector, single row, 01x08, script generated (kicad-library-utils/schlib/autogen/connector/)"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "connector"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "Connector*:*_1x??_*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "Conn_01x08_1_1"
+				(rectangle
+					(start -1.27 -10.033)
+					(end 0 -10.287)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -7.493)
+					(end 0 -7.747)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -4.953)
+					(end 0 -5.207)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 -2.413)
+					(end 0 -2.667)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 0.127)
+					(end 0 -0.127)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 2.667)
+					(end 0 2.413)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 5.207)
+					(end 0 4.953)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 7.747)
+					(end 0 7.493)
+					(stroke
+						(width 0.1524)
+						(type default)
+					)
+					(fill
+						(type none)
+					)
+				)
+				(rectangle
+					(start -1.27 8.89)
+					(end 1.27 -11.43)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+				(pin passive line
+					(at -5.08 7.62 0)
+					(length 3.81)
+					(name "Pin_1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 5.08 0)
+					(length 3.81)
+					(name "Pin_2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 2.54 0)
+					(length 3.81)
+					(name "Pin_3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 0 0)
+					(length 3.81)
+					(name "Pin_4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "4"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -2.54 0)
+					(length 3.81)
+					(name "Pin_5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -5.08 0)
+					(length 3.81)
+					(name "Pin_6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "6"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -7.62 0)
+					(length 3.81)
+					(name "Pin_7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin passive line
+					(at -5.08 -10.16 0)
+					(length 3.81)
+					(name "Pin_8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	(no_connect
+		(at 72.644 57.658)
+		(uuid "43374cec-57c4-4428-8543-2fa4adfde292")
+	)
+	(wire
+		(pts
+			(xy 72.644 52.578) (xy 93.98 52.578)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1e7dc59a-9976-4079-a15e-bdd547fe4872")
+	)
+	(wire
+		(pts
+			(xy 91.313 55.118) (xy 91.313 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "20fa21c2-9689-45b4-ba88-5f31fbd7b80f")
+	)
+	(wire
+		(pts
+			(xy 93.98 52.578) (xy 93.98 53.594)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2e8827fa-6bec-49cf-9786-d7fa37b150d2")
+	)
+	(wire
+		(pts
+			(xy 72.644 65.278) (xy 80.518 65.278)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "80134057-d555-45cf-a916-128ef262e834")
+	)
+	(wire
+		(pts
+			(xy 86.0044 63.8556) (xy 86.0044 60.198)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "84fdaaf3-e4bb-4312-a46f-74d9175ea452")
+	)
+	(wire
+		(pts
+			(xy 72.644 55.118) (xy 91.313 55.118)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9c6f631d-55b3-40c8-bdce-d3c4b85c4d2f")
+	)
+	(wire
+		(pts
+			(xy 72.644 60.198) (xy 86.0044 60.198)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9f0f9fd1-ae60-40d2-a568-7e71999ef918")
+	)
+	(wire
+		(pts
+			(xy 83.058 62.738) (xy 83.058 70.104)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a40b2be1-7aa8-4b99-aa1b-a7fc24b29a2e")
+	)
+	(wire
+		(pts
+			(xy 80.518 73.6092) (xy 98.0948 73.6092)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a8309d02-ad2d-4fe0-ab57-76cde3b7602d")
+	)
+	(wire
+		(pts
+			(xy 93.98 53.594) (xy 98.044 53.594)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aa649b66-3a85-4223-be03-9faea4e3e623")
+	)
+	(wire
+		(pts
+			(xy 91.2876 67.818) (xy 91.2622 60.452)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b99933fe-e23a-4be3-bfd4-b4b11f336308")
+	)
+	(wire
+		(pts
+			(xy 72.644 62.738) (xy 83.058 62.738)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ddeb6faa-c293-4bd1-b608-41043a14ccc7")
+	)
+	(wire
+		(pts
+			(xy 72.644 50.038) (xy 98.044 50.038)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1bcace6-1bc5-4b84-a719-14724da3c15b")
+	)
+	(wire
+		(pts
+			(xy 97.8916 63.8556) (xy 86.0044 63.8556)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e628a2f3-42eb-4955-9bec-bf989b828f1e")
+	)
+	(wire
+		(pts
+			(xy 91.2622 60.452) (xy 97.917 60.452)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e630668a-71c9-400b-b10e-6df5ee7ec964")
+	)
+	(wire
+		(pts
+			(xy 80.518 65.278) (xy 80.518 73.6092)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ebb90994-390a-479e-ab6d-ea782479c0e9")
+	)
+	(wire
+		(pts
+			(xy 83.058 70.104) (xy 98.044 70.104)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "ecb14853-ce70-445c-ab7d-c9a1799af6f6")
+	)
+	(wire
+		(pts
+			(xy 91.313 57.15) (xy 98.044 57.15)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "f8f59d46-f456-45d0-aa1b-4aedffcccb02")
+	)
+	(wire
+		(pts
+			(xy 72.644 67.818) (xy 91.2876 67.818)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "fb92adfa-8565-4d4d-b146-2257ab88fbf3")
+	)
+	(text "1) Rear light\n2) Left arrow\n3) Right arrow\n4) NC\n5) Rear brake\n6) START relay\n7) Neutral gear\n8) Eng-off CDI"
+		(exclude_from_sim no)
+		(at 46.99 68.58 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "bb123191-209e-4210-a063-15307a13fcc8")
+	)
+	(global_label "c_startEngine"
+		(shape input)
+		(at 98.044 70.104 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "20baa82f-bba5-4666-ac9b-98a183324d47")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 98.044 70.104 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 113.2176 70.0246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "c_rightArrow"
+		(shape input)
+		(at 98.044 57.15 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "44c32ec1-2975-4af0-9898-e6c88b82d563")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 98.044 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 112.0685 57.0706 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "i_neutral"
+		(shape input)
+		(at 98.0948 73.6092 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7388acbd-abda-4804-850d-d2a0f9914343")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 98.0948 73.6092 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 108.7931 73.5298 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "c_brakeSwitch"
+		(shape input)
+		(at 97.8916 63.8556 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d935b865-9cad-4f89-9d02-ea1f0da5f90c")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 97.8916 63.8556 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 113.6699 63.7762 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "i_lightON{slash}OFF"
+		(shape input)
+		(at 98.044 50.038 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "de720ca4-f477-4ec5-8fdf-ba951bc711cf")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 98.044 50.038 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 113.8223 49.9586 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "c_leftArrow"
+		(shape input)
+		(at 98.044 53.594 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f5c91aaf-5d19-467a-9d7d-4d3ed5be759f")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 98.044 53.594 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 110.859 53.5146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "c_engineOFF"
+		(shape input)
+		(at 97.917 60.452 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "fd2f9fc4-8aee-4d41-8736-1d77b9d4fb09")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 97.917 60.452 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 112.123 60.3726 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x08")
+		(at 67.564 57.658 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5510d55d-0f19-462b-b63a-fa24c3d3dcc7")
+		(property "Reference" "RearDevs1"
+			(at 65.1764 59.3852 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x08"
+			(at 67.564 71.9328 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical"
+			(at 67.564 57.658 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 67.564 57.658 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 67.564 57.658 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "0e21233c-c50a-4df6-8ffe-7e3b31098522")
+		)
+		(pin "2"
+			(uuid "950b1cde-e42d-4a37-a0e4-562b1ff09a22")
+		)
+		(pin "3"
+			(uuid "0eeb6ede-b0ba-4059-bdaa-88a19accf06c")
+		)
+		(pin "4"
+			(uuid "68f5da3e-7224-4f6b-8a56-f55b35e32b67")
+		)
+		(pin "5"
+			(uuid "08460e9d-ffab-4dba-9aad-862d6749bd56")
+		)
+		(pin "6"
+			(uuid "e4f54529-c0d5-40a3-8910-b211f1b15d8a")
+		)
+		(pin "7"
+			(uuid "c5d59458-a0f9-493b-8704-b0156103ac4b")
+		)
+		(pin "8"
+			(uuid "29a438c4-e12a-46eb-85ff-b51eed74c5cf")
+		)
+		(instances
+			(project "pcb-a"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/937463ea-d3fe-417a-91f3-c7891b585b2f"
+					(reference "RearDevs1")
+					(unit 1)
+				)
+			)
+		)
+	)
 )

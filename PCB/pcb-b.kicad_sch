@@ -2556,6 +2556,16 @@
 	)
 	(wire
 		(pts
+			(xy 150.114 111.0996) (xy 133.35 111.0996)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0d523e75-1ac3-4e44-9372-d556ad71f1ca")
+	)
+	(wire
+		(pts
 			(xy 52.8828 149.7076) (xy 52.8828 146.2024)
 		)
 		(stroke
@@ -2596,7 +2606,7 @@
 	)
 	(wire
 		(pts
-			(xy 150.3172 111.3536) (xy 150.3172 108.1024)
+			(xy 150.114 107.95) (xy 150.114 111.0996)
 		)
 		(stroke
 			(width 0)
@@ -2633,16 +2643,6 @@
 			(type default)
 		)
 		(uuid "2886e9f9-e447-4b82-a311-5fb064fff675")
-	)
-	(wire
-		(pts
-			(xy 133.1976 99.3648) (xy 141.732 99.3648)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "289f0f5c-d627-49de-835b-6ad9e9aac514")
 	)
 	(wire
 		(pts
@@ -2746,16 +2746,6 @@
 	)
 	(wire
 		(pts
-			(xy 141.732 97.9424) (xy 150.3172 97.9424)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a78dea2-23b7-4f91-8552-caf4b8a9121f")
-	)
-	(wire
-		(pts
 			(xy 89.0016 143.2052) (xy 94.9452 143.2052)
 		)
 		(stroke
@@ -2773,6 +2763,16 @@
 			(type default)
 		)
 		(uuid "3eb893b7-1d8a-4d8a-89fa-14ee0170d579")
+	)
+	(wire
+		(pts
+			(xy 150.114 107.95) (xy 150.368 107.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3fb99744-0425-4c79-90ac-974f59fca3c8")
 	)
 	(wire
 		(pts
@@ -2906,7 +2906,7 @@
 	)
 	(wire
 		(pts
-			(xy 143.7132 105.5116) (xy 143.7132 103.0224)
+			(xy 143.764 105.2576) (xy 143.764 102.87)
 		)
 		(stroke
 			(width 0)
@@ -2953,16 +2953,6 @@
 			(type default)
 		)
 		(uuid "622a6e20-a937-428c-bb4c-792f1478d9b3")
-	)
-	(wire
-		(pts
-			(xy 142.5448 102.4636) (xy 142.5448 100.4824)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "62aadc78-41f3-48d7-9fe9-0520dc12ce88")
 	)
 	(wire
 		(pts
@@ -3086,16 +3076,6 @@
 	)
 	(wire
 		(pts
-			(xy 141.732 99.3648) (xy 141.732 97.9424)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "76b6ad38-ac23-45bd-9174-5486aad3215a")
-	)
-	(wire
-		(pts
 			(xy 44.1452 152.2476) (xy 55.2196 152.2476)
 		)
 		(stroke
@@ -3143,16 +3123,6 @@
 			(type default)
 		)
 		(uuid "7bf48e18-5112-4530-81b6-ed26f8e1e43f")
-	)
-	(wire
-		(pts
-			(xy 142.5448 100.4824) (xy 150.3172 100.4824)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7ec786cf-3e65-4e8d-93f0-7d178b572574")
 	)
 	(wire
 		(pts
@@ -3216,7 +3186,7 @@
 	)
 	(wire
 		(pts
-			(xy 133.1976 105.5116) (xy 143.7132 105.5116)
+			(xy 133.35 105.2576) (xy 143.764 105.2576)
 		)
 		(stroke
 			(width 0)
@@ -3456,16 +3426,6 @@
 	)
 	(wire
 		(pts
-			(xy 133.1468 102.4636) (xy 142.5448 102.4636)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a6b30643-67e2-4272-b026-396c15169b3b")
-	)
-	(wire
-		(pts
 			(xy 69.2912 135.4328) (xy 63.5508 135.4328)
 		)
 		(stroke
@@ -3536,16 +3496,6 @@
 	)
 	(wire
 		(pts
-			(xy 133.1976 111.3536) (xy 150.3172 111.3536)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "be53773a-a108-4a40-8931-2e2509eae908")
-	)
-	(wire
-		(pts
 			(xy 52.8828 146.2024) (xy 52.8828 142.9512)
 		)
 		(stroke
@@ -3556,7 +3506,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.082 108.458) (xy 148.082 105.5624)
+			(xy 148.1328 108.204) (xy 148.1328 105.41)
 		)
 		(stroke
 			(width 0)
@@ -3576,7 +3526,7 @@
 	)
 	(wire
 		(pts
-			(xy 148.082 105.5624) (xy 150.3172 105.5624)
+			(xy 148.1328 105.41) (xy 150.368 105.41)
 		)
 		(stroke
 			(width 0)
@@ -3696,7 +3646,7 @@
 	)
 	(wire
 		(pts
-			(xy 133.1976 108.458) (xy 148.082 108.458)
+			(xy 133.35 108.204) (xy 148.1328 108.204)
 		)
 		(stroke
 			(width 0)
@@ -3826,7 +3776,7 @@
 	)
 	(wire
 		(pts
-			(xy 143.7132 103.0224) (xy 150.3172 103.0224)
+			(xy 143.764 102.87) (xy 150.368 102.87)
 		)
 		(stroke
 			(width 0)
@@ -3915,40 +3865,9 @@
 			)
 		)
 	)
-	(global_label "c_RS232_RXD"
-		(shape input)
-		(at 133.1976 99.3648 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "098f9b56-23cb-4ba6-aaa9-f415d82c3914")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.1976 99.3648 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 117.9031 99.2854 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "c_rightArrow"
 		(shape input)
-		(at 133.1976 105.5116 180)
+		(at 133.35 105.2576 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -3958,7 +3877,7 @@
 		)
 		(uuid "2d2fe072-0b2c-4b0c-b6c5-68feb8295034")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.1976 105.5116 0)
+			(at 133.35 105.2576 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3967,7 +3886,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 119.1731 105.591 0)
+			(at 119.3255 105.337 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4258,7 +4177,7 @@
 	)
 	(global_label "c_engineOFF"
 		(shape input)
-		(at 133.1976 108.458 180)
+		(at 133.35 108.204 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4268,7 +4187,7 @@
 		)
 		(uuid "b95f1468-e5a3-404d-9c0f-19b429a395e3")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.1976 108.458 0)
+			(at 133.35 108.204 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4277,7 +4196,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 118.9916 108.5374 0)
+			(at 119.144 108.2834 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4318,37 +4237,6 @@
 			)
 		)
 	)
-	(global_label "c_RS232_TXT"
-		(shape input)
-		(at 133.1468 102.4636 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "f4a74652-0830-4286-8b78-f756e53ec7bf")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.1468 102.4636 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 118.457 102.3842 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "o_downLight"
 		(shape input)
 		(at 187.4012 79.4512 0)
@@ -4382,7 +4270,7 @@
 	)
 	(global_label "o_engineON"
 		(shape input)
-		(at 133.1976 111.3536 180)
+		(at 133.35 111.0996 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -4392,7 +4280,7 @@
 		)
 		(uuid "f67c588e-0591-474d-858a-f3d9d18f52e0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 133.1976 111.3536 0)
+			(at 133.35 111.0996 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4401,7 +4289,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 119.7778 111.2742 0)
+			(at 119.9302 111.0202 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4955,6 +4843,79 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
+		(at 155.448 105.41 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "43392a68-8369-4955-a951-b4776f3d0192")
+		(property "Reference" "to_pcA2"
+			(at 157.734 108.712 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Conn_01x03"
+			(at 158.242 106.6799 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x03_P2.54mm_Vertical"
+			(at 155.448 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 155.448 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 155.448 105.41 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "0aafdc65-9ead-4579-bfdd-2c9580ac1642")
+		)
+		(pin "2"
+			(uuid "37daaa2c-fbee-451e-a0f0-2f8255ac143f")
+		)
+		(pin "1"
+			(uuid "dfae40fb-c0f2-4164-920f-0f3d61dcd5cf")
+		)
+		(instances
+			(project ""
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
+					(reference "to_pcA2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x03")
 		(at 39.0652 161.4932 180)
 		(unit 1)
 		(exclude_from_sim no)
@@ -5019,83 +4980,6 @@
 			(project "pcb-b"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
 					(reference "GND-1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x05")
-		(at 155.3972 103.0224 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "47919c3d-99d7-4303-b586-0ae4f6965ffb")
-		(property "Reference" "to_pcA2"
-			(at 158.0388 102.9208 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "Conn_01x05"
-			(at 155.3972 94.1324 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Connector_PinSocket_2.54mm:PinSocket_1x05_P2.54mm_Vertical"
-			(at 155.3972 103.0224 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 155.3972 103.0224 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 155.3972 103.0224 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "0246a6ea-aa86-47e3-bf16-0adcaeea9231")
-		)
-		(pin "2"
-			(uuid "567f7761-aadb-43db-999a-d94079f059aa")
-		)
-		(pin "3"
-			(uuid "2ad7e5b8-157f-4f27-b917-cd06720261ce")
-		)
-		(pin "4"
-			(uuid "291e6a8e-a2e5-4b5c-9136-22c7e4984b3a")
-		)
-		(pin "5"
-			(uuid "5dbb6a7d-0abc-45d8-8dce-05dcdb4c9d95")
-		)
-		(instances
-			(project "pcb-b"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "to_pcA2")
 					(unit 1)
 				)
 			)
