@@ -1437,12 +1437,6 @@
 		(uuid "64be15dd-ce3f-4d86-becb-29bf7361211d")
 	)
 	(junction
-		(at 89.916 121.92)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "753c3093-c8a4-4767-a3f8-f2d9047659ae")
-	)
-	(junction
 		(at 115.57 134.62)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1490,7 +1484,7 @@
 	)
 	(wire
 		(pts
-			(xy 89.916 111.506) (xy 89.916 121.92)
+			(xy 89.916 111.506) (xy 89.916 115.062)
 		)
 		(stroke
 			(width 0)
@@ -1650,6 +1644,16 @@
 	)
 	(wire
 		(pts
+			(xy 89.916 126.746) (xy 89.916 154.94)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "55f86605-493c-4eef-bbd1-06ae06570bb8")
+	)
+	(wire
+		(pts
 			(xy 112.1664 94.0562) (xy 119.2276 94.0562)
 		)
 		(stroke
@@ -1730,7 +1734,7 @@
 	)
 	(wire
 		(pts
-			(xy 151.638 121.92) (xy 89.916 121.92)
+			(xy 151.892 115.062) (xy 89.916 115.062)
 		)
 		(stroke
 			(width 0)
@@ -1867,16 +1871,6 @@
 			(type default)
 		)
 		(uuid "dae8f195-800f-47b1-8b05-399f051c94a1")
-	)
-	(wire
-		(pts
-			(xy 89.916 121.92) (xy 89.916 154.94)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "dcb35004-6be4-4ff4-b34e-3cfd52ecd0a9")
 	)
 	(wire
 		(pts
@@ -2044,7 +2038,7 @@
 	)
 	(global_label "tempPower"
 		(shape input)
-		(at 151.638 121.92 0)
+		(at 151.892 115.062 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2054,7 +2048,7 @@
 		)
 		(uuid "c19f9d35-fb2f-43b8-965b-bd5ae82ed032")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 151.638 121.92 0)
+			(at 151.892 115.062 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2063,7 +2057,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 164.3321 121.8406 0)
+			(at 164.5861 114.9826 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -2439,6 +2433,71 @@
 			(project "pcb-b"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/58129762-4641-4cf0-a39a-a6f0d215df4c"
 					(reference "Q12")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+12V")
+		(at 89.916 126.746 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "3d0c58c4-be44-46e5-b80a-99bab1a6edc5")
+		(property "Reference" "#PWR04"
+			(at 89.916 130.556 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+12V"
+			(at 89.916 122.555 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 89.916 126.746 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 89.916 126.746 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 89.916 126.746 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "f55012f6-56e5-4c7d-855f-2b083d2bb147")
+		)
+		(instances
+			(project "pcb-b"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/58129762-4641-4cf0-a39a-a6f0d215df4c"
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
