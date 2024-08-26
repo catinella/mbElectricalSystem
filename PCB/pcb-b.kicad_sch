@@ -11,116 +11,6 @@
 		(company "Panicosoft")
 	)
 	(lib_symbols
-		(symbol "Connector_Generic:Conn_01x01"
-			(pin_names
-				(offset 1.016) hide)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(property "Reference" "J"
-				(at 0 2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Value" "Conn_01x01"
-				(at 0 -2.54 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-				)
-			)
-			(property "Footprint" ""
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Datasheet" "~"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "Description" "Generic connector, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_keywords" "connector"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(property "ki_fp_filters" "Connector*:*_1x??_*"
-				(at 0 0 0)
-				(effects
-					(font
-						(size 1.27 1.27)
-					)
-					(hide yes)
-				)
-			)
-			(symbol "Conn_01x01_1_1"
-				(rectangle
-					(start -1.27 0.127)
-					(end 0 -0.127)
-					(stroke
-						(width 0.1524)
-						(type default)
-					)
-					(fill
-						(type none)
-					)
-				)
-				(rectangle
-					(start -1.27 1.27)
-					(end 1.27 -1.27)
-					(stroke
-						(width 0.254)
-						(type default)
-					)
-					(fill
-						(type background)
-					)
-				)
-				(pin passive line
-					(at -5.08 0 0)
-					(length 3.81)
-					(name "Pin_1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "1"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-			)
-		)
 		(symbol "Connector_Generic:Conn_01x02"
 			(pin_names
 				(offset 1.016) hide)
@@ -2339,12 +2229,6 @@
 		(uuid "3354fa62-f9da-4c8e-957e-321fea74d960")
 	)
 	(junction
-		(at 123.0884 161.544)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3cff9e41-9aa6-4ac1-b087-6849e1915a0c")
-	)
-	(junction
 		(at 45.72 161.29)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2441,6 +2325,12 @@
 		(uuid "8ac1f746-2b21-43ed-92f4-626f63376fca")
 	)
 	(junction
+		(at 72.644 158.75)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "946280fe-f8d3-46a1-8e58-2890b9269c05")
+	)
+	(junction
 		(at 70.5612 104.0892)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2469,6 +2359,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b292474e-6a5b-4730-be75-82bfc2e019ee")
+	)
+	(junction
+		(at 94.996 161.544)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b36c744a-0739-4434-bb75-6dcf74d34389")
 	)
 	(junction
 		(at 52.8828 146.2024)
@@ -2534,6 +2430,16 @@
 	)
 	(wire
 		(pts
+			(xy 94.996 180.086) (xy 94.996 161.544)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "05b0755a-f874-491f-be03-65e36ca52b92")
+	)
+	(wire
+		(pts
 			(xy 74.422 135.382) (xy 76.708 135.382)
 		)
 		(stroke
@@ -2574,16 +2480,6 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 158.9532) (xy 140.8176 158.9532)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0b1998b7-b5f6-413e-a08c-9181ff9554eb")
-	)
-	(wire
-		(pts
 			(xy 95.9612 113.284) (xy 95.9612 115.824)
 		)
 		(stroke
@@ -2614,7 +2510,7 @@
 	)
 	(wire
 		(pts
-			(xy 69.596 158.75) (xy 84.836 158.75)
+			(xy 69.596 158.75) (xy 72.644 158.75)
 		)
 		(stroke
 			(width 0)
@@ -2834,16 +2730,6 @@
 	)
 	(wire
 		(pts
-			(xy 112.8268 161.544) (xy 123.0884 161.544)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "3a32a873-ae6a-4cf9-b9ac-5a1dc19c4a04")
-	)
-	(wire
-		(pts
 			(xy 89.0016 143.2052) (xy 94.9452 143.2052)
 		)
 		(stroke
@@ -2851,6 +2737,16 @@
 			(type default)
 		)
 		(uuid "3d246095-90c9-4911-8e5a-f5dd4aa3f7c4")
+	)
+	(wire
+		(pts
+			(xy 112.776 161.6202) (xy 112.8522 161.6202)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3d79e072-2b06-4f58-93b9-b693d1609fda")
 	)
 	(wire
 		(pts
@@ -2884,7 +2780,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.5482 150.114) (xy 92.456 150.114)
+			(xy 93.472 150.114) (xy 92.456 150.114)
 		)
 		(stroke
 			(width 0)
@@ -2984,7 +2880,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.5482 161.6202) (xy 93.5482 150.114)
+			(xy 93.472 161.544) (xy 93.472 150.114)
 		)
 		(stroke
 			(width 0)
@@ -3084,6 +2980,16 @@
 	)
 	(wire
 		(pts
+			(xy 44.196 182.626) (xy 72.644 182.626)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "65ca5456-5172-4e6e-a0aa-87cd9d15660c")
+	)
+	(wire
+		(pts
 			(xy 69.6722 143.2052) (xy 74.7522 143.2052)
 		)
 		(stroke
@@ -3161,16 +3067,6 @@
 			(type default)
 		)
 		(uuid "70c3e6d1-9d0d-40ab-a1c2-7469c4c9579e")
-	)
-	(wire
-		(pts
-			(xy 123.0884 161.544) (xy 123.0884 163.4236)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "735c1a77-fe08-4fed-960b-aff70e3b5e8c")
 	)
 	(wire
 		(pts
@@ -3514,7 +3410,7 @@
 	)
 	(wire
 		(pts
-			(xy 93.5482 161.6202) (xy 112.8522 161.6202)
+			(xy 93.472 161.544) (xy 94.996 161.544)
 		)
 		(stroke
 			(width 0)
@@ -3554,13 +3450,43 @@
 	)
 	(wire
 		(pts
-			(xy 140.97 158.75) (xy 140.97 158.9532)
+			(xy 140.97 158.75) (xy 140.97 159.512)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "a49ec61a-9b35-48db-8071-607478614273")
+	)
+	(wire
+		(pts
+			(xy 112.776 161.544) (xy 112.776 161.6202)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a57255d2-2bf1-49bb-ac8c-4d2ffe2292bc")
+	)
+	(wire
+		(pts
+			(xy 72.644 158.75) (xy 84.836 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a9345b12-f810-4fb1-bb59-341ccaa51697")
+	)
+	(wire
+		(pts
+			(xy 72.644 182.626) (xy 72.644 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "aab31343-7ef3-4333-997c-6abe70bcd92a")
 	)
 	(wire
 		(pts
@@ -3611,6 +3537,26 @@
 			(type default)
 		)
 		(uuid "b4f96f7b-44f7-44af-9889-12eef0e45a31")
+	)
+	(wire
+		(pts
+			(xy 44.196 180.086) (xy 94.996 180.086)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b531f5f3-4701-452c-a36d-076d6db9bb92")
+	)
+	(wire
+		(pts
+			(xy 94.996 161.544) (xy 112.776 161.544)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5aa1ebd-8dd0-4be9-8536-3375776efc67")
 	)
 	(wire
 		(pts
@@ -3694,7 +3640,7 @@
 	)
 	(wire
 		(pts
-			(xy 123.0884 161.544) (xy 135.6868 161.544)
+			(xy 112.8268 161.544) (xy 135.6868 161.544)
 		)
 		(stroke
 			(width 0)
@@ -4775,7 +4721,7 @@
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
-		(at 140.8176 158.9532 180)
+		(at 140.97 159.512 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4783,7 +4729,7 @@
 		(dnp no)
 		(uuid "32c0773f-8f90-462a-a012-d81d171bd887")
 		(property "Reference" "#FLG0101"
-			(at 140.8176 160.8582 0)
+			(at 140.97 161.417 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4792,7 +4738,7 @@
 			)
 		)
 		(property "Value" "PWR_FLAG"
-			(at 140.8176 163.0172 0)
+			(at 140.97 163.576 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4800,7 +4746,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 140.8176 158.9532 0)
+			(at 140.97 159.512 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4809,7 +4755,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 140.8176 158.9532 0)
+			(at 140.97 159.512 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4818,7 +4764,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 140.8176 158.9532 0)
+			(at 140.97 159.512 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5285,6 +5231,75 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 39.116 180.086 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "632129b0-b61c-434c-bca3-e8f02d300340")
+		(property "Reference" "USB-5V1"
+			(at 39.243 177.165 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_01x02"
+			(at 39.116 176.53 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_Wire:SolderWire-0.75sqmm_1x02_P7mm_D1.25mm_OD3.5mm"
+			(at 39.116 180.086 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 39.116 180.086 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 39.116 180.086 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "609a42b1-e2b1-4b40-a1cd-babced32cc6d")
+		)
+		(pin "2"
+			(uuid "8d02b8f4-d25b-4ae2-bb9e-60f9864d7db8")
+		)
+		(instances
+			(project "pcb-b"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
+					(reference "USB-5V1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Regulator_Linear:L7805")
 		(at 124.9172 150.0632 0)
 		(unit 1)
@@ -5494,73 +5509,6 @@
 			(project "pcb-b"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
 					(reference "Q9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector_Generic:Conn_01x01")
-		(at 123.0884 168.5036 270)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "7ace0198-87bb-4486-9d09-86f40ed410fe")
-		(property "Reference" "USB-5V1"
-			(at 127.762 172.1612 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "Conn_01x01"
-			(at 120.9548 167.2337 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Connector_Wire:SolderWire-1.5sqmm_1x01_D1.7mm_OD3.9mm"
-			(at 123.0884 168.5036 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 123.0884 168.5036 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 123.0884 168.5036 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "60f6590d-b0d3-4171-af44-25e68fc31725")
-		)
-		(instances
-			(project "pcb-b"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "USB-5V1")
 					(unit 1)
 				)
 			)
