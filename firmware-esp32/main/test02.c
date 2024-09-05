@@ -40,16 +40,16 @@
 
 void app_main(void) {
 	// PIN direction configuration
-	gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
+	gpio_set_direction(o_KEEPALIVE, GPIO_MODE_OUTPUT);
 
 	 while (1) {
 		// Turn ON the LED
 		gpio_set_level(o_KEEPALIVE, 1);
-		ESP_LOGI(__FUNCTION__, "ON");
+		ESP_LOGI(__FUNCTION__, "(GPIO-%d) ON", o_KEEPALIVE);
 		vTaskDelay(500 / portTICK_PERIOD_MS);
 
 		// Tutn OFF LED
-		gpio_set_level(GPIO_NUM_2, 0);
+		gpio_set_level(o_KEEPALIVE, 0);
 		ESP_LOGI(__FUNCTION__, "OFF");
 		vTaskDelay(500 / portTICK_PERIOD_MS);
 	}
