@@ -1,21 +1,17 @@
 /*------------------------------------------------------------------------------------------------------------------------------
 //
-//   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+//  __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
 // |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
 // | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \
 // | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   test0-mbesSerialConsole.c
+// File:   firmware-esp32.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This is an interactive test. It prints a char and a chars-string on the terminal where you have built this test file.
-//	[!] The serial port is simulated using the terminal's character device. Then make-process sets the FAKE_CONSOLE symbol
-//	    with the currently in-use terminal's device. For this reason the ouput will be sent to that terminal, also if you
-//	    run the test in another one
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -31,12 +27,31 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesSerialConsole.h>
 
-int main() {
-	USART_Init(0);
-	USART_writeChar('+');
-	USART_writeString("Hello world\n");
+#include <stdio.h>
+#include <esp_log.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/portmacro.h>
+#include <freertos/task.h>
+#include "esp_err.h"
+#include "driver/gpio.h"
 
-	return(0);
+#include "mbesPinsMap.h"
+
+void app_main(void) {
+	// PIN direction configuration
+	gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
+
+	 while (1) {
+		// Turn ON the LED
+		gpio_set_level(o_KEEPALIVE, 1);
+		ESP_LOGI(__FUNCTION__, "ON");
+		vTaskDelay(500 / portTICK_PERIOD_MS);
+
+		// Tutn OFF LED
+		gpio_set_level(GPIO_NUM_2, 0);
+		ESP_LOGI(__FUNCTION__, "OFF");
+		vTaskDelay(500 / portTICK_PERIOD_MS);
+	}
+	return;
 }

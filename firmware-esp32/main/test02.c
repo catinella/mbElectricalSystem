@@ -1,19 +1,17 @@
 /*------------------------------------------------------------------------------------------------------------------------------
 //
-//   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+//  __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
 // |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
-// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+// | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \
 // | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware-test.c
+// File:   firmware-esp32.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This is a very simple test for the hardware component (or the simulator you are using). It just set the keep-alive PIN
-//	to 5V.
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -29,21 +27,32 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#include <mbesPinsMap.h>
-#include <avr/io.h>
 
+#include <stdio.h>
+#include <esp_log.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/portmacro.h>
+#include <freertos/task.h>
+#include "esp_err.h"
+#include "driver/gpio.h"
 
-int main() {
-	char    *pin = o_KEEPALIVE;
-	char    port = pin[0];
-	uint8_t pinNumber = pin[1] - '0';
-	
-	while (1) {
-		if      (port == 'A')  {DDRA |=  (1 << pinNumber); PORTA |=  (1 << pinNumber);}
-		else if (port == 'B')  {DDRB |=  (1 << pinNumber); PORTB |=  (1 << pinNumber);}
-		else if (port == 'C')  {DDRC |=  (1 << pinNumber); PORTC |=  (1 << pinNumber);}
-		else if (port == 'D')  {DDRD |=  (1 << pinNumber); PORTD |=  (1 << pinNumber);}
+#include "mbesPinsMap.h"
+
+void app_main(void) {
+	// PIN direction configuration
+	gpio_set_direction(GPIO_NUM_2, GPIO_MODE_OUTPUT);
+
+	 while (1) {
+		// Turn ON the LED
+		gpio_set_level(o_KEEPALIVE, 1);
+		ESP_LOGI(__FUNCTION__, "ON");
+		vTaskDelay(500 / portTICK_PERIOD_MS);
+
+		// Tutn OFF LED
+		gpio_set_level(GPIO_NUM_2, 0);
+		ESP_LOGI(__FUNCTION__, "OFF");
+		vTaskDelay(500 / portTICK_PERIOD_MS);
 	}
-	
-	return(0);
+	return;
 }
+

@@ -19,8 +19,8 @@
 //		| i_VX1         | resistors-key    | first voltage value                                 |
 //		| i_VX2         |                  | second  "       "                                   |
 //		+---------------+------------------+-----------------------------------------------------+
-//		| i_VY1         |  internal link   | first voltage reference                             |
-//		| i_VY2         |                  | second  "         "                                 |
+//		| i_VREF1       |  internal link   | first voltage reference                             |
+//		| i_VREF2       |                  | second  "         "                                 |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| i_NEUTRAL     | from gearbox     | it is 0 when the gear is in neutral position        |
 //		+---------------+------------------+-----------------------------------------------------+
@@ -28,23 +28,24 @@
 //		+---------------+------------------+-----------------------------------------------------+
 //		| o_KEEPALIVE   | internal only    | it keeps the system on when you unplug the key      |
 //		+---------------+------------------+-----------------------------------------------------+
-//		| i_LEFTARROW   |                  | left turn blinking indicator switch                 |
-//		| i_CLUTCH      |                  |                                     |
-//		| i_UPLIGHT     | left controls    | dazzling beam command                               |
-//		| i_RIGHTARROW  |                  | right turn blinking indicator switch                |
-//		| i_HORN        |                  | horn button                                         |
-//		+---------------+------------------+-----------------------------------------------------+
 //		| i_BIKESTAND   | from bikestand   | it is 0 when the bike is placed on the stand        |
-//		+---------------+------------------+-----------------------------------------------------+
-//		| i_STARTBUTTON |                  | the tipical motorbike engine start button           |
-//		| i_BRAKESWITCH | right controls   | the switch on the front brake command               |
-//		| i_ENGINEON    |                  | the on/off engine switch in on-position             |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| i_ADDLIGHT    | from ext. switch | additional high power light                         |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| i_LIGHTONOFF  | from ext. switch | it turns on the normal lights (low/dazzling beam)   |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| o_STARTENGINE | rear mtb. side   | it activates the (NO) engine-relay                  |
+//		+---------------+------------------+-----------------------------------------------------+
+//		| i_LEFTARROW   |                  | left turn blinking indicator switch                 |
+//		| i_RIGHTARROW  |                  | right turn blinking indicator switch                |
+//		| i_DOWNLIGHT   | left controls    |                                                     |
+//		| i_UPLIGHT     |                  | dazzling beam command                               |
+//		| i_HORN        |                  | horn button                                         |
+//		| i_CLUTCH      |                  | 0 means the engine is NOT connected to the wheels   |
+//		+---------------+------------------+-----------------------------------------------------+
+//		| i_STARTBUTTON |                  | the tipical motorbike engine start button           |
+//		| i_BRAKESWITCH | right controls   | the switch on the front brake command               |
+//		| i_ENGINEON    |                  | the on/off engine switch in on-position             |
 //		+---------------+------------------+-----------------------------------------------------+
 //		| o_ENGINEREADY |                  |                                                     |
 //		| o_NEUTRAL     |                  |                                                     |
@@ -77,57 +78,46 @@
 // PINs declaration
 //
 
-#define i_VX1          "A0"
-#define i_VX2          "A1"
-#define i_VY1          "A2"
-#define i_VY2          "A3"
-#define o_MCPDEVRESET  "A4"
-// ==== available ==== "A5"
-#define i_SELCONFIG    "A6"
-#define i_CONFIG       "A7"
-
-
-#define o_DOWNLIGHT    "B0"
-#define o_UPLIGHT      "B1"
-#define i_UPLIGHT      "B2"
-#define i_CLUTCH       "B3"
-#define o_ADDLIGHT     "B4"
-// ===== ISP =====     "B5"
-// ===== ISP =====     "B6"
-// ===== ISP =====     "B7"
-
-
-// ====== I2C ======   "C0"
-// ====== I2C ======   "C1"
-#define i_ENGINEON     "C2"
-#define i_DECOMPRESS   "C3"
-#define i_BYKESTAND    "C4"
-#define i_NEUTRAL      "C5"
-#define i_ADDLIGHT     "C6"
-#define i_LIGHTONOFF   "C7"
-
-
-// === RXD UART ===    "D0"
-// === TXD UART ===    "D1"
-// ==== available ==== "D2"
-// ==== available ==== "D3"
-#define o_KEEPALIVE    "D4"
-#define i_STARTBUTTON  "D5"
-#define o_ENGINEON     "D6"
-#define o_STARTENGINE  "D7"
-
-
-#define o_RIGHTARROW   "00"
-#define o_ENGINEREADY  "01"
-#define o_NEUTRAL      "02"
-#define o_HORN         "03"
-#define i_HORN         "04"
-#define o_LEFTARROW    "05"
-#define i_LEFTARROW    "06"
-#define i_RIGHTARROW   "07"
-
-
-// Number of used analog input
-#define ACHANS_NUMBER   4
+// N/A                   (3.3v)                /* 01 */
+#define i_LIGHTONOFF     GPIO0                 /* 02 */
+#define i_VX1            ADC1_CH0              /* 03 */
+#define i_VX2            ADC1_CH1              /* 04 */
+#define i_VY1            ADC1_CH2              /* 05 */
+#define i_VY2            ADC1_CH3              /* 06 */
+// ==== available ====   GPIO5/ADC1_CH4        /* 07 */
+// ==== available ====   GPIO6/ADC1_CH5        /* 08 */
+// ==== available ====   GPIO7/ADC1_CH6        /* 09 */
+// ==== available ====   GPIO8/ADC1_CH7        /* 10 */
+#define i_CONF1          GPIO9                 /* 11 */
+#define i_CONF2          GPIO_NUM_10           /* 12 */
+#define i_NEUTRAL        GPIO_NUM_11           /* 13 */
+#define o_KEEPALIVE      GPIO_NUM_12           /* 14 */
+#define o_ENGINEREADY    GPIO_NUM_13           /* 15 */
+#define o_NEUTRAL        GPIO_NUM_14           /* 16 */
+// ==== available ====   GPIO_NUM_15/ADC2_CH4  /* 17 */
+#define o_ENGINEON       GPIO_NUM_16           /* 18 */
+#define i_HORN           GPIO_NUM_17           /* 19 */
+// N/A                   (5v)                  /* 20 */
+// N/A                   (GND)                 /* 21 */
+#define o_LEFTARROW      GPIO_NUM_18           /* 22 */
+// !!!!                  USB/GPIO_NUM_19       /* 23 */
+// !!!!                  USB/GPIO_NUM_20       /* 24 */
+#define i_ADDLIGHT       GPIO_NUM_21           /* 25 */
+#define o_HORN           GPIO_NUM_26           /* 26 */
+#define i_RIGHTARROW     GPIO_NUM_33           /* 27 */
+#define o_ADDLIGHT       GPIO_NUM_34           /* 28 */
+#define i_DOWNLIGHT      GPIO_NUM_35           /* 29 */
+#define i_UPLIGHT        GPIO_NUM_36           /* 30 */
+#define o_UPLIGHT        GPIO_NUM_37           /* 31 */
+#define o_DOWNLIGHT      GPIO_NUM_38           /* 32 */
+#define o_RIGHTARROW     GPIO_NUM_39           /* 33 */
+#define o_STARTENGINE    GPIO_NUM_40           /* 34 */
+#define i_CLUTCH         GPIO_NUM_41           /* 35 */
+#define i_BYKESTAND      GPIO_NUM_42           /* 36 */
+#define i_DECOMPRESS     GPIO_NUM_43           /* 37 */
+#define i_ENGINEON       GPIO_NUM_44           /* 38 */
+#define i_STARTBUTTON    GPIO_NUM_45           /* 39 */
+#define i_LEFTARROW      GPIO_NUM_46           /* 40 */
+// N/A                   (reset)               /* 41 */
 
 #endif

@@ -1,21 +1,20 @@
 /*------------------------------------------------------------------------------------------------------------------------------
 //
-//   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+//  __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
 // |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
 // | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \
 // | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   test0-mbesUtilities.c
+// File:   firmware-esp32.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This simple module tests the mbesUtilities object. 
+//	This code implements a simple counter and it has been written to check for the building system, mainly.
+//	If you can see a conter in your device's console, then your building chain has been prperly configured.
 //
-//	[!] logMsg() function is available just in DEBUG=1 mode. So, if you cannot read the DBGTRACE debug-message, then
-//	    you have not properly set the DEBUG symbol
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -31,18 +30,23 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
-#define MOCK 1
-#include <sys/types.h>
-#include <unistd.h>
+
 #include <stdio.h>
-#include <debugTools.h>
-#include <mbesUtilities.h>
+#include <esp_log.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/portmacro.h>
+#include <freertos/task.h>
 
-int main() {
-	DBGTRACE
-	
-	logMsg("This is a log-message. \"%s\"\n", "You should see this message");
-	logMsg("This is another log-message (pid=%d): \"%s\"\n", getpid(), "You should see this message too");
-
-	return(0);
+void app_main(void) {
+	uint8_t t = 0;
+	while (1) {
+		ESP_LOGI(__FUNCTION__, "%d", t);
+		t++;
+		vTaskDelay(100 / portTICK_PERIOD_MS);
+		if (t == 64) {
+			vTaskDelay(500 / portTICK_PERIOD_MS);
+			ESP_LOGW(__FUNCTION__, "---------------------");
+			t = 0;
+		}
+	}
 }
