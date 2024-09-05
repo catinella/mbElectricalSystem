@@ -78,46 +78,42 @@
 // PINs declaration
 //
 
-// N/A                   (3.3v)                /* 01 */
-#define i_LIGHTONOFF     GPIO0                 /* 02 */
-#define i_VX1            ADC1_CH0              /* 03 */
-#define i_VX2            ADC1_CH1              /* 04 */
-#define i_VY1            ADC1_CH2              /* 05 */
-#define i_VY2            ADC1_CH3              /* 06 */
-// ==== available ====   GPIO5/ADC1_CH4        /* 07 */
-// ==== available ====   GPIO6/ADC1_CH5        /* 08 */
-// ==== available ====   GPIO7/ADC1_CH6        /* 09 */
-// ==== available ====   GPIO8/ADC1_CH7        /* 10 */
-#define i_CONF1          GPIO9                 /* 11 */
-#define i_CONF2          GPIO_NUM_10           /* 12 */
-#define i_NEUTRAL        GPIO_NUM_11           /* 13 */
-#define o_KEEPALIVE      GPIO_NUM_12           /* 14 */
-#define o_ENGINEREADY    GPIO_NUM_13           /* 15 */
-#define o_NEUTRAL        GPIO_NUM_14           /* 16 */
-// ==== available ====   GPIO_NUM_15/ADC2_CH4  /* 17 */
-#define o_ENGINEON       GPIO_NUM_16           /* 18 */
-#define i_HORN           GPIO_NUM_17           /* 19 */
-// N/A                   (5v)                  /* 20 */
-// N/A                   (GND)                 /* 21 */
-#define o_LEFTARROW      GPIO_NUM_18           /* 22 */
-// !!!!                  USB/GPIO_NUM_19       /* 23 */
-// !!!!                  USB/GPIO_NUM_20       /* 24 */
-#define i_ADDLIGHT       GPIO_NUM_21           /* 25 */
-#define o_HORN           GPIO_NUM_26           /* 26 */
-#define i_RIGHTARROW     GPIO_NUM_33           /* 27 */
-#define o_ADDLIGHT       GPIO_NUM_34           /* 28 */
-#define i_DOWNLIGHT      GPIO_NUM_35           /* 29 */
-#define i_UPLIGHT        GPIO_NUM_36           /* 30 */
-#define o_UPLIGHT        GPIO_NUM_37           /* 31 */
-#define o_DOWNLIGHT      GPIO_NUM_38           /* 32 */
-#define o_RIGHTARROW     GPIO_NUM_39           /* 33 */
-#define o_STARTENGINE    GPIO_NUM_40           /* 34 */
-#define i_CLUTCH         GPIO_NUM_41           /* 35 */
-#define i_BYKESTAND      GPIO_NUM_42           /* 36 */
-#define i_DECOMPRESS     GPIO_NUM_43           /* 37 */
-#define i_ENGINEON       GPIO_NUM_44           /* 38 */
-#define i_STARTBUTTON    GPIO_NUM_45           /* 39 */
-#define i_LEFTARROW      GPIO_NUM_46           /* 40 */
-// N/A                   (reset)               /* 41 */
+#define i_LIGHTONOFF     GPIO_NUM_0
+#define i_VX1            ADC1_CH0
+#define i_VX2            ADC1_CH1
+#define i_VY1            ADC1_CH2
+#define i_VY2            ADC1_CH3
+// ==== available ====   GPIO5/ADC1_CH4
+// ==== available ====   GPIO6/ADC1_CH5
+// ==== available ====   GPIO7/ADC1_CH6
+// ==== available ====   GPIO8/ADC1_CH7
+#define i_CONF1          GPIO_NUM_9
+#define i_CONF2          GPIO_NUM_10
+#define i_NEUTRAL        GPIO_NUM_11
+#define o_KEEPALIVE      GPIO_NUM_12
+#define o_ENGINEREADY    GPIO_NUM_13
+#define o_NEUTRAL        GPIO_NUM_14
+// ==== available ====   GPIO_NUM_15/ADC2_CH4
+#define o_ENGINEON       GPIO_NUM_16
+#define i_HORN           GPIO_NUM_17
+#define o_LEFTARROW      GPIO_NUM_18
+// !!!!                  USB/GPIO_NUM_19
+// !!!!                  USB/GPIO_NUM_20
+#define i_ADDLIGHT       GPIO_NUM_21
+#define o_HORN           GPIO_NUM_26
+#define i_RIGHTARROW     GPIO_NUM_33
+#define o_ADDLIGHT       GPIO_NUM_34
+#define i_DOWNLIGHT      GPIO_NUM_35
+#define i_UPLIGHT        GPIO_NUM_36
+#define o_UPLIGHT        GPIO_NUM_37
+#define o_DOWNLIGHT      GPIO_NUM_38
+#define o_RIGHTARROW     GPIO_NUM_39
+#define o_STARTENGINE    GPIO_NUM_40
+#define i_CLUTCH         GPIO_NUM_41
+#define i_BYKESTAND      GPIO_NUM_42
+#define i_DECOMPRESS     GPIO_NUM_43
+#define i_ENGINEON       GPIO_NUM_44
+#define i_STARTBUTTON    GPIO_NUM_45
+#define i_LEFTARROW      GPIO_NUM_46
 
 #endif
