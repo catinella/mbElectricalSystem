@@ -86,6 +86,8 @@
 static int fd = 0;
 #endif
 
+static uint8_t i2c_buffer = 255;
+
 //------------------------------------------------------------------------------------------------------------------------------
 //                                         P R I V A T E   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
@@ -136,6 +138,39 @@ void mbesUtilities_init() {
 	return;
 }
 #endif
+
+
+uint8_t getPinsFromI2C() {
+	//
+	// Description:
+	//	It reads all pins values by the I2C bus extender device
+	//
+	// Returned code:
+	//	0	I2C BUS returned error
+	//	1     Operation completed successfully
+	//
+	uint8_t ecode = 1;
+	if (regSelecting_MCP23008(MCP23008_GPIO) == 0 || regReading_MCP23008(&i2c_buffer) == 0) {
+		// ERROR!
+		LOGERR
+		ecode = 0;
+	}
+	return(ecode);
+}
+
+
+uint8_t setPinsToI2C() {
+	uint8_t ecode = 1;
+
+	if (regSaving_MCP23008(i2c_buffer) == 0) {
+		// ERROR!
+		LOGERR
+		ecode = 0;
+	}
+		
+	return(ecode);
+}
+
 
 void logMsg (const char *fmt, ...) {
 	//
@@ -354,7 +389,7 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 	//
 	// Returned value:
 	//	1 SUCCESS
-	//	0 An error occurred in I2C bus or MCP23008 operations
+	//	0 Syntax error in the code argument definition
 	//
 	char    port;
 	uint8_t pinNumber;
@@ -376,17 +411,8 @@ uint8_t getPinValue (const char *code, uint8_t *pinValue) {
 		*pinValue = (PIND & (1 << pinNumber));
 	
 	else if (port >= '0' && port <= '9') {
-		uint8_t regValue = 0;
+		*pinValue = i2c_buffer;
 		
-		if (regSelecting_MCP23008(MCP23008_GPIO) == 0 || regReading_MCP23008(&regValue) == 0) {
-			// ERROR!
-			LOGERR
-			ecode = 0;
-			
-		} else {
-			// [!] PIN's value extraction
-			*pinValue = regValue;
-		}
 	} else {
 		// ERROR!
 		LOGERR
@@ -559,26 +585,9 @@ uint8_t setPinValue (const char *code, uint8_t value) {
 		else       PORTD &= ~(1 << pinNumber);
 		
 	} else if (port >= '0' && port <= '9') {
-		uint8_t regValue = 0;
-		
-		if (regSelecting_MCP23008(MCP23008_GPIO) == 0 || regReading_MCP23008(&regValue) == 0 ) {
-			// ERROR!
-			LOGERR
-			ecode = 0;
-
-		} else if (value == 0) {
-			regValue &= ~(1 << pinNumber);
+		if (value == 0) i2c_buffer &= ~(1 << pinNumber);
+		else            i2c_buffer |= (1 << pinNumber);
 			
-		} else {
-			regValue |= (1 << pinNumber);
-		}
-			
-		if (ecode && regSaving_MCP23008(regValue) == 0) {
-			// ERROR!
-			LOGERR
-			ecode = 0;
-		}
-		
 	} else {
 		// ERROR! (It means an internal trouble. Please, check for your code)
 		LOGERR
