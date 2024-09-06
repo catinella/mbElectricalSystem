@@ -81,9 +81,11 @@ typedef enum _fsmStates {
 	PINS_SETTING      = 2,
 	SELECTORS_SETTING = 3,
 	VALUE_RESTORING   = 4,
-	NORMAL_STATUS     = 5,
+	MAIN_LOOP         = 5,
 	I2CBUS_RESET      = 6,
-	PARCKING_STATUS   = 7
+	I2CBUS_READ       = 7,
+	I2CBUS_WRITE      = 8,
+	PARCKING_STATUS   = 9
 }  fsmStates;
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -240,15 +242,17 @@ int main(void) {
 		} else if (FSM == VALUE_RESTORING) {
 			if (firstRound) {
 				if (
+					getPinsFromI2C()              &&
 					setPinValue(o_RIGHTARROW,  0) &&
 					setPinValue(o_LEFTARROW,   0) &&
 					setPinValue(o_DOWNLIGHT,   0) &&
 					setPinValue(o_UPLIGHT,     0) &&
 					setPinValue(o_ADDLIGHT,    0) &&
-					setPinValue(o_HORN,        0)
+					setPinValue(o_HORN,        0) &&
+					setPinsToI2C()
 				) {
 					firstRound = false;
-					FSM = NORMAL_STATUS;
+					FSM = MAIN_LOOP;
 					LOGMSG("[ OK ] Output-PINs have been set to default values\n\r")
 				} else {
 					// ERROR!
@@ -258,7 +262,7 @@ int main(void) {
 
 			} else {
 				if (restore_MCP23008())
-					FSM = NORMAL_STATUS;
+					FSM = I2CBUS_READ;
 				else {
 					// ERROR!
 					LOGMSG("ERROR! Old values cannot be restored\n\r")
@@ -268,7 +272,17 @@ int main(void) {
 			}
 
 		
-		} else if (FSM == NORMAL_STATUS) {
+		} else if (FSM == I2CBUS_READ) {
+			if (getPinsFromI2C())
+				FSM = MAIN_LOOP;
+			else {
+				// ERROR!
+				LOGMSG("ERROR! I cannot read data from I2C bus\n\r");
+				FSM = I2CBUS_RESET;
+			}
+
+
+		} else if (FSM == MAIN_LOOP) {
 
 			// [!] the following PINs are critic ones, and they should NEVER been linked to the I/O extender.
 			//     So, their function's error code has no meaning
@@ -394,7 +408,19 @@ int main(void) {
 			// mbesSelector items updating....
 			mbesSelector_update(NULL);
 
+			FSM = I2CBUS_WRITE;
 			
+			
+		} else if (FSM == I2CBUS_WRITE) {
+			if (setPinsToI2C())
+				FSM = I2CBUS_READ;
+			else {
+				// ERROR!
+				LOGMSG("ERROR! I cannot write data in the MCP2308 device\n\r");
+				FSM = I2CBUS_RESET;
+			}
+
+
 		} else if (FSM == PARCKING_STATUS) {
 			//
 			// Parcking status

@@ -55,10 +55,12 @@
 
 typedef enum _fsm {
 	INITIALIZATION,
+	I2CBUS_READING,
 	PA_READING,	
 	PB_READING,	
 	PA_WRITING,
 	PB_WRITING,
+	I2CBUS_WRITING,
 	I2CBUS_ERROR,
 	END
 } fsm;
@@ -81,7 +83,7 @@ int main() {
 	uint8_t errCounter = 0;
 
 	// Serial console initialization
-	USART_Init(9600);
+	USART_Init(RS232_BPS);
 
 	// JTAG disabling
 	MCUCR |= (1 << JTD);
@@ -107,7 +109,17 @@ int main() {
 				state = I2CBUS_ERROR;
 				
 			} else
+				state = I2CBUS_READING;
+
+		
+		} else if (state == I2CBUS_READING) {
+			if (getPinsFromI2C()) 
 				state = PA_READING;
+			else {
+				// ERROR
+				USART_writeString(PSTR("ERROR! MCP23008 reading op. failed\n\n\r"), USART_FLASH);
+				state = I2CBUS_ERROR;
+			}
 
 
 		} else if (state == PA_READING) {
@@ -141,11 +153,22 @@ int main() {
 				USART_writeString(PSTR("ERROR! MCP23008's registers updating failed\n\n\r"), USART_FLASH);
 				state = I2CBUS_ERROR;
 			} else {
-				state = PA_READING;
+				state = I2CBUS_WRITING;
 				errCounter = 0;
 			}
 			
 			
+		} else if (state == I2CBUS_WRITING) {
+			if (setPinsToI2C()) 
+				state = I2CBUS_READING;
+
+			else {
+				// ERROR
+				USART_writeString(PSTR("ERROR! MCP23008 writing op. failed\n\n\r"), USART_FLASH);
+				state = I2CBUS_ERROR;
+			}
+
+
 		} else if (state == I2CBUS_ERROR) {
 			LOGMSG("\nErrors number evaluation\n\r");
 			if (errCounter > 10)

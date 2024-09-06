@@ -13,7 +13,7 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This file is not exactly a test, it is mora an utility. In fact, using this test you can check for every input. 
+//	This file is not exactly a test, it is an utility, too. In fact, using this test you can check for every input. 
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
