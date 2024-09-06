@@ -66,6 +66,8 @@ uint8_t pullUpEnabling       (const char *code);
 //
 // I/O Functions
 //
+uint8_t getPinsFromI2C       ();
+uint8_t setPinsToI2C         ();
 uint8_t getPinValue          (const char *code, uint8_t *value);
 uint8_t setPinValue          (const char *code, uint8_t value);
 
