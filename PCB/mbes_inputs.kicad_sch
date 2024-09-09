@@ -3109,8 +3109,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x04")
-		(at 56.896 133.35 0)
-		(mirror y)
+		(at 56.896 135.89 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3118,7 +3117,7 @@
 		(dnp no)
 		(uuid "edbf14dc-ece6-4ca9-bda5-fd6b0f4a2c01")
 		(property "Reference" "Key-locker-1"
-			(at 57.3532 128.1176 0)
+			(at 56.642 128.016 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3126,7 +3125,7 @@
 			)
 		)
 		(property "Value" "Conn_01x04"
-			(at 56.896 142.5956 0)
+			(at 56.896 126.6444 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3135,7 +3134,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
-			(at 56.896 133.35 0)
+			(at 56.896 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3144,7 +3143,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 56.896 133.35 0)
+			(at 56.896 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3153,7 +3152,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 56.896 133.35 0)
+			(at 56.896 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
