@@ -3286,7 +3286,7 @@
 		(descr "Diode SMD 1210 (3225 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: http://www.tortai-tech.com/upload/download/2011102023233369053.pdf), generated with kicad-footprint-generator")
 		(tags "diode handsolder")
 		(property "Reference" "D2"
-			(at 0 -2.28 360)
+			(at 0 -2.28 0)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "f00486da-cdd8-4751-af97-6bf0eb035fcc")
@@ -3298,7 +3298,7 @@
 			)
 		)
 		(property "Value" "D_Small"
-			(at 0 2.28 360)
+			(at 0 2.28 0)
 			(layer "F.Fab")
 			(uuid "15dcc3a4-971f-4055-9546-3829c447f2c9")
 			(effects
@@ -3499,7 +3499,7 @@
 			(uuid "75eee61a-f482-47fa-b0f0-23f5573eb079")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(uuid "8373dc79-e15f-493a-b194-5b53127fb8b6")
 			(effects
@@ -17341,7 +17341,7 @@
 		(descr "Resistor SMD 1206 (3216 Metric), square (rectangular) end terminal, IPC_7351 nominal, (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
 		(tags "resistor")
 		(property "Reference" "RA30"
-			(at 0 -1.82 360)
+			(at 0 -1.82 0)
 			(layer "F.SilkS")
 			(hide yes)
 			(uuid "5b73d7ad-c887-4bf5-906b-5e33ac915907")
@@ -17353,7 +17353,7 @@
 			)
 		)
 		(property "Value" "100K"
-			(at 0.009 0.056 360)
+			(at 0.009 0.056 0)
 			(layer "F.Fab")
 			(uuid "5996e72f-e16d-45ec-9a0a-f7779d38c875")
 			(effects
@@ -17364,7 +17364,7 @@
 			)
 		)
 		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "61219d42-da3f-4ffb-afcb-3888cd0c09b0")
@@ -17376,7 +17376,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "f8ff95cb-cf37-4f4e-a010-ea72d9ef43e8")
@@ -17388,7 +17388,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "bde1448d-c593-4e21-9b82-f8494b51d076")
@@ -17505,7 +17505,7 @@
 			(uuid "39fd55c9-6a9f-45bf-b050-dfec542073bc")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 0 0 360)
+			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
 			(uuid "5251e7df-4c02-47ab-a202-52fd9853714a")
