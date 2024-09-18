@@ -326,9 +326,15 @@
 			)
 		)
 	)
-	(no_connect
-		(at 72.644 57.658)
-		(uuid "43374cec-57c4-4428-8543-2fa4adfde292")
+	(wire
+		(pts
+			(xy 97.79 60.706) (xy 88.9 60.706)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0c598f90-6953-4d11-beae-2b8eeb9907d8")
 	)
 	(wire
 		(pts
@@ -359,6 +365,16 @@
 			(type default)
 		)
 		(uuid "2e8827fa-6bec-49cf-9786-d7fa37b150d2")
+	)
+	(wire
+		(pts
+			(xy 74.168 67.818) (xy 74.168 72.898)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "62b301e1-9b5c-4193-8b64-2803193dd5ec")
 	)
 	(wire
 		(pts
@@ -402,7 +418,27 @@
 	)
 	(wire
 		(pts
-			(xy 83.058 62.738) (xy 83.058 70.104)
+			(xy 88.9 57.658) (xy 72.644 57.658)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a1dd12bc-1b6f-462f-aff2-f4de3dfc4551")
+	)
+	(wire
+		(pts
+			(xy 74.168 67.818) (xy 72.644 67.818)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a2cfc572-0746-4fc9-8834-a2b8c0f58146")
+	)
+	(wire
+		(pts
+			(xy 83.058 62.738) (xy 83.058 66.802)
 		)
 		(stroke
 			(width 0)
@@ -412,7 +448,7 @@
 	)
 	(wire
 		(pts
-			(xy 80.518 73.6092) (xy 98.0948 73.6092)
+			(xy 80.518 69.85) (xy 97.79 69.85)
 		)
 		(stroke
 			(width 0)
@@ -432,13 +468,13 @@
 	)
 	(wire
 		(pts
-			(xy 91.2876 67.818) (xy 91.2622 60.452)
+			(xy 88.9 60.706) (xy 88.9 57.658)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
-		(uuid "b99933fe-e23a-4be3-bfd4-b4b11f336308")
+		(uuid "b2fafc18-0025-40c8-ae07-49bf65b33e3e")
 	)
 	(wire
 		(pts
@@ -472,17 +508,7 @@
 	)
 	(wire
 		(pts
-			(xy 91.2622 60.452) (xy 97.917 60.452)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "e630668a-71c9-400b-b10e-6df5ee7ec964")
-	)
-	(wire
-		(pts
-			(xy 80.518 65.278) (xy 80.518 73.6092)
+			(xy 80.518 65.278) (xy 80.518 69.85)
 		)
 		(stroke
 			(width 0)
@@ -492,7 +518,7 @@
 	)
 	(wire
 		(pts
-			(xy 83.058 70.104) (xy 98.044 70.104)
+			(xy 83.058 66.802) (xy 97.79 66.802)
 		)
 		(stroke
 			(width 0)
@@ -512,7 +538,7 @@
 	)
 	(wire
 		(pts
-			(xy 72.644 67.818) (xy 91.2876 67.818)
+			(xy 74.168 72.898) (xy 97.79 72.898)
 		)
 		(stroke
 			(width 0)
@@ -533,7 +559,7 @@
 	)
 	(global_label "c_startEngine"
 		(shape input)
-		(at 98.044 70.104 0)
+		(at 97.79 66.802 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -543,7 +569,7 @@
 		)
 		(uuid "20baa82f-bba5-4666-ac9b-98a183324d47")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 98.044 70.104 0)
+			(at 97.79 66.802 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -552,7 +578,38 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 113.2176 70.0246 0)
+			(at 112.9636 66.7226 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
+	(global_label "i_bykeStand"
+		(shape input)
+		(at 97.79 60.706 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "394974aa-19be-4c0f-bef6-29ee86a692e8")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 97.79 60.706 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 111.3912 60.6266 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -595,7 +652,7 @@
 	)
 	(global_label "i_neutral"
 		(shape input)
-		(at 98.0948 73.6092 0)
+		(at 97.79 69.85 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -605,7 +662,7 @@
 		)
 		(uuid "7388acbd-abda-4804-850d-d2a0f9914343")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 98.0948 73.6092 0)
+			(at 97.79 69.85 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -614,7 +671,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 108.7931 73.5298 0)
+			(at 108.4883 69.7706 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -719,7 +776,7 @@
 	)
 	(global_label "c_engineOFF"
 		(shape input)
-		(at 97.917 60.452 0)
+		(at 97.79 72.898 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -729,7 +786,7 @@
 		)
 		(uuid "fd2f9fc4-8aee-4d41-8736-1d77b9d4fb09")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 97.917 60.452 0)
+			(at 97.79 72.898 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -738,7 +795,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 112.123 60.3726 0)
+			(at 111.996 72.8186 0)
 			(effects
 				(font
 					(size 1.27 1.27)
