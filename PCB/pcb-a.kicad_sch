@@ -11062,7 +11062,7 @@
 				(justify left bottom)
 			)
 		)
-		(property "Sheetfile" "mbes_inputs.kicad_sch"
+		(property "Sheetfile" "mbes_pcbA_connectors.kicad_sch"
 			(at 14.4526 26.645 0)
 			(effects
 				(font
