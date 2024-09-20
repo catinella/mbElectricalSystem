@@ -3927,7 +3927,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "02fd948c-6c51-485d-bb88-61f8600cbe2a")
-		(property "Reference" "to_pcbB4"
+		(property "Reference" "to_pcbB3"
 			(at 202.184 124.968 90)
 			(effects
 				(font
@@ -3986,7 +3986,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
-					(reference "to_pcbB4")
+					(reference "to_pcbB3")
 					(unit 1)
 				)
 			)
@@ -4731,7 +4731,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "dce17df1-4519-4187-b6fa-fcf1413f3cc7")
-		(property "Reference" "to_pcbB3"
+		(property "Reference" "to_pcbB4"
 			(at 202.2856 113.538 90)
 			(effects
 				(font
@@ -4798,7 +4798,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
-					(reference "to_pcbB3")
+					(reference "to_pcbB4")
 					(unit 1)
 				)
 			)
