@@ -7097,6 +7097,16 @@
 		)
 		(uuid "ffcb5fbd-c88c-4f0e-b960-766a67235660")
 	)
+	(text "MAX 10K Ohm for ATmega16"
+		(exclude_from_sim no)
+		(at 128.016 40.64 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+		(uuid "b2d60761-4663-455e-8317-e06b079dfaec")
+	)
 	(text "[!] For security reason the I2C extender bus\n    should be used just to manage not critical\n    services"
 		(exclude_from_sim no)
 		(at 236.4232 148.4884 0)
