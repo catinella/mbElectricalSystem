@@ -55,7 +55,7 @@
 //
 #include <mbesMock.h>
 #include <debugTools.h>
-#include <tools/debugConsole.h>
+#include <tools/debugConsoleAPI.h>
 #include <mbesUtilities.h>
 #include <mbesSelector.h>
 

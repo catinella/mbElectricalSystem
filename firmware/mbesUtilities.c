@@ -48,7 +48,7 @@
 #include <mbesUtilities.h>
 #include <mbesSerialConsole.h>
 #include <mbesMock.h>
-#include <tools/debugConsole.h>
+#include <tools/debugConsoleAPI.h>
 #include <stdio.h>
 
 

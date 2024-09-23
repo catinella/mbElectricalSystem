@@ -146,7 +146,7 @@ endif
 ifeq ($(MBES_KEEPTRACK), 0)
 keepTrackModule =
 else
-keepTrackModule = debugConsole.o
+keepTrackModule = debugConsoleAPI.o
 endif
 
 

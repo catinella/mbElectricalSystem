@@ -34,7 +34,7 @@
 #include <mbesHwConfig.h>
 #include <mbesUtilities.h>
 #include <mbesADCengine.h>
-#include <tools/debugConsole.h>
+#include <tools/debugConsoleAPI.h>
 #include <avr/io.h>
 #include <util/twi.h>
 #include <util/delay.h>
