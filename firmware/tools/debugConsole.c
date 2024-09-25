@@ -14,16 +14,20 @@
 // Description:
 //	This software allows you to display the console messages and the pin status too
 //
-// 
-//	Modem control
-//		If a modem disconnect is detected by the terminal interface for a controlling terminal, and if CLOCAL is not
-//		set in the c_cflag field for the terminal, the SIGHUP signal shall be sent to the controlling process for
-//		which the terminal is the controlling terminal.
+//	Testing process
+//		In order to test this debug-console you need to creates a virtual serial-ports couple where they are linked to
+//		eachother. To achieve this result you need the socat tool.
+//		To create the ports-couple type the following command: socat -d -d pty,raw,echo=0 pty,raw,echo=0
 //
+//	Symbols description:
+//		TTY_DATACHUNK    Number of bytes the console will try to read on every round
+//		TTY_MAXLOGSIZE   Max length of the log-message to display
+//		TTY_MAXLOGLINES  Max number of lines to show in the console before to drop the oldest logs
+//		MBES_PINMAPFILE  Header file where every pin's symbol is defined
+//		MBES_ROWMAXSIZE  Maximum length of the MBES_PINMAPFILE rows
+//		MBES_MAXSYMSIZE  Maximum size of every symbol name
+//		CONS_MAXPINS     Maximum number of pins to keep track. Also the max number of symbols
 //
-//	Canonical mode
-//		In this mode input processing, input bytes are assembled into lines, and erase and kill processing shall
-//		occur.
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -40,15 +44,57 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <stdio.h>
-#include <signal.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <signal.h>
 #include <termios.h>
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
+#include <regex.h>
+#include <syslog.h>
+
+#define TTY_DATACHUNK    16
+#define TTY_MAXLOGSIZE   126
+#define TTY_MAXLOGLINES  16
+
+#define MBES_PINMAPFILE  "../mbesPinsMap.h"
+#define MBES_ROWMAXSIZE  256
+#define MBES_MAXSYMSIZE  32
+
+#define CONS_MAXPINS     32
+#define CONS_FACILITY    LOG_LOCAL0
+#define CONS_PINDEMATCH "^[A-Z][0-9]:[0-9]\\+$"
+#define CONS_DEFAREGEX  "^[ \t]*#define[ \t]\\+"
+#define CONS_DEFBREGEX  "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
+//
+// Custom data-types
+//
+
+// Saved log item
+typedef struct _logRow {
+	char           message[TTY_MAXLOGSIZE];
+	uint32_t       tstamp;
+	struct _logRow *next;
+} logRow;
+
+// Pins-Symbols associations DB item
+typedef struct {
+	char pin[3];
+	char symbol[32];
+} ptsDbItem;
+
+// Available commands for the Log Storadge engine
+typedef enum {
+	LGS_ADD,
+	LGS_CLOSE,
+	LGS_PRINT
+} logStorage_cmd;
 
 
 // Global vars
@@ -57,7 +103,66 @@ bool loop = true;
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
+	
+uint8_t iatoi (int *dst, const char *src) {
+	//
+	// Description:
+	//	Intelligent atoi() function
+	//
+	// Arguments:
+	//	dst:  the converted number
+	//	src:  the characters string version of the number
+	//
+	// Returned vale:
+	//	0:  conversion error
+	//	1:  SUCCESS
+	//
+	uint8_t t   = 0;
+	uint8_t err = 1;
+	char    tmp[16];
+	
+	// Zero padding removing...
+	if (strlen(src) > 1) while (src[t] == '0') t++;
+		 
+	strcpy(tmp, (src+t));
+	*dst = atoi(tmp);
+	
+	// Checking for atoi() error
+	if (dst == 0 && (strlen(tmp) > 1 || *tmp != '0'))
+		// ERROR!
+		err = 0;
+	
+	return(err);
+}
+
+uint8_t getMyEpoch(uint32_t *tstamp) {
+	//
+	// Description:
+	//	It returns a time-stamp in milliseconds
+	//
+	// Returned value:
+	//	0: Error
+	//	1: Success
+	//
+	static long int tZero = 0;
+	struct timeval tv = {0, 0};
+	uint8_t        err = 1;
+
+	if (gettimeofday(&tv,NULL) < 0)
+		err = 0;
+	else if (tZero == 0) {
+		tZero = tv.tv_sec*1000 + tv.tv_usec/1000;
+		*&tstamp = 0;
+	} else 
+		*tstamp = (tv.tv_sec*1000 + tv.tv_usec/1000) - tZero;
+
+	return(err);
+}
+
 void sigHandler (int signum) {
+	//
+	// Signals handler
+	//
 	switch (signum) {
 		case SIGTERM:
 			loop = false;
@@ -72,6 +177,14 @@ void sigHandler (int signum) {
 
 
 uint8_t set_ttyAttribs (int fd) {
+	//
+	// Description:
+	//	It sets the serial port's attributes
+	//
+	// Returned value
+	//	0: Error
+	//	1: Success
+	//
 	struct termios tty;
 	uint8_t err = 1;
 
@@ -80,7 +193,7 @@ uint8_t set_ttyAttribs (int fd) {
 		fprintf(stderr, "ERROR! tcgetattr() call failed: %s\n", strerror(errno));
 		err = 0;
 	
-	} else if ((cfsetospeed(&tty, TTYSPEED) < 0) || cfsetispeed(&tty, TTYSPEED) < 0) {
+	} else if ((cfsetospeed(&tty, TTY_SPEED) < 0) || cfsetispeed(&tty, TTY_SPEED) < 0) {
 		// ERROR!
 		fprintf(stderr, "ERROR! cfsetospeed() call failed: %s\n", strerror(errno));
 		err = 0;
@@ -107,6 +220,9 @@ uint8_t set_ttyAttribs (int fd) {
 
 		//
 		// Control modes
+		//	If a modem disconnect is detected by the terminal interface for a controlling terminal, and if CLOCAL is not
+		//	set in the c_cflag field for the terminal, the SIGHUP signal shall be sent to the controlling process for
+		//	which the terminal is the controlling terminal.
 		//
 		tty.c_lflag &= ~(
 			CSIZE   |        // Number of bits transmitted or received per byte
@@ -124,6 +240,8 @@ uint8_t set_ttyAttribs (int fd) {
 
 		//
 		// Local modes
+		//	In canonical mode input bytes are assembled into lines, and erase and kill processing shall occur. For this
+		//	reason this mode will be disabled
 		//
 		tty.c_lflag &= ~(
 			ISIG    |        // (INTR, QUIT, and SUSP) signals disabling 
@@ -158,6 +276,316 @@ uint8_t set_ttyAttribs (int fd) {
 	
 	return(err);
  }
+
+
+logRow* new_logRow (logRow *item) {
+	//
+	// Description:
+	//	This function creates a new object, links it to the argument defined object, and sets the log timestamp field
+	//
+	// Returned value:
+	//	NULL:         malloc() failed
+	//	<valid addr>: The new-oject's address
+	//
+	logRow *newObj = (logRow*)malloc(sizeof(logRow));
+
+	if (newObj != NULL) {
+		// Object creation
+		newObj->message[0] = '\0';
+		newObj->tstamp     = 0;
+		newObj->next       = NULL;
+
+		// Object linking
+		if (item != NULL) item->next = newObj;
+		
+		// Timestamp
+		if (getMyEpoch(&item->tstamp) == 0) {
+			// ERROR!
+			fprintf(stderr, "ERROR! System-time retriving operation failed: %s\n", strerror(errno));
+		}
+	}
+
+	return(newObj);
+}
+
+
+uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
+	//
+	// Description:
+	//	This function manages the log storage and the log display area
+	//	The storage is a tipycal dynamically allocated ring list
+	//
+	//
+	static logRow   *newest = NULL, *oldest = NULL;
+	static uint16_t logCounter = 0;
+	static bool     ringFlag = false;
+	uint8_t         err = 1;
+
+	if (cmd == LGS_ADD) {
+		if (logCounter < TTY_MAXLOGLINES) {
+			newest = new_logRow(newest);
+			if (newest == NULL) {
+				// ERROR!
+				err = 0;
+				syslog(LOG_ERR, "ERROR(%d)! new_logRow() failed", __LINE__);
+			} else {
+				if (logCounter == 0) oldest = newest;
+				logCounter++;
+			}
+
+		} else {
+			// It closes the ring structure
+			if (ringFlag == false) {
+				newest->next = oldest;
+				ringFlag = true;
+			}
+			newest = oldest;
+			oldest = oldest->next ;
+		}
+		strcpy(newest->message, logMsg);
+	
+	} else if (cmd == LGS_CLOSE) {
+		logRow *ptr = NULL;
+		while (oldest != newest) {
+			ptr = oldest;
+			oldest = oldest->next;
+			free(ptr);
+		}
+		if (oldest != NULL) free(oldest);
+
+	} else if (cmd == LGS_PRINT) {
+		//
+		// Data printing mode
+		//
+		logRow *ptr = oldest;
+		if (ptr != NULL) {
+			do {
+				printf("%5d: %s", ptr->tstamp, ptr->message);
+				ptr = ptr->next;
+			} while (ptr != newest);
+		}
+	}
+
+
+	return(err);
+}
+		
+uint8_t pinToSymbol (char *symbol, const char *pin) {
+	//
+	// Description:
+	//	This function find the symbol associated to the argument defined pin and write it in the "symbol" argument.
+	//	During the initialization phase, the procedure reads the mbesPinsMap.h file as a text one, and stores all
+	//	pin-symbol associations inside its static array.
+	//
+	// Arguments:
+	//	symbol:  It is used to store symbol you are looking for
+	// 	pin:     The pin associated to the symbol
+	//	
+	// Returned value:
+	//	0:       ERROR! I cannot compile the regex or the map-file does not exist
+	//	1:       SUCCESS!
+	//	16:      WARNING! No symbol has been associated to the pin
+	//
+	static bool      initFlag = false;
+	static ptsDbItem ptsDb[CONS_MAXPINS];
+	uint8_t          err = 1;
+	regex_t          reegex_a, reegex_b;   // Regexes
+	int              ea = 0,   eb = 0;     // Regexes error codes
+
+	if (initFlag == false) {
+		//
+		// Initialization procedure
+		//
+		
+		// DB cleaning
+		for (uint8_t t=0; t<CONS_MAXPINS; t++) {
+			ptsDb[t].pin[0]    = '\0';
+			ptsDb[t].symbol[0] = '\0';
+		}
+		
+		if (
+			(ea = regcomp(&reegex_a, CONS_DEFAREGEX, 0)) == 0 &&
+			(eb = regcomp(&reegex_b, CONS_DEFBREGEX, 0)) == 0
+		) { 
+			FILE   *FH = NULL;
+			size_t size = MBES_ROWMAXSIZE;
+			char   *row = (char*)malloc(size * sizeof(char)); // getline() requires dinamically allocated memory!!
+			
+			if ((FH = fopen(MBES_PINMAPFILE, "r")) == NULL) {
+				// ERROR!
+				fprintf(stderr, "ERROR! I cannot open the \"%s\" file: %s\n", MBES_PINMAPFILE, strerror(errno));
+				err = 0;
+		
+			} else {
+				regmatch_t pmatch[3]; // Up to 3 sub-expressions
+				char    tmp[MBES_ROWMAXSIZE];
+				uint8_t t = 0, x = 0, st = 0;
+				uint8_t dbIndex = 0;
+				
+				while (feof(FH) == 0 && err == 1) {
+					if (getline(&row, &size, FH) < 0 && errno != 0) {
+						// ERROR!
+						fprintf(stderr, "ERROR! data readingfailed: %s\n", strerror(errno));
+						err = 0;
+						break;
+						
+					} else if (regexec(&reegex_a, row, 3, pmatch, 0) == 0) {
+						strcpy (tmp, (row + pmatch[0].rm_eo));
+						if (regexec(&reegex_b, tmp, 3, pmatch, 0) == 0) {
+							*(tmp+pmatch[0].rm_eo+1) = '\0';
+							t = 0; x = 0; st = 0;
+							while (tmp[t] != '\0') {
+								if (st == 0) {
+									if (tmp[t] != ' ' && tmp[t] != '\t') {
+										(ptsDb[dbIndex].symbol)[x] = tmp[t];
+										x++;
+									} else {
+										(ptsDb[dbIndex].symbol)[x] = '\0';
+										st = 1;
+										x = 0;
+									}
+								} else if (st == 1) {
+									if (tmp[t] == '"') st = 2;
+									
+								} else if (st == 2) {
+									if (tmp[t] != '"') {
+										ptsDb[dbIndex].pin[x] = tmp[t];
+										x++;
+									} else {
+										ptsDb[dbIndex].pin[x] = '\0';
+										break;
+									}
+								}
+								t++;
+							}
+							dbIndex++;
+						}
+					}
+				}
+/*				
+				// The following lines-code block shows you the ptsDb content  (it is just for debug)
+				{
+					uint8_t dbIndex = 0;
+					while (ptsDb[dbIndex].pin[0] != '\0' && dbIndex < CONS_MAXPINS) {
+						printf("%s (%s)\n", ptsDb[dbIndex].symbol, ptsDb[dbIndex].pin);
+						dbIndex++;
+					}
+				}
+*/
+				if (err == 1) initFlag = true;
+				
+				fclose(FH);
+			}
+			free(row);
+			regfree(&reegex_a);
+			regfree(&reegex_b);
+		} else {
+			// ERROR!
+			char regErrBuff[128];
+			if (ea != 0) {
+				regerror(errno, &reegex_a, regErrBuff, 128);
+				syslog(LOG_ERR, "ERROR! I cannot compile the \"%s\" regex: %s\n", CONS_DEFAREGEX, regErrBuff);
+			}
+			if (eb != 0) {
+				regerror(errno, &reegex_b, regErrBuff, 128);
+				syslog(LOG_ERR, "ERROR! I cannot compile the \"%s\" regex: %s\n", CONS_DEFBREGEX, regErrBuff);
+			}
+			
+		}
+	}
+	
+	if (initFlag == true) {
+		uint8_t dbIndex = 0;
+		
+		err = 16;
+		while (ptsDb[dbIndex].pin[0] != '\0' && dbIndex < CONS_MAXPINS) {
+			if (strcmp(ptsDb[dbIndex].pin, pin) == 0) {
+				err = 1;
+				strcpy(symbol, ptsDb[dbIndex].symbol);
+				break;
+			} else {
+				dbIndex++;
+			}
+		}
+	}
+	return(err);
+}
+
+
+uint8_t pinAreaStorage (logStorage_cmd cmd, const char *logMsg) {
+	//
+	// Description:
+	//
+	//
+	uint8_t err = 1;
+	
+	if (cmd == LGS_ADD) {
+
+	} else if (cmd == LGS_CLOSE) {
+
+	} else if (cmd == LGS_PRINT) {
+		// TODO: rows/colums calculating
+		// 
+	}
+	return(err);
+}
+
+
+uint8_t checkPinStatus (char *pin, const char *log, int *value) {
+	//
+	// Description:
+	//	This function checks for special-log syntax inside the argument defined (log) string.
+	//	The special ones are used to keep track of the pins' value, and they have to respect the following syntax:
+	//		<port><pin-number>:<int value> // port=<A-Z>, pin=<0-9>, value=<0..n>
+	//
+	// Arguments:
+	//	log:    The received log message
+	//	pin:    The memory area where the pin-id will be stored
+	//	value:  The area where the pin'svalue will be stored. It can be an ADC result, too.
+	//
+	// Returned value:
+	//	0:  ERROR!
+	//	1:  It is a pin status information
+	//
+	static regex_t regx;
+	static bool    initFlag = false;
+	uint8_t        err = 1;
+	
+	if (initFlag == false) {
+		if (regcomp(&regx, CONS_PINDEMATCH, 0) == 0) {
+			initFlag = true;
+			syslog(LOG_INFO, "OK: \"%s\" regex has been compiled", CONS_PINDEMATCH);
+		} else {
+			// ERROR!
+			char regErrBuff[128];
+			regerror(errno, &regx, regErrBuff, 128);
+			syslog(LOG_ERR, "ERROR(%d)! I cannot compile the regex: %s\n", __LINE__, regErrBuff);
+			err = 0;
+		}
+	} 
+	
+	if (initFlag) {
+		regmatch_t pmatch[3];
+		
+		if (regexec(&regx, log, 3, pmatch, 0) == 0) {
+			syslog(LOG_INFO, "------->%s(%d)", __FUNCTION__, __LINE__);
+			strncpy(pin, log, 2);
+			pin[2] = '\0';
+			if (iatoi(value, (log+3)) == 0) {
+				// ERROR!
+				syslog(LOG_ERR, "ERROR(%d)! atoi() failed\n", __LINE__);
+				err = 0;
+			}
+		} else
+			// It is a normal log message
+			err = 4;
+			
+	}
+	
+	return(err);
+}
+	
+
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                     M A I N
 //------------------------------------------------------------------------------------------------------------------------------
@@ -166,7 +594,52 @@ int main (int argc, char *argv[]) {
 	struct stat buff;
 	int         ttyFD;
 
+/*
+	//
+	// Enable the followin scope, to test the pinToSimbol() function
+	//
+	{
+		char symbol[MBES_MAXSYMSIZE];
+		char pin[3];
+		uint8_t te = 0;
+		
+		for (int x=0; x<5; x++) {
+			for (int t=0; t<8; t++) {
+				switch (x) {
+					case 0:
+						sprintf(pin, "A%d", t);
+					break;
+					
+					case 1:
+						sprintf(pin, "B%d", t);
+					break;
+					
+					case 2:
+						sprintf(pin, "C%d", t);
+					break;
+					
+					case 3:
+						sprintf(pin, "D%d", t);
+					break;
+					
+					case 4:
+						sprintf(pin, "0%d", t);
+					break;
+				}
+				te = pinToSymbol(symbol, pin);
+				if (te == 0) {
+					fprintf(stderr, "ERROR! pinToSymbol() call failed\n");
+					break;
+				} else if (te == 1) {
+					printf("%s (%s)\n", symbol, pin);
+				} else {
+					fprintf(stderr, "WARNING! No symbol defined for %s\n", pin);
+				}
+			}
+		}
+	}
 
+*/
 	if (argc != 2 || *argv[1] == '\0') {
 		// ERROR!
 		fprintf(stderr, "ERROR! port name missing\n");
@@ -190,16 +663,120 @@ int main (int argc, char *argv[]) {
 	} else if (set_ttyAttribs(ttyFD) == 0) {
 		// ERROR!
 		err = 135;
-	
-	} else {
-		char buff;
-		int  ch = 0;
 
-		while (read(ttyFD, &buff, 1) >= 0 && loop) 
-			fprintf(stderr, "%c", buff);
+	} else {
+		char     chunk[TTY_DATACHUNK];
+		char     buff[TTY_MAXLOGSIZE];
+		int      nb       = 0;                // number of received bytes
+		char     *lPtr    = NULL;             // Left side pointer
+		char     *rPtr    = NULL;             // Right side pointer
+		uint8_t  pSize    = 0;
+		uint8_t  buffIndx = 0;                // Database's index
+		bool     tooLong  = false;            // Flag to indicate too-long messages
+		bool     nlFlag   = false;            // When it is true, one or more end-of-line chars are present
+		int      value    = 0;                // PIN's value
+		char     pin[3]   = {'\0','\0','\0'}; // PIN-id
+		
+
+		openlog(argv[0], LOG_NDELAY|LOG_PID, CONS_FACILITY);
+		syslog(LOG_INFO, "------------------------- [DEBUG CONSOLE START] -------------------------");
+
+		memset(buff,  '\0', TTY_MAXLOGSIZE);
+		
+		while (loop) {
+			memset(chunk, '\0', TTY_DATACHUNK);
+			nb = read(ttyFD, &chunk, (TTY_DATACHUNK * sizeof(char)));
+			
+			if (nb < 0) {
+				// ERROR!
+				syslog(LOG_ERR, "ERROR! data reading operation failed: %s\n", strerror(errno));
+				loop = 0;
+				err = 137;
+				
+			} else if (nb == 0) {
+				// Timeout (NO new messages)
+				//printf("!\n");
+				
+			} else {
+				// Starting conditions
+				lPtr = chunk; rPtr = NULL; nlFlag = true;
+
+				syslog(LOG_INFO, "New data detected");
+				while (nlFlag) {
+					if ((rPtr = strchr(lPtr, '\n')) == NULL) {
+						if (tooLong == false) {
+							pSize = abs(chunk + nb/sizeof(char) - lPtr);
+							if ((pSize + buffIndx + 3) > TTY_MAXLOGSIZE) {
+								strcpy((buff + buffIndx), "...");
+								tooLong = true;
+							} else { 
+								strncpy((buff + buffIndx), lPtr, pSize);
+							}
+							buffIndx += pSize;
+						}
+						nlFlag = false;
+
+					} else {
+						if (tooLong == false) {
+							pSize = abs(rPtr - lPtr);
+							if ((pSize + buffIndx + 3) > TTY_MAXLOGSIZE) {
+								strcpy((buff + buffIndx), "...");
+								tooLong = true;
+						
+							} else {
+								strncpy((buff + buffIndx), lPtr, pSize);
+								*(buff + buffIndx + pSize) = '\0';
+								syslog(LOG_INFO, "Acknowledged log: %s", buff);
+								
+								err = checkPinStatus(pin, buff, &value);
+								if (err == 0) {
+									// ERROR!
+									syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
+			
+								} else if (err == 1) {
+									// Keeping-track info
+									if (pinAreaStorage (LGS_ADD, buff) == 1) {
+									} else {
+										// ERROR!
+										syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
+									}
+			
+								} else {
+									if (logAreaStorage(LGS_ADD, buff) == 0)
+										// ERROR!
+										syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
+									else {
+										syslog(LOG_INFO, "OK the log-message has been saved");
+									}
+								};
+								
+								lPtr = rPtr + 1;
+							}
+						}
+
+						//TODO: is a special log
+							
+					//	} else /{
+					//		// Normal log
+					//		logAreaStorage(LGS_ADD, buff) {
+					//	}
+
+						memset(buff, '\0', TTY_MAXLOGSIZE);
+						buffIndx = 0;
+						tooLong = false;
+					}
+				}
+
+				// TODO: print PINs status report
+				
+				// Normal log section printing
+				//logAreaStorage(LGS_PRINT, NULL);
+			}
+		}
 
 		close(ttyFD);
+		closelog();
 	}
-	
+
 	return(err);
 }
