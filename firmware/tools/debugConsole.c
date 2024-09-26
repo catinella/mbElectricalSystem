@@ -20,14 +20,14 @@
 //		To create the ports-couple type the following command: socat -d -d pty,raw,echo=0 pty,raw,echo=0
 //
 //	Symbols description:
-//		TTY_DATACHUNK    Number of bytes the console will try to read on every round
-//		TTY_MAXLOGSIZE   Max length of the log-message to display
-//		TTY_MAXLOGLINES  Max number of lines to show in the console before to drop the oldest logs
-//		MBES_PINMAPFILE  Header file where every pin's symbol is defined
-//		MBES_ROWMAXSIZE  Maximum length of the MBES_PINMAPFILE rows
-//		MBES_MAXSYMSIZE  Maximum size of every symbol name
-//		CONS_MAXPINS     Maximum number of pins to keep track. Also the max number of symbols
-//
+//		TTY_DATACHUNK     Number of bytes the console will try to read on every round
+//		TTY_MAXLOGSIZE    Max length of the log-message to display
+//		TTY_MAXLOGLINES   Max number of lines to show in the console before to drop the oldest logs
+//		MBES_PINMAPFILE   Header file where every pin's symbol is defined
+//		MBES_ROWMAXSIZE   Maximum length of the MBES_PINMAPFILE rows
+//		MBES_MAXSYMSIZE   Maximum size of every symbol name
+//		CONS_MAXPINS      Maximum number of pins to keep track. Also the max number of symbols
+//		MBES_MAXNUMOFPINS Max number of monitored pins
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -60,20 +60,23 @@
 #include <regex.h>
 #include <syslog.h>
 #include <unistd.h>
+#include <math.h>
 
-#define TTY_DATACHUNK    16
-#define TTY_MAXLOGSIZE   126
-#define TTY_MAXLOGLINES  16
 
-#define MBES_PINMAPFILE  "../mbesPinsMap.h"
-#define MBES_ROWMAXSIZE  256
-#define MBES_MAXSYMSIZE  32
+#define TTY_DATACHUNK     16
+#define TTY_MAXLOGSIZE    126
+#define TTY_MAXLOGLINES   16
 
-#define CONS_MAXPINS     32
-#define CONS_FACILITY    LOG_LOCAL0
-#define CONS_PINDEMATCH "^[A-Z][0-9]:[0-9]\\+$"
-#define CONS_DEFAREGEX  "^[ \t]*#define[ \t]\\+"
-#define CONS_DEFBREGEX  "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
+#define MBES_PINMAPFILE   "../mbesPinsMap.h"
+#define MBES_ROWMAXSIZE   256
+#define MBES_MAXSYMSIZE   32
+#define MBES_MAXNUMOFPINS 64
+
+#define CONS_MAXPINS      32
+#define CONS_FACILITY     LOG_LOCAL0
+#define CONS_PINDEMATCH   "^[A-Z][0-9]:[0-9]\\+$"
+#define CONS_DEFAREGEX    "^[ \t]*#define[ \t]\\+"
+#define CONS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
 
 #define CONS_KEEPTRACK syslog(LOG_INFO, "------->%s(%d)", __FUNCTION__, __LINE__);
 
@@ -95,12 +98,25 @@ typedef struct {
 	char symbol[32];
 } ptsDbItem;
 
+// Pins status DB item
+typedef struct {
+	char     pin[3];
+	uint32_t value;
+} pinsDbItem;
+
 // Available commands for the Log Storadge engine
 typedef enum {
 	LGS_ADD,
 	LGS_CLOSE,
 	LGS_PRINT
 } logStorage_cmd;
+
+// Available commands for the monitored-pins DB ngine
+typedef enum {
+	MPS_UPDATE,
+	MPS_SETSCR,
+	MPS_PRINT
+} mpsStorage_cmd;
 
 
 // Global vars
@@ -340,8 +356,16 @@ uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
 	//
 	// Description:
 	//	This function manages the log storage and the log display area
-	//	The storage is a tipycal dynamically allocated ring list
+	//	The storage is a tipycal dynamically allocated ring list.
 	//
+	//	Available commands:
+	//		LGS_ADD     It saves the new log-message in the ring-queue 
+	//		LGS_CLOSE   It releases all the used system resources
+	//		LGS_PRINT   It prints all queued log-messages on screen
+	//
+	// Returned value:
+	//	O:   ERROR! Out of memory
+	//    1:   SUCCESS
 	//
 	static logRow   *newest = NULL, *oldest = NULL;
 	static uint16_t logCounter = 0;
@@ -543,20 +567,53 @@ uint8_t pinToSymbol (char *symbol, const char *pin) {
 }
 
 
-uint8_t pinAreaStorage (logStorage_cmd cmd, const char *logMsg) {
+uint8_t pinAreaStorage (mpsStorage_cmd cmd, const char *pin, uint32_t value) {
 	//
 	// Description:
+	//	This function manages the monitored-pins DB and the visualization process of its items
+	//
 	//
 	//
 	uint8_t err = 1;
+	static pinsDbItem pinsDb[MBES_MAXNUMOFPINS];
+	static uint8_t    counter = 0;
+	static uint16_t   screenCols = 0;
 	
-	if (cmd == LGS_ADD) {
+	if (cmd == MPS_UPDATE) {
+		uint8_t t = 0;
+		while (t < counter) {
+			if (strcmp(pin, pinsDb[t].pin) == 0) break;
+			else                                 t++;
+		}
+		if (t == counter) {
+			// New pin adding...
+			strcpy(pinsDb[counter].pin, pin);
+			pinsDb[counter].value = value;
+			counter++;
+		} else {
+			// Updating...
+			pinsDb[t].value = value;
+		}
+		
+	} else if (cmd == MPS_SETSCR) {
+		screenCols = (uint16_t)value;
 
-	} else if (cmd == LGS_CLOSE) {
-
-	} else if (cmd == LGS_PRINT) {
-		// TODO: rows/colums calculating
-		// 
+	} else if (cmd == MPS_PRINT) {
+		// Colums calculating
+		uint8_t t = 0, x = 0;
+		uint8_t cols = roundf((screenCols / (MBES_MAXSYMSIZE + 4)));
+		cols = cols == 0 ? 1 : cols;
+		
+		for (x = 0; x < counter; x++) {
+			printf("%s:%d", pinsDb[x].pin, pinsDb[x].value);
+			if (t == cols) {
+				printf("\n");
+				t = 0;
+			} else {
+				printf("      ");
+				t++;
+			}
+		}	
 	}
 	return(err);
 }
@@ -765,7 +822,7 @@ int main (int argc, char *argv[]) {
 			
 								} else if (err == 1) {
 									// Keeping-track info
-									if (pinAreaStorage (LGS_ADD, buff) == 1) {
+									if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
 									} else {
 										// ERROR!
 										syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
@@ -800,6 +857,7 @@ int main (int argc, char *argv[]) {
 					system("clear");
 					
 					ioctl(0, TIOCGWINSZ, &ts);
+					pinAreaStorage (MPS_SETSCR, NULL, ts.ws_col);
 					//printf ("columns %d\n", ts.ws_col);
 	
 					linePrinting('-', ts.ws_col);
@@ -808,6 +866,7 @@ int main (int argc, char *argv[]) {
 					linePrinting('=', ts.ws_col);
 	
 					// TODO: print PINs status report
+					pinAreaStorage (MPS_PRINT, NULL, 0l);
 					
 					// Normal log section printing
 					linePrinting('-', ts.ws_col);
