@@ -54,10 +54,12 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #include <time.h>
 #include <regex.h>
 #include <syslog.h>
+#include <unistd.h>
 
 #define TTY_DATACHUNK    16
 #define TTY_MAXLOGSIZE   126
@@ -72,6 +74,10 @@
 #define CONS_PINDEMATCH "^[A-Z][0-9]:[0-9]\\+$"
 #define CONS_DEFAREGEX  "^[ \t]*#define[ \t]\\+"
 #define CONS_DEFBREGEX  "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
+
+#define CONS_KEEPTRACK syslog(LOG_INFO, "------->%s(%d)", __FUNCTION__, __LINE__);
+
+
 //
 // Custom data-types
 //
@@ -135,6 +141,26 @@ uint8_t iatoi (int *dst, const char *src) {
 	return(err);
 }
 
+	
+void linePrinting (char pattern, uint16_t colums) {
+	//
+	// Description:
+	//	It prints a line on the screen
+	//
+	for (uint16_t t=0; t<colums; t++) printf("%c", pattern);
+	printf("\n");
+	return;
+}
+	
+				
+void titlePrinting (const char *title, uint16_t colums) {
+	uint16_t padSize = (colums - strlen(title))/2;
+	for (uint16_t t=0; t<padSize; t++) printf(" ");
+	printf("%s\n", title);
+	return;
+}
+
+
 uint8_t getMyEpoch(uint32_t *tstamp) {
 	//
 	// Description:
@@ -158,6 +184,7 @@ uint8_t getMyEpoch(uint32_t *tstamp) {
 
 	return(err);
 }
+
 
 void sigHandler (int signum) {
 	//
@@ -343,6 +370,7 @@ uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
 			oldest = oldest->next ;
 		}
 		strcpy(newest->message, logMsg);
+		//syslog(LOG_INFO, "(addr=%p) : %s", newest, newest->message);
 	
 	} else if (cmd == LGS_CLOSE) {
 		logRow *ptr = NULL;
@@ -359,11 +387,14 @@ uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
 		//
 		logRow *ptr = oldest;
 		if (ptr != NULL) {
-			do {
-				printf("%5d: %s", ptr->tstamp, ptr->message);
+			while (ptr != newest) {
+				printf("%5d: %s\n", ptr->tstamp, ptr->message);
 				ptr = ptr->next;
-			} while (ptr != newest);
-		}
+			}
+			if (newest != NULL)
+				printf("%5d: %s\n", newest->tstamp, newest->message);
+		} else
+			printf("\n\n\n       EMPTY!!\n\n\n");
 	}
 
 
@@ -568,7 +599,7 @@ uint8_t checkPinStatus (char *pin, const char *log, int *value) {
 		regmatch_t pmatch[3];
 		
 		if (regexec(&regx, log, 3, pmatch, 0) == 0) {
-			syslog(LOG_INFO, "------->%s(%d)", __FUNCTION__, __LINE__);
+			CONS_KEEPTRACK
 			strncpy(pin, log, 2);
 			pin[2] = '\0';
 			if (iatoi(value, (log+3)) == 0) {
@@ -584,7 +615,6 @@ uint8_t checkPinStatus (char *pin, const char *log, int *value) {
 	
 	return(err);
 }
-	
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                     M A I N
@@ -726,7 +756,7 @@ int main (int argc, char *argv[]) {
 							} else {
 								strncpy((buff + buffIndx), lPtr, pSize);
 								*(buff + buffIndx + pSize) = '\0';
-								syslog(LOG_INFO, "Acknowledged log: %s", buff);
+								syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
 								
 								err = checkPinStatus(pin, buff, &value);
 								if (err == 0) {
@@ -754,23 +784,37 @@ int main (int argc, char *argv[]) {
 							}
 						}
 
-						//TODO: is a special log
-							
-					//	} else /{
-					//		// Normal log
-					//		logAreaStorage(LGS_ADD, buff) {
-					//	}
-
 						memset(buff, '\0', TTY_MAXLOGSIZE);
 						buffIndx = 0;
 						tooLong = false;
 					}
+				}	
+					
+				//------------------------------------------
+				// Debug console displaying
+				//------------------------------------------
+				{
+					struct winsize ts;
+					
+					CONS_KEEPTRACK
+					system("clear");
+					
+					ioctl(0, TIOCGWINSZ, &ts);
+					//printf ("columns %d\n", ts.ws_col);
+	
+					linePrinting('-', ts.ws_col);
+					titlePrinting("D E B U G   C O N S O L E", ts.ws_col);
+					
+					linePrinting('=', ts.ws_col);
+	
+					// TODO: print PINs status report
+					
+					// Normal log section printing
+					linePrinting('-', ts.ws_col);
+					logAreaStorage(LGS_PRINT, NULL);
+					
+					linePrinting('=', ts.ws_col);
 				}
-
-				// TODO: print PINs status report
-				
-				// Normal log section printing
-				//logAreaStorage(LGS_PRINT, NULL);
 			}
 		}
 
