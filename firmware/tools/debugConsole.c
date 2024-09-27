@@ -236,7 +236,7 @@ uint8_t set_ttyAttribs (int fd) {
 		fprintf(stderr, "ERROR! tcgetattr() call failed: %s\n", strerror(errno));
 		err = 0;
 	
-	} else if ((cfsetospeed(&tty, TTY_SPEED) < 0) || cfsetispeed(&tty, TTY_SPEED) < 0) {
+	} else if ((cfsetospeed(&tty, TTYSPEED) < 0) || cfsetispeed(&tty, TTYSPEED) < 0) {
 		// ERROR!
 		fprintf(stderr, "ERROR! cfsetospeed() call failed: %s\n", strerror(errno));
 		err = 0;
@@ -246,7 +246,10 @@ uint8_t set_ttyAttribs (int fd) {
 		//
 		// Input modes
 		//
-		tty.c_iflag |= IGNPAR; // Ignore data parity check for
+		tty.c_iflag |= (
+			ICRNL  |         // No CR mapping to NL
+			IGNPAR           // Ignore data parity check forA
+		);
 		tty.c_iflag &= ~(	
 			IGNBRK |         // Break-condition is not ignored
 			BRKINT |         // No interrupt signal on break
@@ -254,7 +257,6 @@ uint8_t set_ttyAttribs (int fd) {
 			ISTRIP |         // All 8-bits data are processed
 			INLCR  |         // No NL mapping to CR
 			IGNCR  |         // CR-character ignoring disabled 
-			ICRNL  |         // No CR mapping to NL
 			IXON   |         // No input XON
 			IXANY  |         // NO output suspending support
 			IXOFF            // NO input XOFF
@@ -702,6 +704,18 @@ uint8_t checkPinStatus (char *pin, const char *log, int *value) {
 	return(err);
 }
 
+
+bool checkForValidData (const char *string) {
+	uint8_t size = strlen(string);
+	uint8_t err = 0;
+	for (uint8_t t=0; t<size; t++) {
+		if (string[t] > ' ') {
+			err = 1;
+			break;
+		}
+	}
+	return(err);
+}
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                     M A I N
 //------------------------------------------------------------------------------------------------------------------------------
@@ -844,28 +858,29 @@ int main (int argc, char *argv[]) {
 								*(buff + buffIndx + pSize) = '\0';
 								//syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
 								
-								err = checkPinStatus(pin, buff, &value);
-								if (err == 0) {
-									// ERROR!
-									syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
-			
-								} else if (err == 1) {
-									// Keeping-track info
-									if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
+								if (checkForValidData(buff)) {
+									err = checkPinStatus(pin, buff, &value);
+									if (err == 0) {
+										// ERROR!
+										syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
+				
+									} else if (err == 1) {
+										// Keeping-track info
+										if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
+										} else {
+											// ERROR!
+											syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
+										}
+				
 									} else {
-										// ERROR!
-										syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
-									}
-			
-								} else {
-									if (logAreaStorage(LGS_ADD, buff) == 0)
-										// ERROR!
-										syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
-									else {
-										//syslog(LOG_INFO, "OK the log-message has been saved");
-									}
-								};
-								
+										if (logAreaStorage(LGS_ADD, buff) == 0)
+											// ERROR!
+											syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
+										else {
+											//syslog(LOG_INFO, "OK the log-message has been saved");
+										}
+									};
+								}
 								lPtr = rPtr + 1;
 							}
 						}
@@ -895,7 +910,6 @@ int main (int argc, char *argv[]) {
 				
 				linePrinting('=', ts.ws_col);
 
-				// TODO: print PINs status report
 				pinAreaStorage (MPS_PRINT, NULL, 0l);
 				
 				// Normal log section printing
