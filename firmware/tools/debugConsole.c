@@ -69,7 +69,7 @@
 
 #define MBES_PINMAPFILE   "../mbesPinsMap.h"
 #define MBES_ROWMAXSIZE   256
-#define MBES_MAXSYMSIZE   32
+#define MBES_MAXSYMSIZE   24
 #define MBES_MAXNUMOFPINS 64
 
 #define CONS_MAXPINS      32
@@ -194,7 +194,7 @@ uint8_t getMyEpoch(uint32_t *tstamp) {
 		err = 0;
 	else if (tZero == 0) {
 		tZero = tv.tv_sec*1000 + tv.tv_usec/1000;
-		*&tstamp = 0;
+		*tstamp = 0;
 	} else 
 		*tstamp = (tv.tv_sec*1000 + tv.tv_usec/1000) - tZero;
 
@@ -340,12 +340,6 @@ logRow* new_logRow (logRow *item) {
 
 		// Object linking
 		if (item != NULL) item->next = newObj;
-		
-		// Timestamp
-		if (getMyEpoch(&item->tstamp) == 0) {
-			// ERROR!
-			fprintf(stderr, "ERROR! System-time retriving operation failed: %s\n", strerror(errno));
-		}
 	}
 
 	return(newObj);
@@ -394,7 +388,14 @@ uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
 			oldest = oldest->next ;
 		}
 		strcpy(newest->message, logMsg);
-		//syslog(LOG_INFO, "(addr=%p) : %s", newest, newest->message);
+		
+		// Timestamp
+		if (getMyEpoch(&(newest->tstamp)) == 0) {
+			// ERROR!
+			fprintf(stderr, "ERROR! System-time retriving operation failed: %s\n", strerror(errno));
+		}
+		//syslog(LOG_INFO, "timestamp: %d", newObj->tstamp);
+
 	
 	} else if (cmd == LGS_CLOSE) {
 		logRow *ptr = NULL;
@@ -567,6 +568,20 @@ uint8_t pinToSymbol (char *symbol, const char *pin) {
 }
 
 
+void fillUp (char *string, uint8_t newsz) {
+	//
+	// Description:
+	//	This function is used to get a pre-defined size string. To achieve the result, the procedure will append
+	//	enough spaces to get the argument define size
+	//
+	uint8_t t = 0;
+	for (t = strlen(string); t < newsz; t++) string[t] = ' ';
+	string[t] = '\0';
+	
+	return;
+}
+
+
 uint8_t pinAreaStorage (mpsStorage_cmd cmd, const char *pin, uint32_t value) {
 	//
 	// Description:
@@ -601,11 +616,20 @@ uint8_t pinAreaStorage (mpsStorage_cmd cmd, const char *pin, uint32_t value) {
 	} else if (cmd == MPS_PRINT) {
 		// Colums calculating
 		uint8_t t = 0, x = 0;
-		uint8_t cols = roundf((screenCols / (MBES_MAXSYMSIZE + 4)));
+		uint8_t cols = roundf(((screenCols) / (MBES_MAXSYMSIZE + 5)) - 1);
+		char    *buff = (char*)malloc(MBES_MAXSYMSIZE+5);
+		
 		cols = cols == 0 ? 1 : cols;
 		
 		for (x = 0; x < counter; x++) {
-			printf("%s:%d", pinsDb[x].pin, pinsDb[x].value);
+			// Symbol retriving
+			if (pinToSymbol(buff, pinsDb[x].pin) != 1)
+				strcpy(buff, pinsDb[x].pin);
+				
+			sprintf((buff + strlen(buff)), ":%d", pinsDb[x].value);
+			fillUp(buff, MBES_MAXSYMSIZE);
+			printf("%s", buff);
+			
 			if (t == cols) {
 				printf("\n");
 				t = 0;
@@ -613,7 +637,9 @@ uint8_t pinAreaStorage (mpsStorage_cmd cmd, const char *pin, uint32_t value) {
 				printf("      ");
 				t++;
 			}
-		}	
+		}
+		free(buff);
+		if (t != 0) printf("\n");
 	}
 	return(err);
 }
@@ -642,7 +668,6 @@ uint8_t checkPinStatus (char *pin, const char *log, int *value) {
 	if (initFlag == false) {
 		if (regcomp(&regx, CONS_PINDEMATCH, 0) == 0) {
 			initFlag = true;
-			syslog(LOG_INFO, "OK: \"%s\" regex has been compiled", CONS_PINDEMATCH);
 		} else {
 			// ERROR!
 			char regErrBuff[128];
@@ -653,21 +678,25 @@ uint8_t checkPinStatus (char *pin, const char *log, int *value) {
 	} 
 	
 	if (initFlag) {
-		regmatch_t pmatch[3];
-		
-		if (regexec(&regx, log, 3, pmatch, 0) == 0) {
-			CONS_KEEPTRACK
-			strncpy(pin, log, 2);
-			pin[2] = '\0';
-			if (iatoi(value, (log+3)) == 0) {
-				// ERROR!
-				syslog(LOG_ERR, "ERROR(%d)! atoi() failed\n", __LINE__);
-				err = 0;
-			}
-		} else
-			// It is a normal log message
-			err = 4;
+		if (pin == NULL) {
+			// System resources releasing
+			regfree(&regx);
 			
+		} else {
+			regmatch_t pmatch[3];
+		
+			if (regexec(&regx, log, 3, pmatch, 0) == 0) {
+				strncpy(pin, log, 2);
+				pin[2] = '\0';
+				if (iatoi(value, (log+3)) == 0) {
+					// ERROR!
+					syslog(LOG_ERR, "ERROR(%d)! atoi() failed\n", __LINE__);
+					err = 0;
+				}
+			} else
+				// It is a normal log message
+				err = 4;
+		}
 	}
 	
 	return(err);
@@ -766,7 +795,7 @@ int main (int argc, char *argv[]) {
 		
 
 		openlog(argv[0], LOG_NDELAY|LOG_PID, CONS_FACILITY);
-		syslog(LOG_INFO, "------------------------- [DEBUG CONSOLE START] -------------------------");
+		//syslog(LOG_INFO, "------------------------- [DEBUG CONSOLE START] -------------------------");
 
 		memset(buff,  '\0', TTY_MAXLOGSIZE);
 		
@@ -788,7 +817,7 @@ int main (int argc, char *argv[]) {
 				// Starting conditions
 				lPtr = chunk; rPtr = NULL; nlFlag = true;
 
-				syslog(LOG_INFO, "New data detected");
+				//syslog(LOG_INFO, "New data detected");
 				while (nlFlag) {
 					if ((rPtr = strchr(lPtr, '\n')) == NULL) {
 						if (tooLong == false) {
@@ -813,7 +842,7 @@ int main (int argc, char *argv[]) {
 							} else {
 								strncpy((buff + buffIndx), lPtr, pSize);
 								*(buff + buffIndx + pSize) = '\0';
-								syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
+								//syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
 								
 								err = checkPinStatus(pin, buff, &value);
 								if (err == 0) {
@@ -833,7 +862,7 @@ int main (int argc, char *argv[]) {
 										// ERROR!
 										syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
 									else {
-										syslog(LOG_INFO, "OK the log-message has been saved");
+										//syslog(LOG_INFO, "OK the log-message has been saved");
 									}
 								};
 								
@@ -847,36 +876,38 @@ int main (int argc, char *argv[]) {
 					}
 				}	
 					
-				//------------------------------------------
-				// Debug console displaying
-				//------------------------------------------
-				{
-					struct winsize ts;
-					
-					CONS_KEEPTRACK
-					system("clear");
-					
-					ioctl(0, TIOCGWINSZ, &ts);
-					pinAreaStorage (MPS_SETSCR, NULL, ts.ws_col);
-					//printf ("columns %d\n", ts.ws_col);
-	
-					linePrinting('-', ts.ws_col);
-					titlePrinting("D E B U G   C O N S O L E", ts.ws_col);
-					
-					linePrinting('=', ts.ws_col);
-	
-					// TODO: print PINs status report
-					pinAreaStorage (MPS_PRINT, NULL, 0l);
-					
-					// Normal log section printing
-					linePrinting('-', ts.ws_col);
-					logAreaStorage(LGS_PRINT, NULL);
-					
-					linePrinting('=', ts.ws_col);
-				}
+			}
+			
+			//------------------------------------------
+			// Debug console displaying
+			//------------------------------------------
+			{
+				struct winsize ts;
+				
+				system("clear");
+				
+				ioctl(0, TIOCGWINSZ, &ts);
+				pinAreaStorage (MPS_SETSCR, NULL, ts.ws_col);
+				//printf ("columns %d\n", ts.ws_col);
+
+				linePrinting('-', ts.ws_col);
+				titlePrinting("D E B U G   C O N S O L E", ts.ws_col);
+				
+				linePrinting('=', ts.ws_col);
+
+				// TODO: print PINs status report
+				pinAreaStorage (MPS_PRINT, NULL, 0l);
+				
+				// Normal log section printing
+				linePrinting('-', ts.ws_col);
+				logAreaStorage(LGS_PRINT, NULL);
+				
+				linePrinting('=', ts.ws_col);
 			}
 		}
-
+		
+		checkPinStatus(NULL, NULL, NULL);
+		logAreaStorage(LGS_CLOSE, NULL);
 		close(ttyFD);
 		closelog();
 	}
