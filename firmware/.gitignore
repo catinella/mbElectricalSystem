@@ -1,9 +1,0 @@
-nbproject
-.generated_files
-Makefile.conf
-Makefile.dbgsyms
-Makefile
-*.o
-*.d
-*.hex
-*.elf
