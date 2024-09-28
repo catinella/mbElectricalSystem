@@ -147,9 +147,12 @@ int main(void) {
 	pinDirectionRegister(o_KEEPALIVE,   OUTPUT);
 	pinDirectionRegister(o_STARTENGINE, OUTPUT);
 	pinDirectionRegister(o_ENGINEON,    OUTPUT);
+	pinDirectionRegister(o_MCPDEVRESET, OUTPUT);
 	setPinValue(o_KEEPALIVE,   0);
 	setPinValue(o_STARTENGINE, 0);
 	setPinValue(o_ENGINEON,    0);
+	setPinValue(o_MCPDEVRESET, 1); 
+
 
 	while (loop) {
 
@@ -431,6 +434,14 @@ int main(void) {
 			setPinValue(o_DOWNLIGHT,  1);
 
 			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
+			
+		} else if (FSM == I2CBUS_RESET) {
+			setPinValue(o_MCPDEVRESET, 0); 
+			LOGMSG("WARNING! MCP2308 device reset\n\r");
+			_delay_ms(200);
+			setPinValue(o_MCPDEVRESET, 1); 
+			_delay_ms(400);
+			FSM = MPC23008_INIT;
 		}
 
 
