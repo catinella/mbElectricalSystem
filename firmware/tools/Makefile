@@ -42,14 +42,21 @@ endif
 
 all:			debugConsole
 
-%.o:			%.c
-			gcc -Wall $(CCOPTS) -c $< -DTTYSPEED=$(TTYSPEED) -o $@
+debugConsole.o:	debugConsole.c
+			@echo "[ CC ] $@"
+			@gcc -Wall $(CCOPTS) -c $< -DTTYSPEED=$(TTYSPEED) -I. -o $@
 
-debugConsole:	debugConsole.o
-			gcc -Wall $^ -o $@
+%.o:			%.c %.h
+			@echo "[ CC ] $@"
+			@gcc -Wall $(CCOPTS) -c $< -I. -o $@
+
+debugConsole:	debugConsole.o stringBuilder.o pinToSymbol.o
+			@echo "[ LD ] $@"
+			@gcc -Wall $^ -o $@
 
 clean:
-			rm -f *.o
+			@echo "[ CLEAN ]"
+			@rm -fv *.o
 
 cleanall:		clean
-			rm -f debugConsole
+			@rm -fv debugConsole
