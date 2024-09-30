@@ -76,6 +76,7 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 	
 	if (oldest == NULL) {
 		oldest = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
+		memset(oldest->buffer, '\0', sizeof(oldest->buffer));
 		if (oldest == NULL)
 			// ERROR! Memory full
 			ecode = 0;
@@ -95,14 +96,13 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 				eolFlag = true;
 				x = 0;
 				bufferSize = 0;
-				//printf("%p: %s\n", newest, newest->buffer);
 			
 			} else if ((bufferSize + x) > (BUILDER_MAXSTRINGSIZE - 3)) {
 				// WARNING! Too long string
 				strcpy((newest->buffer + bufferSize + x), "...");
 				eolFlag = true;
 			
-			} else {
+			} else if (data[t] > ' ' && data[t] < '~') {
 				// Adding a char to the buffer line
 				*(newest->buffer + bufferSize + x) = data[t];
 				//partPrint(newest->buffer, (bufferSize+x+1));
@@ -111,6 +111,7 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 		
 			if (eolFlag) {
 				newest->next = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
+				memset(newest->buffer, '\0', sizeof(newest->buffer));
 				if (newest->next == NULL) {
 					// ERROR! Memory full
 					ecode = 0;
