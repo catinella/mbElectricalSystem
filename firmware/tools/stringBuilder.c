@@ -44,6 +44,9 @@ typedef struct _logsSetItem_t {
 static logsSetItem_t *oldest = NULL;
 static logsSetItem_t *newest = NULL;
 
+//------------------------------------------------------------------------------------------------------------------------------
+//                                       P R I V A T E   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
 /*
 static void partPrint (const char *string, uint16_t size) {
 	//
@@ -56,6 +59,26 @@ static void partPrint (const char *string, uint16_t size) {
 }
 */
 
+
+static bool checkForValidData (const char *string) {
+	//
+	// Description:
+	//	It is used to prevent empty chasracters string
+	//
+	uint8_t size = strlen(string);
+	uint8_t err = 0;
+	for (uint8_t t=0; t<size; t++) {
+		if (string[t] != ' ') {
+			err = 1;
+			break;
+		}
+	}
+	return(err);
+}
+
+//------------------------------------------------------------------------------------------------------------------------------
+//                                        P U B L I C   F U N C T I O N S 
+//------------------------------------------------------------------------------------------------------------------------------
 uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 	//
 	// Decription:
@@ -93,7 +116,9 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 			if (data[t] == '\n') {
 				// Characters string assembling has been completed
 				*(newest->buffer + bufferSize + x) = '\0';
-				eolFlag = true;
+				if (checkForValidData(newest->buffer) == 1) {
+					eolFlag = true;
+				}
 				x = 0;
 				bufferSize = 0;
 			
@@ -111,7 +136,8 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 		
 			if (eolFlag) {
 				newest->next = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
-				memset(newest->buffer, '\0', sizeof(newest->buffer));
+				memset(newest->next->buffer, '\0', sizeof(newest->buffer));
+				
 				if (newest->next == NULL) {
 					// ERROR! Memory full
 					ecode = 0;
