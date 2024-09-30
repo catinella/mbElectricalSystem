@@ -67,7 +67,7 @@
 #define MBES_MAXNUMOFPINS 64
 
 #define CONS_FACILITY     LOG_LOCAL0
-#define CONS_PINDEMATCH   "^[A-Z][0-9]:[0-9]\\+$"
+#define CONS_PINDEMATCH   "^[A-Z0-9][0-9]:[0-9]\\+$"
 
 #define CONS_KEEPTRACK syslog(LOG_INFO, "------->%s(%d)", __FUNCTION__, __LINE__);
 
@@ -548,18 +548,6 @@ uint8_t checkPinStatus (char *pin, const char *log, int *value) {
 	return(err);
 }
 
-
-bool checkForValidData (const char *string) {
-	uint8_t size = strlen(string);
-	uint8_t err = 0;
-	for (uint8_t t=0; t<size; t++) {
-		if (string[t] > ' ') {
-			err = 1;
-			break;
-		}
-	}
-	return(err);
-}
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                     M A I N
 //------------------------------------------------------------------------------------------------------------------------------
@@ -631,35 +619,32 @@ int main (int argc, char *argv[]) {
 
 					//syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
 							
-					if (checkForValidData(buff)) {
-						err = checkPinStatus(pin, buff, &value);
-						if (err == 0) {
-							// ERROR!
-							syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
-		
-						} else if (err == 1) {
-							// Keeping-track info
-							if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
-								//syslog(LOG_INFO, "New PIN status information: %s = %d", pin, value);
-								
-							} else {
-								// ERROR!
-								syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
-							}
-				
+					err = checkPinStatus(pin, buff, &value);
+					if (err == 0) {
+						// ERROR!
+						syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
+	
+					} else if (err == 1) {
+						// Keeping-track info
+						if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
+							//syslog(LOG_INFO, "New PIN status information: %s = %d", pin, value);
+							
 						} else {
-							if (logAreaStorage(LGS_ADD, buff) == 0)
-								// ERROR!
-								syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
-							else {
-								//syslog(LOG_INFO, "OK the log-message has been saved");
-							}
+							// ERROR!
+							syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
+						}
+			
+					} else {
+						if (logAreaStorage(LGS_ADD, buff) == 0)
+							// ERROR!
+							syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
+						else {
+							//syslog(LOG_INFO, "OK the log-message has been saved");
 						}
 					}
 				}	
-					
 			}
-			
+
 			//------------------------------------------
 			// Debug console displaying
 			//------------------------------------------
