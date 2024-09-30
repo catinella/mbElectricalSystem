@@ -29,76 +29,55 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <stdio.h>
-#include <signal.h>
 #include <errno.h>
 #include <string.h>
 #include <stdbool.h>
-#include <poll.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include <stringBuilder.h>
 
-bool loop = true;
-int  fd = -1;
-
-
-void sigHandled (int signum) {
-	loop = false;
-	return;
-}
-
 int main (int argc, char *argv[]) {
-	int ecode = 0;
+	int      ecode = 0;
+	char     inputString[64];
+	char     builtString[1024];
+	uint16_t size = 0, t = 0;
 	
-	if (argc == 1) {
-		fprintf(stderr, "ERROR! use %s <fifo-filename>\n", argv[0]);
-		ecode =127;
+	inputString[0] = '\0';
+	
+	printf("Special characters:\n");
+	printf("\t'#': to insert a ('\\n') RETURN character\n");
+	printf("\t'!': to exit\n");
+	printf("\t' ': to break your string\n");
+	printf("\t'?': to see the resulted strings\n");
+	printf("\n");
+	
+	while (1) {
+		memset(inputString, '0', 64);
+		printf("> "); scanf("%s", inputString);
+	
+		size = strlen(inputString);
+		for (t=0; t<size; t++)
+			if (inputString[t] == '#') inputString[t] = '\n';
 		
-	} else if (signal(SIGINT, sigHandled) == SIG_ERR || signal(SIGTERM, sigHandled) == SIG_ERR) {
-		fprintf(stderr, "ERROR! Signal handles installation failed\n");
-		ecode = 129;
-		
-	} else if ((fd = open(argv[1], O_RDONLY)) < 0) {
-		fprintf(stderr, "ERROR! I cannot open the argument defined fifo (\"%s\")\n", argv[1]);
-		ecode = 131;
-		
-	} else {
-		//ndfs_t        nfds = 1;             // Number od FDS I want to monitor
-		struct pollfd fdsArr[1];
-		int           actives = 0;
-		char          buff[BUILDER_MAXSTRINGSIZE];
-		ssize_t       nrb = 0;
-		
-		
-		fdsArr[0].fd      = fd;
-		fdsArr[0].events  = POLLIN;
-		
-		while (loop) {
+	
+		if (inputString[0] == '!' && inputString[1] == '\0')
+			break;
 			
-			actives = poll(fdsArr, 1, 10);
+		else if (inputString[0] == '?' && inputString[1] == '\0') {
+			printf("--------- Build strings --------- \n");
+			while (stringBuilder_get(builtString) == 1)
+				printf("\"%s\"\n", builtString);
+			printf("\n");
 			
-			if (actives < 0) {
-				fprintf(stderr, "ERROR! poll() failes: %s\n", strerror(errno));
-				ecode = 133;
-				loop = false;
+		} else if (stringBuilder_put(inputString, strlen(inputString)) == 0) {
+			fprintf(stderr, "ERROR!\n");
+			ecode = 127;
+			break;
 			
-			} else if (actives == 0) {
-	//			while (stringBuilder_get(buff) == 1) 
-	//				printf("%d: [%s]\n", buff);
-			} else {
-				if ((nrb = read(fd, buff, BUILDER_MAXSTRINGSIZE)) < 0) {
-					fprintf(stderr, "ERROR! read() failes: %s\n", strerror(errno));
-					ecode = 135;
-					loop = false;
-				 
-				 } else { 
-					for (uint16_t t=0; t<nrb; t++) printf("%c", buff[t]);
-					// uint8_t stringBuilder_put(const char *data, buffSize_t size);
-				}
-			}
 		}
-		stringBuilder_close();
-		close(fd);
+		
+		
 	}
+	stringBuilder_close();
+	
 	return(ecode);
 }
