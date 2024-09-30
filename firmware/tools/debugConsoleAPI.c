@@ -36,7 +36,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <mbesSerialConsole.h>
-#include <tools/debugConsole.h>
+#include <tools/debugConsoleAPI.h>
 
 void keepTrack(const char *code, uint8_t value) {
 	char log[12];
