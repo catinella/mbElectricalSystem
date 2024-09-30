@@ -44,6 +44,18 @@ typedef struct _logsSetItem_t {
 static logsSetItem_t *oldest = NULL;
 static logsSetItem_t *newest = NULL;
 
+/*
+static void partPrint (const char *string, uint16_t size) {
+	//
+	// Description:
+	//	It prints the argument defined part of the string. (IT IS JUST A DEBUG TOOL)
+	//
+	for (uint16_t t=0; t<size; t++) printf("%c", string[t]);
+	printf("\n");
+	return;
+}
+*/
+
 uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 	//
 	// Decription:
@@ -74,20 +86,27 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 		}
 	}
 	if (ecode) {
-		for (uint8_t t=0; t<size; t++) {
+		uint16_t t = 0, x = 0;
+		
+		for (t=0; t<size; t++) {
 			if (data[t] == '\n') {
 				// Characters string assembling has been completed
-				*(newest->buffer + bufferSize + t) = '\0';
+				*(newest->buffer + bufferSize + x) = '\0';
 				eolFlag = true;
+				x = 0;
+				bufferSize = 0;
+				//printf("%p: %s\n", newest, newest->buffer);
 			
-			} else if ((bufferSize + t) > (BUILDER_MAXSTRINGSIZE - 3)) {
+			} else if ((bufferSize + x) > (BUILDER_MAXSTRINGSIZE - 3)) {
 				// WARNING! Too long string
-				strcpy((newest->buffer + bufferSize + t), "...");
+				strcpy((newest->buffer + bufferSize + x), "...");
 				eolFlag = true;
 			
 			} else {
 				// Adding a char to the buffer line
-				*(newest->buffer + bufferSize + t) = data[t];
+				*(newest->buffer + bufferSize + x) = data[t];
+				//partPrint(newest->buffer, (bufferSize+x+1));
+				x++;
 			}
 		
 			if (eolFlag) {
@@ -98,13 +117,12 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 					break;
 				} else {
 					newest = newest->next;
-					bufferSize = 0;
 					eolFlag = false;
 					newest->next = NULL;
 				}
-			} else
-				bufferSize += t;
+			}
 		}
+		bufferSize += x;
 	}
 	
 	return(ecode);
@@ -117,18 +135,17 @@ uint8_t stringBuilder_get(char *data) {
 	//	This function allows you to retrive the strings defined in the previousely added chras streams
 	//	
 	// Returned value:
-	//	0: N/A
+	//	0: ERROR! No strings available
 	//	1: SUCCESS!
-	//	16: WARNING! No strings available
 	//
 	uint8_t ecode = 0;
 
 	if (oldest != NULL && oldest != newest) {
 		logsSetItem_t *ptr = oldest;
-		
 		strcpy(data, oldest->buffer);
 		oldest = oldest->next;
 		free(ptr);
+		ecode = 1;
 	}
 	
 	return(ecode);
