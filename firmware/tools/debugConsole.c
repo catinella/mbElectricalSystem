@@ -23,10 +23,6 @@
 //		TTY_DATACHUNK     Number of bytes the console will try to read on every round
 //		TTY_MAXLOGSIZE    Max length of the log-message to display
 //		TTY_MAXLOGLINES   Max number of lines to show in the console before to drop the oldest logs
-//		MBES_PINMAPFILE   Header file where every pin's symbol is defined
-//		MBES_ROWMAXSIZE   Maximum length of the MBES_PINMAPFILE rows
-//		MBES_MAXSYMSIZE   Maximum size of every symbol name
-//		CONS_MAXPINS      Maximum number of pins to keep track. Also the max number of symbols
 //		MBES_MAXNUMOFPINS Max number of monitored pins
 //
 // License:
@@ -61,22 +57,17 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <math.h>
-
+#include <stringBuilder.h>
+#include <pinToSymbol.h>
 
 #define TTY_DATACHUNK     16
 #define TTY_MAXLOGSIZE    126
 #define TTY_MAXLOGLINES   16
 
-#define MBES_PINMAPFILE   "../mbesPinsMap.h"
-#define MBES_ROWMAXSIZE   256
-#define MBES_MAXSYMSIZE   24
 #define MBES_MAXNUMOFPINS 64
 
-#define CONS_MAXPINS      32
 #define CONS_FACILITY     LOG_LOCAL0
 #define CONS_PINDEMATCH   "^[A-Z][0-9]:[0-9]\\+$"
-#define CONS_DEFAREGEX    "^[ \t]*#define[ \t]\\+"
-#define CONS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
 
 #define CONS_KEEPTRACK syslog(LOG_INFO, "------->%s(%d)", __FUNCTION__, __LINE__);
 
@@ -91,12 +82,6 @@ typedef struct _logRow {
 	uint32_t       tstamp;
 	struct _logRow *next;
 } logRow;
-
-// Pins-Symbols associations DB item
-typedef struct {
-	char pin[3];
-	char symbol[32];
-} ptsDbItem;
 
 // Pins status DB item
 typedef struct {
@@ -427,147 +412,6 @@ uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
 
 	return(err);
 }
-		
-uint8_t pinToSymbol (char *symbol, const char *pin) {
-	//
-	// Description:
-	//	This function find the symbol associated to the argument defined pin and write it in the "symbol" argument.
-	//	During the initialization phase, the procedure reads the mbesPinsMap.h file as a text one, and stores all
-	//	pin-symbol associations inside its static array.
-	//
-	// Arguments:
-	//	symbol:  It is used to store symbol you are looking for
-	// 	pin:     The pin associated to the symbol
-	//	
-	// Returned value:
-	//	0:       ERROR! I cannot compile the regex or the map-file does not exist
-	//	1:       SUCCESS!
-	//	16:      WARNING! No symbol has been associated to the pin
-	//
-	static bool      initFlag = false;
-	static ptsDbItem ptsDb[CONS_MAXPINS];
-	uint8_t          err = 1;
-	regex_t          reegex_a, reegex_b;   // Regexes
-	int              ea = 0,   eb = 0;     // Regexes error codes
-
-	if (initFlag == false) {
-		//
-		// Initialization procedure
-		//
-		
-		// DB cleaning
-		for (uint8_t t=0; t<CONS_MAXPINS; t++) {
-			ptsDb[t].pin[0]    = '\0';
-			ptsDb[t].symbol[0] = '\0';
-		}
-		
-		if (
-			(ea = regcomp(&reegex_a, CONS_DEFAREGEX, 0)) == 0 &&
-			(eb = regcomp(&reegex_b, CONS_DEFBREGEX, 0)) == 0
-		) { 
-			FILE   *FH = NULL;
-			size_t size = MBES_ROWMAXSIZE;
-			char   *row = (char*)malloc(size * sizeof(char)); // getline() requires dinamically allocated memory!!
-			
-			if ((FH = fopen(MBES_PINMAPFILE, "r")) == NULL) {
-				// ERROR!
-				fprintf(stderr, "ERROR! I cannot open the \"%s\" file: %s\n", MBES_PINMAPFILE, strerror(errno));
-				err = 0;
-		
-			} else {
-				regmatch_t pmatch[3]; // Up to 3 sub-expressions
-				char    tmp[MBES_ROWMAXSIZE];
-				uint8_t t = 0, x = 0, st = 0;
-				uint8_t dbIndex = 0;
-				
-				while (feof(FH) == 0 && err == 1) {
-					if (getline(&row, &size, FH) < 0 && errno != 0) {
-						// ERROR!
-						fprintf(stderr, "ERROR! data readingfailed: %s\n", strerror(errno));
-						err = 0;
-						break;
-						
-					} else if (regexec(&reegex_a, row, 3, pmatch, 0) == 0) {
-						strcpy (tmp, (row + pmatch[0].rm_eo));
-						if (regexec(&reegex_b, tmp, 3, pmatch, 0) == 0) {
-							*(tmp+pmatch[0].rm_eo+1) = '\0';
-							t = 0; x = 0; st = 0;
-							while (tmp[t] != '\0') {
-								if (st == 0) {
-									if (tmp[t] != ' ' && tmp[t] != '\t') {
-										(ptsDb[dbIndex].symbol)[x] = tmp[t];
-										x++;
-									} else {
-										(ptsDb[dbIndex].symbol)[x] = '\0';
-										st = 1;
-										x = 0;
-									}
-								} else if (st == 1) {
-									if (tmp[t] == '"') st = 2;
-									
-								} else if (st == 2) {
-									if (tmp[t] != '"') {
-										ptsDb[dbIndex].pin[x] = tmp[t];
-										x++;
-									} else {
-										ptsDb[dbIndex].pin[x] = '\0';
-										break;
-									}
-								}
-								t++;
-							}
-							dbIndex++;
-						}
-					}
-				}
-/*				
-				// The following lines-code block shows you the ptsDb content  (it is just for debug)
-				{
-					uint8_t dbIndex = 0;
-					while (ptsDb[dbIndex].pin[0] != '\0' && dbIndex < CONS_MAXPINS) {
-						printf("%s (%s)\n", ptsDb[dbIndex].symbol, ptsDb[dbIndex].pin);
-						dbIndex++;
-					}
-				}
-*/
-				if (err == 1) initFlag = true;
-				
-				fclose(FH);
-			}
-			free(row);
-			regfree(&reegex_a);
-			regfree(&reegex_b);
-		} else {
-			// ERROR!
-			char regErrBuff[128];
-			if (ea != 0) {
-				regerror(errno, &reegex_a, regErrBuff, 128);
-				syslog(LOG_ERR, "ERROR! I cannot compile the \"%s\" regex: %s\n", CONS_DEFAREGEX, regErrBuff);
-			}
-			if (eb != 0) {
-				regerror(errno, &reegex_b, regErrBuff, 128);
-				syslog(LOG_ERR, "ERROR! I cannot compile the \"%s\" regex: %s\n", CONS_DEFBREGEX, regErrBuff);
-			}
-			
-		}
-	}
-	
-	if (initFlag == true) {
-		uint8_t dbIndex = 0;
-		
-		err = 16;
-		while (ptsDb[dbIndex].pin[0] != '\0' && dbIndex < CONS_MAXPINS) {
-			if (strcmp(ptsDb[dbIndex].pin, pin) == 0) {
-				err = 1;
-				strcpy(symbol, ptsDb[dbIndex].symbol);
-				break;
-			} else {
-				dbIndex++;
-			}
-		}
-	}
-	return(err);
-}
 
 
 void fillUp (char *string, uint8_t newsz) {
@@ -618,18 +462,18 @@ uint8_t pinAreaStorage (mpsStorage_cmd cmd, const char *pin, uint32_t value) {
 	} else if (cmd == MPS_PRINT) {
 		// Colums calculating
 		uint8_t t = 0, x = 0;
-		uint8_t cols = roundf(((screenCols) / (MBES_MAXSYMSIZE + 5)) - 1);
-		char    *buff = (char*)malloc(MBES_MAXSYMSIZE+5);
+		uint8_t cols = roundf(((screenCols) / (PTS_MAXSYMSIZE + 5)) - 1);
+		char    *buff = (char*)malloc(PTS_MAXSYMSIZE+5);
 		
 		cols = cols == 0 ? 1 : cols;
 		
 		for (x = 0; x < counter; x++) {
 			// Symbol retriving
-			if (pinToSymbol(buff, pinsDb[x].pin) != 1)
+			if (pinToSymbol_get(buff, pinsDb[x].pin) != 1)
 				strcpy(buff, pinsDb[x].pin);
 				
 			sprintf((buff + strlen(buff)), ":%d", pinsDb[x].value);
-			fillUp(buff, MBES_MAXSYMSIZE);
+			fillUp(buff, PTS_MAXSYMSIZE);
 			printf("%s", buff);
 			
 			if (t == cols) {
@@ -724,52 +568,6 @@ int main (int argc, char *argv[]) {
 	struct stat buff;
 	int         ttyFD;
 
-/*
-	//
-	// Enable the followin scope, to test the pinToSimbol() function
-	//
-	{
-		char symbol[MBES_MAXSYMSIZE];
-		char pin[3];
-		uint8_t te = 0;
-		
-		for (int x=0; x<5; x++) {
-			for (int t=0; t<8; t++) {
-				switch (x) {
-					case 0:
-						sprintf(pin, "A%d", t);
-					break;
-					
-					case 1:
-						sprintf(pin, "B%d", t);
-					break;
-					
-					case 2:
-						sprintf(pin, "C%d", t);
-					break;
-					
-					case 3:
-						sprintf(pin, "D%d", t);
-					break;
-					
-					case 4:
-						sprintf(pin, "0%d", t);
-					break;
-				}
-				te = pinToSymbol(symbol, pin);
-				if (te == 0) {
-					fprintf(stderr, "ERROR! pinToSymbol() call failed\n");
-					break;
-				} else if (te == 1) {
-					printf("%s (%s)\n", symbol, pin);
-				} else {
-					fprintf(stderr, "WARNING! No symbol defined for %s\n", pin);
-				}
-			}
-		}
-	}
-
-*/
 	if (argc != 2 || *argv[1] == '\0') {
 		// ERROR!
 		fprintf(stderr, "ERROR! port name missing\n");
@@ -798,20 +596,12 @@ int main (int argc, char *argv[]) {
 		char     chunk[TTY_DATACHUNK];
 		char     buff[TTY_MAXLOGSIZE];
 		int      nb       = 0;                // number of received bytes
-		char     *lPtr    = NULL;             // Left side pointer
-		char     *rPtr    = NULL;             // Right side pointer
-		uint8_t  pSize    = 0;
-		uint8_t  buffIndx = 0;                // Database's index
-		bool     tooLong  = false;            // Flag to indicate too-long messages
-		bool     nlFlag   = false;            // When it is true, one or more end-of-line chars are present
 		int      value    = 0;                // PIN's value
 		char     pin[3]   = {'\0','\0','\0'}; // PIN-id
 		
 
 		openlog(argv[0], LOG_NDELAY|LOG_PID, CONS_FACILITY);
 		//syslog(LOG_INFO, "------------------------- [DEBUG CONSOLE START] -------------------------");
-
-		memset(buff,  '\0', TTY_MAXLOGSIZE);
 		
 		while (loop) {
 			memset(chunk, '\0', TTY_DATACHUNK);
@@ -827,67 +617,44 @@ int main (int argc, char *argv[]) {
 				// Timeout (NO new messages)
 				//printf("!\n");
 				
+			} else if (stringBuilder_put(chunk, nb) == 0) {
+				// ERROR!
+				syslog(LOG_ERR, "ERROR! stringBuilder_put() failed for out of memory");
+				loop = 0;
+				err = 139;
+			
 			} else {
-				// Starting conditions
-				lPtr = chunk; rPtr = NULL; nlFlag = true;
-
 				//syslog(LOG_INFO, "New data detected");
-				while (nlFlag) {
-					if ((rPtr = strchr(lPtr, '\n')) == NULL) {
-						if (tooLong == false) {
-							pSize = abs(chunk + nb/sizeof(char) - lPtr);
-							if ((pSize + buffIndx + 3) > TTY_MAXLOGSIZE) {
-								strcpy((buff + buffIndx), "...");
-								tooLong = true;
-							} else { 
-								strncpy((buff + buffIndx), lPtr, pSize);
-							}
-							buffIndx += pSize;
-						}
-						nlFlag = false;
+				memset(buff,  '\0', TTY_MAXLOGSIZE);
+				
+				while (stringBuilder_get(buff) == 1) {
 
-					} else {
-						if (tooLong == false) {
-							pSize = abs(rPtr - lPtr);
-							if ((pSize + buffIndx + 3) > TTY_MAXLOGSIZE) {
-								strcpy((buff + buffIndx), "...");
-								tooLong = true;
-						
-							} else {
-								strncpy((buff + buffIndx), lPtr, pSize);
-								*(buff + buffIndx + pSize) = '\0';
-								//syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
+					//syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
+							
+					if (checkForValidData(buff)) {
+						err = checkPinStatus(pin, buff, &value);
+						if (err == 0) {
+							// ERROR!
+							syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
+		
+						} else if (err == 1) {
+							// Keeping-track info
+							if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
+								//syslog(LOG_INFO, "New PIN status information: %s = %d", pin, value);
 								
-								if (checkForValidData(buff)) {
-									err = checkPinStatus(pin, buff, &value);
-									if (err == 0) {
-										// ERROR!
-										syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
+							} else {
+								// ERROR!
+								syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
+							}
 				
-									} else if (err == 1) {
-										// Keeping-track info
-										if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
-										} else {
-											// ERROR!
-											syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
-										}
-				
-									} else {
-										if (logAreaStorage(LGS_ADD, buff) == 0)
-											// ERROR!
-											syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
-										else {
-											//syslog(LOG_INFO, "OK the log-message has been saved");
-										}
-									};
-								}
-								lPtr = rPtr + 1;
+						} else {
+							if (logAreaStorage(LGS_ADD, buff) == 0)
+								// ERROR!
+								syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
+							else {
+								//syslog(LOG_INFO, "OK the log-message has been saved");
 							}
 						}
-
-						memset(buff, '\0', TTY_MAXLOGSIZE);
-						buffIndx = 0;
-						tooLong = false;
 					}
 				}	
 					
@@ -920,6 +687,7 @@ int main (int argc, char *argv[]) {
 			}
 		}
 		
+		stringBuilder_close();
 		checkPinStatus(NULL, NULL, NULL);
 		logAreaStorage(LGS_CLOSE, NULL);
 		close(ttyFD);
