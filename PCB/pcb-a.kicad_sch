@@ -4086,6 +4086,12 @@
 		(uuid "4ba0787e-46d3-4b73-91cc-b083b2860826")
 	)
 	(junction
+		(at 204.8764 135.382)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4d8d000c-d71a-4f2a-866b-25c7e96447d2")
+	)
+	(junction
 		(at 40.6908 86.8172)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4164,16 +4170,16 @@
 		(uuid "aec6d55a-8a34-4dd3-a5b3-4ea358e49c82")
 	)
 	(junction
+		(at 204.8764 137.922)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b2716cc9-5603-4c41-bb65-7cd56a6b3b03")
+	)
+	(junction
 		(at 197.866 19.304)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "b2ba3ffd-742a-427e-a9ad-fec2bdbe72d2")
-	)
-	(junction
-		(at 204.8764 138.2268)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "b3f5c995-c963-4c56-86a0-9d5dd0377346")
 	)
 	(junction
 		(at 40.6908 65.278)
@@ -4198,12 +4204,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "d21c39e7-56cb-45d5-b1a8-a650c6d2a284")
-	)
-	(junction
-		(at 204.8764 135.6868)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "d737d075-c04b-4666-991c-0137dca613dd")
 	)
 	(junction
 		(at 36.8808 55.118)
@@ -4256,7 +4256,7 @@
 		(uuid "696be2ab-e35a-4c8d-92bb-828264e9fe1d")
 	)
 	(no_connect
-		(at 207.772 128.0668)
+		(at 207.772 127.762)
 		(uuid "6c3e76b2-56ba-4c70-879c-d82782d15b85")
 	)
 	(no_connect
@@ -4287,6 +4287,10 @@
 		(at 218.186 55.372)
 		(uuid "d9ee545e-6d4f-422b-8d88-cb2cb37ea001")
 	)
+	(no_connect
+		(at 233.172 127.762)
+		(uuid "fad05ec6-b5e2-474d-9605-f44c3e19a0a4")
+	)
 	(wire
 		(pts
 			(xy 107.7468 97.5868) (xy 107.95 97.5868)
@@ -4309,23 +4313,13 @@
 	)
 	(wire
 		(pts
-			(xy 236.5248 133.1468) (xy 233.172 133.1468)
+			(xy 236.5248 132.842) (xy 233.172 132.842)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "04d6cc3d-f5fe-4371-a522-4232c8cd2b33")
-	)
-	(wire
-		(pts
-			(xy 239.3188 128.3208) (xy 239.3188 128.0668)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "04dbe54f-44f4-4fdd-b827-99c9b3fe1dfd")
 	)
 	(wire
 		(pts
@@ -4389,7 +4383,7 @@
 	)
 	(wire
 		(pts
-			(xy 236.5248 118.2116) (xy 236.5248 120.4468)
+			(xy 236.5248 119.126) (xy 236.5248 120.142)
 		)
 		(stroke
 			(width 0)
@@ -4439,7 +4433,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.6932 120.4468) (xy 207.772 120.4468)
+			(xy 110.6932 120.142) (xy 207.772 120.142)
 		)
 		(stroke
 			(width 0)
@@ -4519,7 +4513,7 @@
 	)
 	(wire
 		(pts
-			(xy 204.8764 133.1468) (xy 204.8764 135.6868)
+			(xy 204.8764 132.842) (xy 204.8764 135.382)
 		)
 		(stroke
 			(width 0)
@@ -4549,7 +4543,7 @@
 	)
 	(wire
 		(pts
-			(xy 254.3556 121.5136) (xy 237.7948 121.5136)
+			(xy 254.508 121.92) (xy 237.7948 121.92)
 		)
 		(stroke
 			(width 0)
@@ -4679,7 +4673,7 @@
 	)
 	(wire
 		(pts
-			(xy 237.8456 131.7752) (xy 237.8456 130.6068)
+			(xy 237.8456 131.7752) (xy 237.8456 130.302)
 		)
 		(stroke
 			(width 0)
@@ -4699,7 +4693,7 @@
 	)
 	(wire
 		(pts
-			(xy 237.7948 121.5136) (xy 237.7948 122.9868)
+			(xy 237.7948 121.92) (xy 237.7948 122.682)
 		)
 		(stroke
 			(width 0)
@@ -4709,7 +4703,7 @@
 	)
 	(wire
 		(pts
-			(xy 235.204 117.9068) (xy 233.172 117.9068)
+			(xy 235.204 117.602) (xy 233.172 117.602)
 		)
 		(stroke
 			(width 0)
@@ -5089,6 +5083,16 @@
 	)
 	(wire
 		(pts
+			(xy 204.8764 135.382) (xy 204.8764 137.922)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "441f21e5-d81a-4b77-9627-c886f1f1d687")
+	)
+	(wire
+		(pts
 			(xy 80.6704 146.1516) (xy 80.6704 149.3012)
 		)
 		(stroke
@@ -5109,7 +5113,7 @@
 	)
 	(wire
 		(pts
-			(xy 254.3556 118.2116) (xy 236.5248 118.2116)
+			(xy 254.508 119.126) (xy 236.5248 119.126)
 		)
 		(stroke
 			(width 0)
@@ -5136,16 +5140,6 @@
 			(type default)
 		)
 		(uuid "47e5b8fb-2d73-4f3f-90c8-e4ddc3cbc8ea")
-	)
-	(wire
-		(pts
-			(xy 254.3556 124.9172) (xy 239.3188 124.9172)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "481773ad-6f9d-4d03-9c48-436827abee33")
 	)
 	(wire
 		(pts
@@ -5409,7 +5403,7 @@
 	)
 	(wire
 		(pts
-			(xy 235.3056 135.6868) (xy 233.172 135.6868)
+			(xy 235.3056 135.382) (xy 233.172 135.382)
 		)
 		(stroke
 			(width 0)
@@ -5509,6 +5503,16 @@
 	)
 	(wire
 		(pts
+			(xy 254.508 124.714) (xy 239.268 124.714)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "67458e28-48e0-4ea3-b9ec-a7613eb49ea7")
+	)
+	(wire
+		(pts
 			(xy 74.3204 103.378) (xy 94.4372 103.378)
 		)
 		(stroke
@@ -5526,16 +5530,6 @@
 			(type default)
 		)
 		(uuid "6b0ef776-b353-4498-8bd7-4ecb0b9218b1")
-	)
-	(wire
-		(pts
-			(xy 239.3188 124.9172) (xy 239.3188 125.5268)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6bdc76a4-3896-46ff-b995-05d90231d08b")
 	)
 	(wire
 		(pts
@@ -5589,7 +5583,7 @@
 	)
 	(wire
 		(pts
-			(xy 235.204 114.8588) (xy 235.204 117.9068)
+			(xy 235.204 116.332) (xy 235.204 117.602)
 		)
 		(stroke
 			(width 0)
@@ -5639,7 +5633,7 @@
 	)
 	(wire
 		(pts
-			(xy 204.8764 135.6868) (xy 207.772 135.6868)
+			(xy 204.8764 135.382) (xy 207.772 135.382)
 		)
 		(stroke
 			(width 0)
@@ -5679,7 +5673,7 @@
 	)
 	(wire
 		(pts
-			(xy 220.472 143.3068) (xy 220.472 144.2212)
+			(xy 220.472 143.002) (xy 220.472 144.2212)
 		)
 		(stroke
 			(width 0)
@@ -5709,7 +5703,7 @@
 	)
 	(wire
 		(pts
-			(xy 134.7216 117.9068) (xy 134.7216 88.138)
+			(xy 134.7216 117.602) (xy 134.7216 88.138)
 		)
 		(stroke
 			(width 0)
@@ -5719,7 +5713,7 @@
 	)
 	(wire
 		(pts
-			(xy 233.172 120.4468) (xy 236.5248 120.4468)
+			(xy 233.172 120.142) (xy 236.5248 120.142)
 		)
 		(stroke
 			(width 0)
@@ -5729,7 +5723,7 @@
 	)
 	(wire
 		(pts
-			(xy 204.8764 138.2268) (xy 207.772 138.2268)
+			(xy 204.8764 137.922) (xy 207.772 137.922)
 		)
 		(stroke
 			(width 0)
@@ -5779,16 +5773,6 @@
 	)
 	(wire
 		(pts
-			(xy 204.8764 135.6868) (xy 204.8764 138.2268)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "7fd5dafc-e790-4abd-b970-cea7f2098d46")
-	)
-	(wire
-		(pts
 			(xy 112.522 59.182) (xy 81.4324 59.182)
 		)
 		(stroke
@@ -5819,7 +5803,7 @@
 	)
 	(wire
 		(pts
-			(xy 236.5248 135.3312) (xy 236.5248 133.1468)
+			(xy 236.5248 134.62) (xy 236.5248 132.842)
 		)
 		(stroke
 			(width 0)
@@ -5879,7 +5863,7 @@
 	)
 	(wire
 		(pts
-			(xy 236.5248 135.3312) (xy 254.4572 135.3312)
+			(xy 236.5248 134.62) (xy 254.254 134.62)
 		)
 		(stroke
 			(width 0)
@@ -5919,7 +5903,7 @@
 	)
 	(wire
 		(pts
-			(xy 235.3056 139.0904) (xy 235.3056 135.6868)
+			(xy 235.3056 137.414) (xy 235.3056 135.382)
 		)
 		(stroke
 			(width 0)
@@ -5949,16 +5933,6 @@
 	)
 	(wire
 		(pts
-			(xy 239.3188 128.0668) (xy 233.172 128.0668)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8e78aa9e-1a8f-4a4b-b677-0a19d3dc88c8")
-	)
-	(wire
-		(pts
 			(xy 74.3204 80.518) (xy 153.2128 80.518)
 		)
 		(stroke
@@ -5969,7 +5943,7 @@
 	)
 	(wire
 		(pts
-			(xy 107.95 122.9868) (xy 207.772 122.9868)
+			(xy 107.95 122.682) (xy 207.772 122.682)
 		)
 		(stroke
 			(width 0)
@@ -6016,16 +5990,6 @@
 			(type default)
 		)
 		(uuid "91a4764a-2bcc-4135-9904-e9daad5b544d")
-	)
-	(wire
-		(pts
-			(xy 239.3188 125.5268) (xy 233.172 125.5268)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "93112794-8fc7-45af-99a0-b1871e41010b")
 	)
 	(wire
 		(pts
@@ -6249,6 +6213,16 @@
 	)
 	(wire
 		(pts
+			(xy 204.8764 137.922) (xy 204.8764 144.2212)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "abfc528a-8750-4538-a0db-4fc06da8a3e6")
+	)
+	(wire
+		(pts
 			(xy 97.536 116.5352) (xy 97.536 98.298)
 		)
 		(stroke
@@ -6359,7 +6333,17 @@
 	)
 	(wire
 		(pts
-			(xy 235.3056 139.0904) (xy 254.6096 139.0904)
+			(xy 239.268 125.222) (xy 233.172 125.222)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b55c015b-28f3-4141-80b8-6e4ef2d6eceb")
+	)
+	(wire
+		(pts
+			(xy 235.3056 137.414) (xy 254.254 137.414)
 		)
 		(stroke
 			(width 0)
@@ -6419,7 +6403,7 @@
 	)
 	(wire
 		(pts
-			(xy 235.204 114.8588) (xy 254.4572 114.8588)
+			(xy 235.204 116.332) (xy 254.508 116.332)
 		)
 		(stroke
 			(width 0)
@@ -6466,6 +6450,16 @@
 			(type default)
 		)
 		(uuid "beb4ba2e-9c07-495d-9519-e8999d56a137")
+	)
+	(wire
+		(pts
+			(xy 239.268 124.714) (xy 239.268 125.222)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "bf1abc39-f2fd-4185-a937-81eaedef01df")
 	)
 	(wire
 		(pts
@@ -6539,7 +6533,7 @@
 	)
 	(wire
 		(pts
-			(xy 207.772 117.9068) (xy 134.7216 117.9068)
+			(xy 207.772 117.602) (xy 134.7216 117.602)
 		)
 		(stroke
 			(width 0)
@@ -6566,16 +6560,6 @@
 			(type default)
 		)
 		(uuid "cea09bc8-3274-48da-84e7-85811959feaf")
-	)
-	(wire
-		(pts
-			(xy 254.4064 128.3208) (xy 239.3188 128.3208)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "cea4b118-2fd3-4c9c-9b27-349870cde8e1")
 	)
 	(wire
 		(pts
@@ -6639,7 +6623,7 @@
 	)
 	(wire
 		(pts
-			(xy 107.95 122.9868) (xy 107.95 116.5352)
+			(xy 107.95 122.682) (xy 107.95 116.5352)
 		)
 		(stroke
 			(width 0)
@@ -6689,7 +6673,7 @@
 	)
 	(wire
 		(pts
-			(xy 237.8456 130.6068) (xy 233.172 130.6068)
+			(xy 237.8456 130.302) (xy 233.172 130.302)
 		)
 		(stroke
 			(width 0)
@@ -6859,7 +6843,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.6932 114.9096) (xy 110.6932 120.4468)
+			(xy 110.6932 114.9096) (xy 110.6932 120.142)
 		)
 		(stroke
 			(width 0)
@@ -6909,16 +6893,6 @@
 	)
 	(wire
 		(pts
-			(xy 204.8764 138.2268) (xy 204.8764 144.2212)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f0b5baf2-a9e2-4005-a35a-7de063c05867")
-	)
-	(wire
-		(pts
 			(xy 103.0732 137.2108) (xy 88.4428 137.2108)
 		)
 		(stroke
@@ -6939,7 +6913,7 @@
 	)
 	(wire
 		(pts
-			(xy 207.772 133.1468) (xy 204.8764 133.1468)
+			(xy 207.772 132.842) (xy 204.8764 132.842)
 		)
 		(stroke
 			(width 0)
@@ -6969,7 +6943,7 @@
 	)
 	(wire
 		(pts
-			(xy 237.7948 122.9868) (xy 233.172 122.9868)
+			(xy 237.7948 122.682) (xy 233.172 122.682)
 		)
 		(stroke
 			(width 0)
@@ -6999,7 +6973,7 @@
 	)
 	(wire
 		(pts
-			(xy 220.472 97.5868) (xy 220.472 112.8268)
+			(xy 220.472 97.5868) (xy 220.472 112.522)
 		)
 		(stroke
 			(width 0)
@@ -7315,37 +7289,6 @@
 			)
 		)
 	)
-	(global_label "i_horn"
-		(shape input)
-		(at 254.4064 128.3208 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "3970c86e-2e4f-4b82-b18a-ba6a79c332e7")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.4064 128.3208 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 262.6252 128.2414 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "i_Vx1"
 		(shape input)
 		(at 92.9132 45.8216 0)
@@ -7440,37 +7383,6 @@
 			)
 		)
 	)
-	(global_label "o_horn"
-		(shape input)
-		(at 254.3556 124.9172 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "63189aa8-028c-4208-814e-4bfe0079b6a5")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.3556 124.9172 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 263.1187 124.8378 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "GND"
 		(shape input)
 		(at 46.5836 149.3012 180)
@@ -7502,9 +7414,41 @@
 			)
 		)
 	)
+	(global_label "i_parking"
+		(shape input)
+		(at 254.508 124.714 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "703a5d7e-8328-41bf-a1d5-1e2f22f0acbd")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 266.0807 124.714 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 254.508 126.9048 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "o_neutral"
 		(shape input)
-		(at 254.3556 121.5136 0)
+		(at 254.508 121.92 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7514,7 +7458,7 @@
 		)
 		(uuid "755e592f-10c2-426a-accd-0daec0b414b7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.3556 121.5136 0)
+			(at 254.508 121.92 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7523,7 +7467,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 265.5982 121.4342 0)
+			(at 265.7506 121.8406 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7597,7 +7541,7 @@
 	)
 	(global_label "i_rightArrow"
 		(shape input)
-		(at 254.6096 139.0904 0)
+		(at 254.254 137.414 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7607,7 +7551,7 @@
 		)
 		(uuid "8bacbbfe-616f-4b8d-84d7-2a84a7c86d6c")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.6096 139.0904 0)
+			(at 254.254 137.414 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7616,7 +7560,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 268.1503 139.011 0)
+			(at 267.7947 137.3346 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7690,7 +7634,7 @@
 	)
 	(global_label "i_leftArrow"
 		(shape input)
-		(at 254.4572 135.3312 0)
+		(at 254.254 134.62 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7700,7 +7644,7 @@
 		)
 		(uuid "977395a6-9a6b-45f1-ab0b-eaec6f445a54")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.4572 135.3312 0)
+			(at 254.254 134.62 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7709,7 +7653,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 266.7884 135.2518 0)
+			(at 266.5852 134.5406 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7721,7 +7665,7 @@
 	)
 	(global_label "o_rightArrow"
 		(shape input)
-		(at 254.4572 114.8588 0)
+		(at 254.508 116.332 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -7731,7 +7675,7 @@
 		)
 		(uuid "a3b6c06b-4463-4d59-927a-5ebf41caa355")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.4572 114.8588 0)
+			(at 254.508 116.332 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7740,7 +7684,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 268.5422 114.7794 0)
+			(at 268.593 116.2526 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8093,7 +8037,7 @@
 	)
 	(global_label "o_engineReady"
 		(shape input)
-		(at 254.3556 118.2116 0)
+		(at 254.508 119.126 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8103,7 +8047,7 @@
 		)
 		(uuid "e498b31f-c968-4a20-9b39-83020b74fd17")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.3556 118.2116 0)
+			(at 254.508 119.126 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8112,7 +8056,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 270.7387 118.1322 0)
+			(at 270.8911 119.0466 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8249,7 +8193,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 97.79 51.6128 90)
 			(effects
 				(font
@@ -8317,7 +8261,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 106.172 108.204 90)
 			(effects
 				(font
@@ -8385,7 +8329,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 97.536 44.7548 90)
 			(effects
 				(font
@@ -9150,7 +9094,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 62.9412 164.5412 90)
 			(effects
 				(font
@@ -9442,7 +9386,7 @@
 	)
 	(symbol
 		(lib_id "Interface_Expansion:MCP23008-xP")
-		(at 220.472 128.0668 0)
+		(at 220.472 127.762 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -9451,7 +9395,7 @@
 		(fields_autoplaced yes)
 		(uuid "5eb40f6e-c8ca-4b58-b327-4c53298ccdef")
 		(property "Reference" "U1"
-			(at 222.4914 109.5248 0)
+			(at 222.4914 109.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9460,7 +9404,7 @@
 			)
 		)
 		(property "Value" "MCP23008-xP"
-			(at 222.4914 112.0648 0)
+			(at 222.4914 111.76 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9469,7 +9413,7 @@
 			)
 		)
 		(property "Footprint" "Package_DIP:DIP-18_W7.62mm"
-			(at 220.472 154.7368 0)
+			(at 220.472 154.432 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9478,7 +9422,7 @@
 			)
 		)
 		(property "Datasheet" "http://ww1.microchip.com/downloads/en/DeviceDoc/MCP23008-MCP23S08-Data-Sheet-20001919F.pdf"
-			(at 253.492 158.5468 0)
+			(at 253.492 158.242 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9487,7 +9431,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 220.472 128.0668 0)
+			(at 220.472 127.762 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9719,7 +9663,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 35.1028 41.0972 90)
 			(effects
 				(font
@@ -9989,7 +9933,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 276.352 58.674 90)
 			(effects
 				(font
@@ -10131,7 +10075,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 267.716 58.42 90)
 			(effects
 				(font
@@ -10411,7 +10355,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 47.752 173.1772 90)
 			(effects
 				(font
@@ -10479,7 +10423,7 @@
 				)
 			)
 		)
-		(property "Footprint" "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal"
+		(property "Footprint" "Resistor_THT:R_Axial_DIN0204_L3.6mm_D1.6mm_P5.08mm_Horizontal"
 			(at 108.9152 108.1024 90)
 			(effects
 				(font
