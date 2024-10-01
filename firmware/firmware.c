@@ -75,7 +75,7 @@
 #endif
 
 
-typedef enum _fsmStates {
+typedef enum {
 	RKEY_EVALUATION   = 0,
 	MPC23008_INIT     = 1,
 	PINS_SETTING      = 2,
@@ -86,7 +86,15 @@ typedef enum _fsmStates {
 	I2CBUS_READ       = 7,
 	I2CBUS_WRITE      = 8,
 	PARCKING_STATUS   = 9
-}  fsmStates;
+}  fsmStates_t;
+
+typedef enum {
+	MTB_STOPPED_ST,
+	MTB_WFR1_ST,
+	MTB_WFR2_ST,
+	MTB_ELSTARTING_ST,
+	MTB_RUNNIG_ST
+} mtbStates_t;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                 F U N C T I O N S
@@ -126,14 +134,14 @@ uint8_t blink (bool reset) {
 //------------------------------------------------------------------------------------------------------------------------------
 
 int main(void) {
-	bool      loop         = true;              // It enables the main loop (Just for future applications)
-	bool      decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
-	bool      isStarterRun = false;
-	fsmStates FSM          = RKEY_EVALUATION;
-	bool      firstRound   = true;
-	uint8_t   neutralPin   = 1;
-	uint8_t   bikeStandPin = 1;
-	uint8_t   clutchPin    = 1;
+	bool        loop         = true;              // It enables the main loop (Just for future applications)
+	bool        decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
+	fsmStates_t FSM          = RKEY_EVALUATION;
+	mtbStates_t mtbState     = MTB_STOPPED_ST;
+	bool        firstRound   = true;
+	uint8_t     neutralPin   = 1;
+	uint8_t     bikeStandPin = 1;
+	uint8_t     clutchPin    = 1;
 	
 	struct mbesSelector 
 		leftArr_sel, rightArr_sel, uLight_sel, horn_sel, engStart_sel, decomp_sel, addLight_sel, light_sel, engOn_sel;
@@ -336,66 +344,104 @@ int main(void) {
 			// Decompressor sensor management
 			if (mbesSelector_get(decomp_sel)) decompPushed = true;
 			
-
 			
 			//
-			// Protection by motorcycle stand down while the vehicle is running
+			// SECURITY policy #1
+			// 	Protection by motorcycle stand down while the vehicle is running
 			//
 			if (neutralPin == 1 && bikeStandPin == 1) {
-				setPinValue(o_ENGINEON,    0);   // Engine locked by CDI
-				setPinValue(o_ENGINEREADY, 0);
-				LOGMSG("WARNING! bike stand is down!!\n\r");
-
+				if (mtbState != MTB_STOPPED_ST)
+					LOGMSG("WARNING! bike stand is down!!\n\r");
+				mtbState = MTB_STOPPED_ST;
+			}
+			
+			// 
+			// Master rule #1
+			//	It the engine-on button is disabled then the mtb's engine must be stopped and locked, always
+			//
+			if (mbesSelector_get(engOn_sel) == 0) {
+				mtbState = MTB_STOPPED_ST;
+				setPinValue(o_ENGINEON, 0);            // Engine locked by CDI
+			}
 
 			//
-			// STOP the engine
+			// Master rule #2
+			//	If the start button is not pressed the electric eng must be stopped, in any situation
 			//
-			} else if (mbesSelector_get(engOn_sel) == 0) {
-				setPinValue(o_ENGINEON,    0);
+			if (mbesSelector_get(engStart_sel) == false)   // i_STARTBUTTON
 				setPinValue(o_STARTENGINE, 0);
-				setPinValue(o_ENGINEREADY, 0);
-
-			} else 
-				setPinValue(o_ENGINEON, 1);
 
 
-
-			//
-			// STOP the electric starter engine
-			//
-			if (isStarterRun) {
-				if (mbesSelector_get(engStart_sel) == false || (neutralPin == 1 && clutchPin == 1)) {
-					LOGMSG("Electric starter STOP\n\r");
+			switch (mtbState) {
+				case MTB_STOPPED_ST:
+					//
+					// In this state the mtb is stopped and it CANNOT be started by the electric engine and manually too
+					//
+					LOGMSG("MTB_STOPPED_ST\n\r");
+					setPinValue(o_ENGINEON,    0);   // Engine locked by CDI
+					setPinValue(o_ENGINEREADY, 0);   // LED: mtb is not yet ready to start
 					setPinValue(o_STARTENGINE, 0);
-					isStarterRun = false;
-				} else {
-					LOGMSG("Electric starter is running\n\r");
-				}
-				
-			//
-			// Starting procedure
-			//
-			} else if (
-				(neutralPin == 0 || clutchPin == 0) && decompPushed && mbesSelector_get(engOn_sel)
-			) {
-				// Decompressor MUST be released
-				if (mbesSelector_get(decomp_sel)) {
-					setPinValue(o_ENGINEON, 0); // 0 means eng locked
-						
-				} else {
-					// This LED inform the biker the engine is ready to start
-					LOGMSG("OK You can start the engine\n\r");
-					setPinValue(o_ENGINEREADY, 1);
+					
+					if ((neutralPin == 0 || clutchPin == 0) && decompPushed && mbesSelector_get(engOn_sel))
+						mtbState = MTB_WFR1_ST;
 
-					// *** START ***
-					if (mbesSelector_get(engStart_sel) == true) {  // i_STARTBUTTON
+				break;
+			
+
+				case MTB_WFR1_ST:
+					//
+					// In tis state driver is preparing the mtb to be started with electric eng. However he CAN
+					// start it manually
+					//
+					setPinValue(o_ENGINEON, 1);               // Engine no more locked by CDI
+					if (mbesSelector_get(decomp_sel) == 0)
+						mtbState = MTB_WFR1_ST;
+					else if (neutralPin == 1 && clutchPin == 1) {
+						decompPushed = false;               // The mtb has been started manually
+						mtbState = MTB_RUNNIG_ST;
+						LOGMSG("MTB started manually\n\r");
+					}
+				break;
+
+
+				case MTB_WFR2_ST:
+					//
+					// In tis state driver can choise to start the mtb using the electric eng or manually
+					//
+					if (neutralPin == 1 && clutchPin == 1) {
+						decompPushed = false;                    // The mtb has been started manually
+						mtbState = MTB_RUNNIG_ST;
+						LOGMSG("MTB started manually\n\r");
+					
+					} else if (mbesSelector_get(engStart_sel) == true) {  // i_STARTBUTTON
 						setPinValue(o_STARTENGINE, 1);
 						setPinValue(o_ENGINEREADY, 0);
 						LOGMSG("OK electric starter is running\n\r");
 						decompPushed = false;
-						isStarterRun = true;
+						mtbState = MTB_ELSTARTING_ST;
 					}
-				}
+				break;
+			
+
+				case MTB_ELSTARTING_ST:
+					//
+					// The electric start engine is running
+					//
+					if (mbesSelector_get(engStart_sel) == false) {  // i_STARTBUTTON
+						mtbState = MTB_RUNNIG_ST;
+						setPinValue(o_STARTENGINE, 0);
+					}
+				break;
+
+
+				case MTB_RUNNIG_ST:
+					//
+					// The motorbike's engine is running....
+					// Unfortunately, because the MCU does not know the real eng status (by RPM signal), to come back
+					// in the MTB_STOPPED_ST status, the driver MUST set the engine-on switch to off
+					//
+					setPinValue(o_ENGINEREADY, 0);
+				break;
 			}
 
 /*
