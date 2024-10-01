@@ -377,11 +377,11 @@ int main(void) {
 					//
 					// In this state the mtb is stopped and it CANNOT be started by the electric engine and manually too
 					//
-					LOGMSG("MTB_STOPPED_ST\n\r");
 					setPinValue(o_ENGINEON,    0);   // Engine locked by CDI
 					setPinValue(o_ENGINEREADY, 0);   // LED: mtb is not yet ready to start
 					setPinValue(o_STARTENGINE, 0);
 					
+					LOGMSG("MTB_STOPPED_ST\n\r");
 					if ((neutralPin == 0 || clutchPin == 0) && decompPushed && mbesSelector_get(engOn_sel))
 						mtbState = MTB_WFR1_ST;
 
@@ -394,8 +394,10 @@ int main(void) {
 					// start it manually
 					//
 					setPinValue(o_ENGINEON, 1);               // Engine no more locked by CDI
+					setPinValue(o_ENGINEREADY, 1);            // LED: mtb is not yet ready to start
+					LOGMSG("MTB_WFR1_ST\n\r");
 					if (mbesSelector_get(decomp_sel) == 0)
-						mtbState = MTB_WFR1_ST;
+						mtbState = MTB_WFR2_ST;
 					else if (neutralPin == 1 && clutchPin == 1) {
 						decompPushed = false;               // The mtb has been started manually
 						mtbState = MTB_RUNNIG_ST;
@@ -408,6 +410,7 @@ int main(void) {
 					//
 					// In tis state driver can choise to start the mtb using the electric eng or manually
 					//
+					LOGMSG("MTB_WFR2_ST\n\r");
 					if (neutralPin == 1 && clutchPin == 1) {
 						decompPushed = false;                    // The mtb has been started manually
 						mtbState = MTB_RUNNIG_ST;
@@ -427,6 +430,7 @@ int main(void) {
 					//
 					// The electric start engine is running
 					//
+					LOGMSG("MTB_ELSTARTING_ST\n\r");
 					if (mbesSelector_get(engStart_sel) == false) {  // i_STARTBUTTON
 						mtbState = MTB_RUNNIG_ST;
 						setPinValue(o_STARTENGINE, 0);
@@ -440,7 +444,18 @@ int main(void) {
 					// Unfortunately, because the MCU does not know the real eng status (by RPM signal), to come back
 					// in the MTB_STOPPED_ST status, the driver MUST set the engine-on switch to off
 					//
+					// If the ebgine stops to run for so,e reason, ad the driver will push the decompressor control,
+					// then the engine will be immediately ready to be started again. Also if the driver want to stop
+					// the engine using the decompressor (but he should not do this!)
+					//
 					setPinValue(o_ENGINEREADY, 0);
+					LOGMSG("MTB_RUNNIG_ST\n\r");
+
+					if (mbesSelector_get(decomp_sel) == 1) {
+						mtbState = MTB_WFR1_ST;
+						setPinValue(o_ENGINEON, 0);           // Engine locking request to CDI
+						_delay_ms(1000);                      // I wait (1s) for the engine stop
+					}
 				break;
 			}
 
