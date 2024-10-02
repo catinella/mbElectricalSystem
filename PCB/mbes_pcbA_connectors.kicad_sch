@@ -1145,6 +1145,147 @@
 				)
 			)
 		)
+		(symbol "Regulator_Linear:L7805"
+			(pin_names
+				(offset 0.254)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(property "Reference" "U"
+				(at -3.81 3.175 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+				)
+			)
+			(property "Value" "L7805"
+				(at 0 3.175 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(justify left)
+				)
+			)
+			(property "Footprint" ""
+				(at 0.635 -3.81 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+						(italic yes)
+					)
+					(justify left)
+					(hide yes)
+				)
+			)
+			(property "Datasheet" "http://www.st.com/content/ccc/resource/technical/document/datasheet/41/4f/b3/b0/12/d4/47/88/CD00000444.pdf/files/CD00000444.pdf/jcr:content/translations/en.CD00000444.pdf"
+				(at 0 -1.27 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "Description" "Positive 1.5A 35V Linear Regulator, Fixed Output 5V, TO-220/TO-263/TO-252"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_keywords" "Voltage Regulator 1.5A Positive"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(property "ki_fp_filters" "TO?252* TO?263* TO?220*"
+				(at 0 0 0)
+				(effects
+					(font
+						(size 1.27 1.27)
+					)
+					(hide yes)
+				)
+			)
+			(symbol "L7805_0_1"
+				(rectangle
+					(start -5.08 1.905)
+					(end 5.08 -5.08)
+					(stroke
+						(width 0.254)
+						(type default)
+					)
+					(fill
+						(type background)
+					)
+				)
+			)
+			(symbol "L7805_1_1"
+				(pin power_in line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "IN"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "1"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_in line
+					(at 0 -7.62 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "2"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "OUT"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+			)
+		)
 		(symbol "power:GND"
 			(power)
 			(pin_names
@@ -1634,6 +1775,16 @@
 	)
 	(wire
 		(pts
+			(xy 184.658 139.446) (xy 184.658 103.632)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "263d9a1c-f5ed-4b43-a67d-c4cbb0b12305")
+	)
+	(wire
+		(pts
 			(xy 77.47 58.42) (xy 77.47 52.705)
 		)
 		(stroke
@@ -1704,16 +1855,6 @@
 	)
 	(wire
 		(pts
-			(xy 172.466 105.156) (xy 175.006 105.156)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "32254687-d347-49e4-8a83-26352d6dd9e5")
-	)
-	(wire
-		(pts
 			(xy 182.88 53.848) (xy 201.549 53.848)
 		)
 		(stroke
@@ -1771,16 +1912,6 @@
 			(type default)
 		)
 		(uuid "3fd1df62-73b3-445d-a74d-4ecb13546961")
-	)
-	(wire
-		(pts
-			(xy 175.006 105.156) (xy 175.006 103.632)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "424b7854-8a85-4b39-9bf3-937198972ed9")
 	)
 	(wire
 		(pts
@@ -1844,6 +1975,16 @@
 	)
 	(wire
 		(pts
+			(xy 225.044 139.446) (xy 207.518 139.446)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "56d567ea-263c-40fb-9cc3-952409cf1c10")
+	)
+	(wire
+		(pts
 			(xy 61.976 114.3) (xy 91.6432 114.3)
 		)
 		(stroke
@@ -1851,6 +1992,16 @@
 			(type default)
 		)
 		(uuid "576aed59-bf69-415e-b991-9e28f4494076")
+	)
+	(wire
+		(pts
+			(xy 184.658 103.632) (xy 190.5 103.632)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5873479d-7d9e-40f4-9d32-a2d5e10a2954")
 	)
 	(wire
 		(pts
@@ -2004,16 +2155,6 @@
 	)
 	(wire
 		(pts
-			(xy 175.006 103.632) (xy 190.5 103.632)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "716379e2-07a9-4614-adcc-814d4b70ea32")
-	)
-	(wire
-		(pts
 			(xy 88.9 121.666) (xy 88.9 124.968)
 		)
 		(stroke
@@ -2071,6 +2212,16 @@
 			(type default)
 		)
 		(uuid "7b859de1-aa1f-4ba2-bb56-735d21863d5a")
+	)
+	(wire
+		(pts
+			(xy 199.898 147.066) (xy 199.898 148.082)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "81051e44-42b0-4158-a53d-b9be68516569")
 	)
 	(wire
 		(pts
@@ -2351,6 +2502,16 @@
 			(type default)
 		)
 		(uuid "b4e1d0f0-230a-4410-aef3-cb060f06ca0e")
+	)
+	(wire
+		(pts
+			(xy 192.278 139.446) (xy 184.658 139.446)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b6fc113f-2a8f-4431-a551-a25fa63cf040")
 	)
 	(wire
 		(pts
@@ -2890,37 +3051,6 @@
 			)
 		)
 	)
-	(global_label "tempPower"
-		(shape input)
-		(at 172.466 105.156 180)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "1ada6a6c-cc1f-419a-a2db-6e9e87caf221")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 172.466 105.156 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 159.7719 105.2354 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "o_leftArrow"
 		(shape input)
 		(at 225.0948 116.6876 0)
@@ -3450,6 +3580,38 @@
 			)
 		)
 	)
+	(global_label "5V"
+		(shape input)
+		(at 225.044 139.446 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "7521aa13-1a18-425e-b6b7-790fc44e37bb")
+		(property "Intersheetrefs" "${INTERSHEET_REFS}"
+			(at 230.3273 139.446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
+			(at 225.044 141.6368 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+	)
 	(global_label "o_downLight"
 		(shape input)
 		(at 225.044 102.4128 0)
@@ -3886,7 +4048,7 @@
 			)
 		)
 	)
-	(global_label "tempPower"
+	(global_label "5V"
 		(shape input)
 		(at 95.25 140.208 0)
 		(fields_autoplaced yes)
@@ -3898,16 +4060,17 @@
 		)
 		(uuid "c963bdab-299e-4aac-b3b7-f24dbc93591b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 95.25 140.208 0)
+			(at 100.5333 140.208 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 107.9441 140.1286 0)
+			(at 95.25 142.3988 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4608,6 +4771,146 @@
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
 					(reference "leftCtrls-faston1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 199.898 148.082 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "5c12595b-4c5a-4475-9daf-f69a00814518")
+		(property "Reference" "#PWR05"
+			(at 199.898 154.432 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 199.898 153.162 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 199.898 148.082 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 199.898 148.082 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 199.898 148.082 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "eee20ced-b853-4793-86fc-5de39802684b")
+		)
+		(instances
+			(project "pcb-a"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+					(reference "#PWR05")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Regulator_Linear:L7805")
+		(at 199.898 139.446 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "8d629916-24bd-422e-81a5-e6d4cbe2af6e")
+		(property "Reference" "U3"
+			(at 199.898 133.096 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "L7805"
+			(at 199.898 135.636 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Package_TO_SOT_THT:TO-220-3_Vertical"
+			(at 200.533 143.256 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+					(italic yes)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "http://www.st.com/content/ccc/resource/technical/document/datasheet/41/4f/b3/b0/12/d4/47/88/CD00000444.pdf/files/CD00000444.pdf/jcr:content/translations/en.CD00000444.pdf"
+			(at 199.898 140.716 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Positive 1.5A 35V Linear Regulator, Fixed Output 5V, TO-220/TO-263/TO-252"
+			(at 199.898 139.446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "3"
+			(uuid "8e166866-c0b3-47bd-8fb9-eb7682165933")
+		)
+		(pin "1"
+			(uuid "cba31864-1ad3-4679-ba21-9d972780f721")
+		)
+		(pin "2"
+			(uuid "798ef744-b58c-457f-9c4c-87d88d803960")
+		)
+		(instances
+			(project ""
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+					(reference "U3")
 					(unit 1)
 				)
 			)

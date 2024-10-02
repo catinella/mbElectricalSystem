@@ -7275,7 +7275,7 @@
 			)
 		)
 	)
-	(global_label "tempPower"
+	(global_label "5V"
 		(shape input)
 		(at 29.8196 35.306 180)
 		(fields_autoplaced yes)
@@ -7287,16 +7287,17 @@
 		)
 		(uuid "1bebefef-6d14-4019-8e43-55e24772d834")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 29.8196 35.306 0)
+			(at 24.5363 35.306 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 17.1255 35.3854 0)
+			(at 29.8196 37.4968 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7430,7 +7431,7 @@
 			)
 		)
 	)
-	(global_label "tempPower"
+	(global_label "5V"
 		(shape input)
 		(at 263.652 33.274 90)
 		(fields_autoplaced yes)
@@ -7442,7 +7443,7 @@
 		)
 		(uuid "49190012-9d8e-4f55-bad2-e29eea7d98ce")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 263.652 20.0079 90)
+			(at 263.652 27.9907 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8052,7 +8053,7 @@
 			)
 		)
 	)
-	(global_label "tempPower"
+	(global_label "5V"
 		(shape input)
 		(at 49.53 178.2064 270)
 		(fields_autoplaced yes)
@@ -8064,16 +8065,17 @@
 		)
 		(uuid "dd9fecb0-b2a7-4e9b-9115-cce410673c54")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 49.53 178.2064 0)
+			(at 49.53 183.4897 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 49.6094 190.9005 90)
+			(at 51.7208 178.2064 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8857,7 +8859,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "10uf"
+		(property "Value" "50uf"
 			(at 158.496 29.21 0)
 			(effects
 				(font
