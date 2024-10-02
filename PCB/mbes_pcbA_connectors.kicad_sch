@@ -1267,10 +1267,22 @@
 		(uuid "63c23abc-71db-4a58-854b-0a0c3fc062df")
 	)
 	(junction
+		(at 214.376 126.238)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "70f78b97-e5d5-4df5-9c4b-6258c24e2f8d")
+	)
+	(junction
 		(at 65.786 55.88)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "7187924a-0211-42c8-801a-ec5b8cd59ae4")
+	)
+	(junction
+		(at 190.754 68.58)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "90e0089f-0a55-434d-a076-ae91926d2069")
 	)
 	(junction
 		(at 91.6432 114.3)
@@ -1782,6 +1794,16 @@
 	)
 	(wire
 		(pts
+			(xy 214.376 126.238) (xy 210.058 126.238)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "45852265-fb71-4600-b77a-c401012298e9")
+	)
+	(wire
+		(pts
 			(xy 180.2892 129.032) (xy 190.754 129.032)
 		)
 		(stroke
@@ -1792,7 +1814,17 @@
 	)
 	(wire
 		(pts
-			(xy 218.7956 126.238) (xy 210.058 126.238)
+			(xy 214.376 85.852) (xy 190.754 85.852)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4c621922-e4f6-4198-970a-bc1de1c3d4fa")
+	)
+	(wire
+		(pts
+			(xy 218.7956 126.238) (xy 214.376 126.238)
 		)
 		(stroke
 			(width 0)
@@ -2432,6 +2464,16 @@
 	)
 	(wire
 		(pts
+			(xy 190.754 85.852) (xy 190.754 68.58)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d399d5ad-9865-408b-9850-52f51c448ed4")
+	)
+	(wire
+		(pts
 			(xy 61.722 58.42) (xy 77.47 58.42)
 		)
 		(stroke
@@ -2469,6 +2511,16 @@
 			(type default)
 		)
 		(uuid "df48b8b4-b0af-4ac5-bda3-0df248923156")
+	)
+	(wire
+		(pts
+			(xy 214.376 126.238) (xy 214.376 85.852)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e1138aa3-d5d2-4f7a-81c6-4f198bb3181e")
 	)
 	(wire
 		(pts
@@ -3117,7 +3169,7 @@
 			)
 		)
 	)
-	(global_label "o_neutral"
+	(global_label "c_neutral"
 		(shape input)
 		(at 225.3996 127 0)
 		(fields_autoplaced yes)
@@ -3129,16 +3181,17 @@
 		)
 		(uuid "48d45491-3809-476e-ac1b-5995a088c483")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 225.3996 127 0)
+			(at 237.1537 127 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 236.6422 126.9206 0)
+			(at 225.3996 129.1908 0)
 			(effects
 				(font
 					(size 1.27 1.27)
