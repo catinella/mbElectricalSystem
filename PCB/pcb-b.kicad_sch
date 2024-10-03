@@ -7397,44 +7397,6 @@
 			)
 		)
 	)
-	(sheet
-		(at 13.5128 30.4292)
-		(size 39.37 8.5344)
-		(fields_autoplaced yes)
-		(stroke
-			(width 0.1524)
-			(type solid)
-		)
-		(fill
-			(color 0 0 0 0.0000)
-		)
-		(uuid "58129762-4641-4cf0-a39a-a6f0d215df4c")
-		(property "Sheetname" "start-stop"
-			(at 13.5128 29.7176 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left bottom)
-			)
-		)
-		(property "Sheetfile" "mbes_start_stop.kicad_sch"
-			(at 13.5128 39.5482 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left top)
-			)
-		)
-		(instances
-			(project "pcb-b"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(page "3")
-				)
-			)
-		)
-	)
 	(sheet_instances
 		(path "/"
 			(page "1")
