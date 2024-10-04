@@ -4146,6 +4146,12 @@
 		(uuid "8d7c11a8-871a-4f47-9f41-78c53f8bcb97")
 	)
 	(junction
+		(at 239.522 66.802)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "8f660fac-33dd-421c-873c-7b6bc807d14c")
+	)
+	(junction
 		(at 123.0884 43.6372)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4162,6 +4168,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "9f9a2225-cfc6-4b81-b659-5fe28b71b523")
+	)
+	(junction
+		(at 278.13 66.802)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "a1a8dbe8-7696-4ede-a2c1-040675a99e7c")
 	)
 	(junction
 		(at 59.0804 38.7604)
@@ -4590,6 +4602,16 @@
 			(type default)
 		)
 		(uuid "183f5667-e1bd-4554-9eae-6daec729b1c4")
+	)
+	(wire
+		(pts
+			(xy 264.16 66.802) (xy 239.522 66.802)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "186f206f-6430-496a-a54f-3fd0098455bd")
 	)
 	(wire
 		(pts
@@ -5163,6 +5185,16 @@
 	)
 	(wire
 		(pts
+			(xy 271.78 66.802) (xy 278.13 66.802)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "47d4bc12-87c6-4cd7-9f45-d7f9db2b59a0")
+	)
+	(wire
+		(pts
 			(xy 74.422 90.424) (xy 252.222 90.424)
 		)
 		(stroke
@@ -5590,6 +5622,16 @@
 			(type default)
 		)
 		(uuid "696ebf54-9152-4889-9dfc-ae5845837704")
+	)
+	(wire
+		(pts
+			(xy 239.522 66.802) (xy 239.522 97.5868)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "6ac06520-e5c4-4883-9bbf-b500f5859d98")
 	)
 	(wire
 		(pts
@@ -6133,7 +6175,7 @@
 	)
 	(wire
 		(pts
-			(xy 278.13 62.484) (xy 278.13 66.04)
+			(xy 278.13 62.484) (xy 278.13 66.802)
 		)
 		(stroke
 			(width 0)
@@ -6483,7 +6525,7 @@
 	)
 	(wire
 		(pts
-			(xy 239.522 43.434) (xy 239.522 97.5868)
+			(xy 239.522 43.434) (xy 239.522 66.802)
 		)
 		(stroke
 			(width 0)
@@ -6760,6 +6802,16 @@
 			(type default)
 		)
 		(uuid "da25e28f-ca9d-4aac-aec4-37b19934754f")
+	)
+	(wire
+		(pts
+			(xy 278.13 66.802) (xy 278.13 75.946)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "da7e807b-8522-4a3d-ac9f-1b98839a5b02")
 	)
 	(wire
 		(pts
@@ -8454,7 +8506,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 278.13 66.04 0)
+		(at 278.13 75.946 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8463,7 +8515,7 @@
 		(fields_autoplaced yes)
 		(uuid "24cd5a34-234f-43dd-b27e-d2b7bc49b2c6")
 		(property "Reference" "#PWR04"
-			(at 278.13 72.39 0)
+			(at 278.13 82.296 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8472,7 +8524,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 278.13 71.6788 0)
+			(at 278.13 81.5848 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8480,7 +8532,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 278.13 66.04 0)
+			(at 278.13 75.946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8489,7 +8541,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 278.13 66.04 0)
+			(at 278.13 75.946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8498,7 +8550,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 278.13 66.04 0)
+			(at 278.13 75.946 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -11034,6 +11086,76 @@
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
 					(reference "RV1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 267.97 66.802 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e7bd39ed-6662-438e-ad87-4560f723f5be")
+		(property "Reference" "C9"
+			(at 266.6999 62.9412 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Value" "100nF"
+			(at 266.192 68.326 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:C_Disc_D6.0mm_W2.5mm_P5.00mm"
+			(at 271.78 65.8368 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 267.97 66.802 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 267.97 66.802 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9dbedb55-b01a-4f3b-a785-3a76c73843b7")
+		)
+		(pin "2"
+			(uuid "35d2f63a-ceb1-4d94-9f74-c3a9a2fba865")
+		)
+		(instances
+			(project "pcb-a"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
+					(reference "C9")
 					(unit 1)
 				)
 			)

@@ -1390,6 +1390,12 @@
 		(uuid "05d714a9-dfcc-4b3d-af46-c324fde5369f")
 	)
 	(junction
+		(at 65.786 167.132)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "0b0f4069-02c6-40fe-9b5c-92f8f21d681f")
+	)
+	(junction
 		(at 65.786 148.9456)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1424,6 +1430,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "90e0089f-0a55-434d-a076-ae91926d2069")
+	)
+	(junction
+		(at 89.662 140.208)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "ab51c5b0-a6ef-42dc-925d-9de3b655ad8e")
 	)
 	(junction
 		(at 91.6432 114.3)
@@ -1835,7 +1847,7 @@
 	)
 	(wire
 		(pts
-			(xy 65.786 163.068) (xy 65.786 157.988)
+			(xy 65.786 180.594) (xy 65.786 167.132)
 		)
 		(stroke
 			(width 0)
@@ -1852,6 +1864,16 @@
 			(type default)
 		)
 		(uuid "3051024d-f722-4e0b-a136-636237f0a7ee")
+	)
+	(wire
+		(pts
+			(xy 61.722 164.592) (xy 89.662 164.592)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "3624a4af-ce45-4532-a0a3-9db18e5cadee")
 	)
 	(wire
 		(pts
@@ -2175,6 +2197,16 @@
 	)
 	(wire
 		(pts
+			(xy 89.662 164.592) (xy 89.662 140.208)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "73491442-d90b-45d1-bb08-b85ada09643b")
+	)
+	(wire
+		(pts
 			(xy 201.549 55.88) (xy 208.28 55.88)
 		)
 		(stroke
@@ -2385,6 +2417,16 @@
 	)
 	(wire
 		(pts
+			(xy 65.786 167.132) (xy 65.786 157.988)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a1036d1e-c532-4e66-917f-597f42b3e822")
+	)
+	(wire
+		(pts
 			(xy 176.276 106.172) (xy 190.5 106.172)
 		)
 		(stroke
@@ -2502,6 +2544,16 @@
 			(type default)
 		)
 		(uuid "b4e1d0f0-230a-4410-aef3-cb060f06ca0e")
+	)
+	(wire
+		(pts
+			(xy 61.722 167.132) (xy 65.786 167.132)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b5c66733-d7c1-42cf-9751-87919c59057f")
 	)
 	(wire
 		(pts
@@ -4427,7 +4479,7 @@
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 65.786 163.068 0)
+		(at 65.786 180.594 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4436,7 +4488,7 @@
 		(fields_autoplaced yes)
 		(uuid "32b2dbb6-cc8f-4b0d-b8e0-9eab81ba7c7d")
 		(property "Reference" "#PWR0108"
-			(at 65.786 169.418 0)
+			(at 65.786 186.944 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4445,7 +4497,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 65.786 168.148 0)
+			(at 65.786 185.674 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4453,7 +4505,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 65.786 163.068 0)
+			(at 65.786 180.594 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4462,7 +4514,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 65.786 163.068 0)
+			(at 65.786 180.594 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4471,7 +4523,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 65.786 163.068 0)
+			(at 65.786 180.594 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5212,6 +5264,76 @@
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
 					(reference "R1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector_Generic:Conn_01x02")
+		(at 56.642 167.132 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "bc3c7246-991d-4882-948a-7c461c7a223b")
+		(property "Reference" "extpwr1"
+			(at 62.484 161.29 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "Conn_01x02"
+			(at 55.3721 169.672 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
+			(at 56.642 167.132 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 56.642 167.132 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 56.642 167.132 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "28ad2566-6411-4b9c-b90f-b05976463ad5")
+		)
+		(pin "2"
+			(uuid "463e4986-bb87-4f69-890d-bfab33edce79")
+		)
+		(instances
+			(project "pcb-a"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+					(reference "extpwr1")
 					(unit 1)
 				)
 			)
