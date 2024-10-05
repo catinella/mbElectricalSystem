@@ -7,13 +7,13 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware-esp32.c
+// File:   test01.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This code implements a simple counter and it has been written to check for the building system, mainly.
-//	If you can see a conter in your device's console, then your building chain has been prperly configured.
+//	It is the simplest provided test. It implements a simple counter and it has been written to check for the building
+//	system, mainly. If you can see a conter in your device's console, then your building chain has been prperly configured.
 //
 //
 // License:
