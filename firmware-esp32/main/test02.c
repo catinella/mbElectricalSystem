@@ -7,11 +7,14 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File:   firmware-esp32.c
+// File:   test02.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
+//	This test use a GPIO to make a LED blinking.
+//
+//	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -39,8 +42,14 @@
 #include "mbesPinsMap.h"
 
 void app_main(void) {
-	// PIN direction configuration
-	gpio_set_direction(o_KEEPALIVE, GPIO_MODE_OUTPUT);
+	// PIN configuration
+	gpio_config_t io_conf;
+	io_conf.intr_type    = GPIO_INTR_DISABLE;     // No interrupt
+	io_conf.mode         = GPIO_MODE_OUTPUT;      // The pin is an output
+	io_conf.pin_bit_mask = (1ULL << o_KEEPALIVE); // Pin number
+	io_conf.pull_down_en = GPIO_PULLDOWN_DISABLE; // NO pull-down
+	io_conf.pull_up_en   = GPIO_PULLDOWN_DISABLE; // NO pull-down
+	gpio_config(&io_conf);
 
 	 while (1) {
 		// Turn ON the LED
