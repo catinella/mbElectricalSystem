@@ -79,10 +79,10 @@
 //
 
 #define i_LIGHTONOFF     GPIO_NUM_0
-#define i_VX1            ADC1_CH0
-#define i_VX2            ADC1_CH1
-#define i_VY1            ADC1_CH2
-#define i_VY2            ADC1_CH3
+#define i_VX1            ADC_CHANNEL_0
+#define i_VX2            ADC_CHANNEL_1
+#define i_VY1            ADC_CHANNEL_2
+#define i_VY2            ADC_CHANNEL_3
 // ==== available ====   GPIO5/ADC1_CH4
 // ==== available ====   GPIO6/ADC1_CH5
 // ==== available ====   GPIO7/ADC1_CH6
