@@ -49,12 +49,23 @@
 
 void ledStatus(void *status) {
 	static bool ist = false;
+	static SemaphoreHandle_t ledMutex;
+	static bool flag = false;
 	
-	if (status == NULL) {
-		ist = ist ? false : true;
-	} else {
-		*(bool*)status = ist;
+	if (flag == false) {
+		ledMutex = xSemaphoreCreateMutex();
+		flag = true;
 	}
+	
+	if (xSemaphoreTake(ledMutex, portMAX_DELAY) == pdTRUE) {
+		if (status == NULL) {
+			ist = ist ? false : true;
+		} else {
+			*(bool*)status = ist;
+		}
+		xSemaphoreGive(ledMutex);
+	}
+	
 	return;
 }
 	
@@ -103,7 +114,7 @@ void app_main(void) {
 		// ERROR!
 		ESP_LOGE("-->", "ERROR! I cannot crate the timer");
 	
-	else if (esp_timer_start_periodic(timerHandle, 500000) != ESP_OK) 
+	else if (esp_timer_start_periodic(timerHandle, 150000) != ESP_OK) 
 		// ERROR!
 		ESP_LOGE("-->", "ERROR! I cannot start the timer");
 		
@@ -121,9 +132,16 @@ void app_main(void) {
 		if (esp_timer_stop(timerHandle) != ESP_OK)
 			// ERROR!
 			ESP_LOGE("-->", "ERROR! I cannot stop the timer");
+		else
+			ESP_LOGI("-->", "Times has been stopped successfully");
 		
 		if (esp_timer_delete(timerHandle) != ESP_OK)
 			// ERROR!
 			ESP_LOGE("-->", "ERROR! I cannot delete the timer");
+		else
+			ESP_LOGI("-->", "Times has been released successfully");
+			
+		// Turning off the led	
+		gpio_set_level(o_KEEPALIVE, 0);
 	}
 }
