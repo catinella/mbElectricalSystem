@@ -12,7 +12,23 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This test use a GPIO to make a LED blinking.
+//	This test use a GPIO to make a led blinking
+//
+//	5V ----------+------------------------------------------
+//	             |
+//	             |  +-------+
+//	             +--+       |        +---------+
+//	                |       |        |         |
+//	                |       +------->|   USB   |
+//	                |       |        | Console |         
+//	                |  MCU  |        |         |
+//	                |       |        +---------+
+//	                |       |       
+//	                |       |              +--------+
+//	             +--+       +-------[LED]--+ 2K Ohm +---+
+//	             |  +-------+              +--------+   |
+//	             |                                      |
+//	GND -+-------+--------------------------------------+---
 //
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //
@@ -57,7 +73,7 @@ void app_main(void) {
 		ESP_LOGI(__FUNCTION__, "(GPIO-%d) ON", o_KEEPALIVE);
 		vTaskDelay(500 / portTICK_PERIOD_MS);
 
-		// Tutn OFF LED
+		// Turn OFF LED
 		gpio_set_level(o_KEEPALIVE, 0);
 		ESP_LOGI(__FUNCTION__, "OFF");
 		vTaskDelay(500 / portTICK_PERIOD_MS);

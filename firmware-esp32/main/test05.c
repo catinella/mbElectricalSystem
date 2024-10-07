@@ -12,7 +12,7 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	
+//	It makes the led blinking using an ESP32's timer
 //
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //

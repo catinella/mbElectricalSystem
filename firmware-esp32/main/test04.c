@@ -12,7 +12,21 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	
+//	This simple test is for the ESP32's A/D converter.
+//
+//	5V ---+---------+------------------------------------------
+//	      |         |
+//	    |-+-|       |  +-------+
+//	    |   |       +--+       |        +---------+
+//	    |   |          |       |        |         |
+//	    | R |<---------+  MCU  +------->| Console |
+//	    |10K|          |       |        |         |
+//	    |   |       +--+       |        +---------+
+//	    |-+-|       |  +-------+
+//	      |         |
+//	GND --+---------+------------------------------------------
+//
+//	[!] Don't use potentiometer resistor bigger then 10k Ohm
 //
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //

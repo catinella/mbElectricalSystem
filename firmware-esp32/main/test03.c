@@ -12,7 +12,33 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
+//	This test use a GPIO to turn on/off a connected led
 //	
+//	5V ---------------+-----+------------------------------------------
+//	                  |     |
+//	                +-+-+   |  +-------+
+//	                |10K|   +--+       |        +---------+
+//	                |OHM|      |       |        |         |
+//	                +-+-+      |       +------->|   USB   |
+//	         _--_     |        |       |        | Console |         
+//	     +---O  O-----+--------+  MCU  |        |         |
+//	     |                     |       |        +---------+
+//	     |                     |       |       
+//	     |                     |       |              +--------+
+//	     |                  +--+       +-------[LED]--+ 2K Ohm +---+
+//	     |                  |  +-------+              +--------+   |
+//	     |                  |                                      |
+//	GND -+------------------+--------------------------------------+---
+//
+//	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
+//
+// License:
+//	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
+//
+//	This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+//	License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
+//	version.
+//
 //
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //
