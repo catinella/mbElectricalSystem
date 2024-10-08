@@ -12,7 +12,24 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	It makes the led blinking using an ESP32's timer
+//	It makes the led blinking using an ESP32's timer. Use the button to ends the test and release the used resources
+//
+//	5V --------------------+-----+------------------------------------------
+//	                       |     |
+//	                     +-+-+   |  +-------+
+//	                     |10K|   +--+       |        +---------+
+//	                     |OHM|      |       |        |         |
+//	                     +-+-+      |       +------->|   USB   |
+//	              _--_     |        |       |        | Console |
+//	          +---O  O-----+--------+  MCU  |        |         |
+//	          |  (STOP)             |       |        +---------+
+//	          |                     |       |
+//	          |                     |       |              +--------+
+//	          |                  +--+       +-------[LED]--+ 2K Ohm +---+
+//	          |                  |  +-------+              +--------+   |
+//	          |                  |                                      |
+//	GND ------+------------------+--------------------------------------+---
+//
 //
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //
