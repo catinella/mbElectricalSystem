@@ -3,6 +3,7 @@ idf_component_register(
 		"firmware-esp32.c" 
 	INCLUDE_DIRS
 		"." 
+		"../components/iInputInterface/include"
 	PRIV_REQUIRES
 		esp_driver_gpio
 		esp_adc
