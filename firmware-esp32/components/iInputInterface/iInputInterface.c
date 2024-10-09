@@ -317,6 +317,10 @@ uint8_t iInputInterface_init () {
 	//	Module's initialization. This is the first function the user has to call
 	//	The timer period should be 5ms
 	//
+	// Returned value:
+	//	IINPUTIF_SUCCESS
+	//	IINPUTIF_ERROR_TIMERAPI
+	//
 	uint8_t                 ec = IINPUTIF_SUCCESS;
 	esp_timer_create_args_t timerArgs;
 	esp_timer_handle_t      timerHandle;
