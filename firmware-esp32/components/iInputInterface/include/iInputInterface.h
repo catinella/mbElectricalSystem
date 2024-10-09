@@ -84,7 +84,7 @@ typedef enum _iInputType {
 //                                                  F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
 uint8_t iInputInterface_init ();
-uint8_t iInputInterface_new  (int8_t *inputID, iInputType type, int8_t pin);
-uint8_t iInputInterface_get  (int8_t inputID, bool *status);
+uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin);
+uint8_t iInputInterface_get  (uint8_t inputID, bool *status);
 
 #endif
