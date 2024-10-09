@@ -103,8 +103,8 @@ typedef struct {
 } iInputItem_t;
 
 typedef enum {
-	INTDB_TAKE,
-	INTDB_RELEASE
+	INTDB_TAKE    = 0,
+	INTDB_RELEASE = 1
 } moduleDB_cmd_t;
 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -135,18 +135,27 @@ iInputItem_t* _moduleDB_get (moduleDB_cmd_t cmd, uint8_t *size) {
 	// Initialization
 	//
 	if (flag == false) {
-		mtx = xSemaphoreCreateMutex();
-		flag = true;
+		if ((mtx = xSemaphoreCreateMutex()) == NULL)
+			ESP_LOGE(__FUNCTION__, "Mutex creation failed");
+		else {
+			ESP_LOGI(__FUNCTION__, "OK mutex created");
+			flag = true;
+		}
 	}
 
 	if (cmd == INTDB_RELEASE) {
-		// ERROR!
-		if (xSemaphoreGive(mtx) != pdTRUE) LOGERR
+		//ESP_LOGI(__FUNCTION__, "---->%d", __LINE__);
+		if (xSemaphoreGive(mtx) != pdTRUE)
+			// ERROR!
+			LOGERR
 	
-	} else if (INTDB_TAKE) {
+	} else if (cmd == INTDB_TAKE) {
 		if (xSemaphoreTake(mtx, portMAX_DELAY) == pdTRUE) {
 			out = itemsStorage;
 			*size = index;
+		} else {
+			// ERROR!
+			LOGERR
 		}
 	}
 	return(out);
@@ -175,6 +184,8 @@ void _iInputInterface_update(uint8_t inputID) {
 	uint8_t      noi;
 	iInputItem_t *item = _moduleDB_get(INTDB_TAKE, &noi);
 	uint32_t     myTimer = 0;
+		
+	ESP_LOGI(__FUNCTION__, "---->%d", __LINE__);
 	
 	if (item == NULL)
 		// WARNING
@@ -343,7 +354,7 @@ uint8_t iInputInterface_init () {
 	return(ec);
 }
 
-uint8_t iInputInterface_new  (int8_t *inputID, iInputType type, int8_t pin) {
+uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin) {
 	//
 	// Description:
 	//	It create a new internal object to manage the argument defined input-control and returns its numeric id
@@ -369,6 +380,7 @@ uint8_t iInputInterface_new  (int8_t *inputID, iInputType type, int8_t pin) {
 	if (db == NULL) {
 		// WARNING!
 		ESP_LOGW(__FUNCTION__, "WARNING! I cannot get the module's db control");
+		ec = IINPUTIF_WARNING_RESBUSY;
 		
 	} else {
 		if (index >= IINPUTIF_MAXITEMSNUMB) {
@@ -395,7 +407,7 @@ uint8_t iInputInterface_new  (int8_t *inputID, iInputType type, int8_t pin) {
 	return(ec);
 }
 
-uint8_t iInputInterface_get (int8_t inputID, bool *currStat) {
+uint8_t iInputInterface_get (uint8_t inputID, bool *currStat) {
 	//
 	// Description:
 	//	It looks for interface with id equals to the argument defined one, and writes its status in the memory area
