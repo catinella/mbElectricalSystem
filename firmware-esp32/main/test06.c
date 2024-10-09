@@ -14,27 +14,27 @@
 //
 // Description:
 //	This simple test has been written to verify the iInputInterface module and requires the following circuit.
-//	The button-b (i_CONF2) has been configured as simple button, so everytime you will push it, the led-b will be on.
-//	The button-a (i_CONF1) is configured ad HOLD-ON button. So, it will require a click to turn on the led-a, and another
-//	click to turn it off
+//	The button-b (i_CONF2) has been configured as simple button, so everytime you will push it, the led-b (o_NEUTRAL) will
+//	be on. The button-a (i_CONF1) is configured ad HOLD-ON button. So, it will require a click to turn-on the led-a
+//	(o_KEEPALIVE), and another click to turn-off the led
 //
-//	Vcc ------------------+-----+-----+------------------------------------------
-//	                      |     |     |
-//	                    +-+-+ +-+-+   |  +-------+
-//	                    |10K| |10K|   +--+       |    +---------+
-//	                    |OHM| |OHM|      |       +--->|   USB   |       
-//	                    +-+-+ +-+-+      |       |    | Console |
-//	              _--_    |     |        |       |    +---------+
-//	          +---O  O----+--------------+       |
-//	          | (button-A)      |        |       |              +--------+
-//	          |   _==_          |        |  MCU  +---[LED A]----+ 2K Ohm +---+
-//	          +---O  O----------+--------+       |              +--------+   |
-//	          | (button-B)               |       |                           |
-//	          |                          |       |              +--------+   |
-//	          |                       +--+       +---[LED B]----+ 2K Ohm +---+
-//	          |                       |  |       |              +--------+   |
-//	          |                       |  +-------+                           |
-//	GND ------+-----------------------+--------------------------------------+---
+//	Vcc ----------------+-------+-----+------------------------------------------
+//	                    |       |     |
+//	                  +-+-+   +-+-+   |  +-------+
+//	                  |10K|   |10K|   |  |       |    +---------+
+//	                  |OHM|   |OHM|   +--+       +--->|   USB   |       
+//	                  +-+-+   +-+-+      |       |    | Console |
+//	            _--_    |       |        |       |    +---------+
+//	       +----O  O----+----------------+       +---[LED B]--------------+
+//	       | (button-A)         |        |       |                        |
+//	       |      _==_          |        |  MCU  +---[LED A]-------+      |
+//	       +------O  O----------+--------+       |                 |      |
+//	       |   (button-B)                |       |               +-+-+  +-+-+
+//	       |                             |       |               |2K |  |2K |
+//	       |                          +--+       |               |OHM|  |OHM|
+//	       |                          |  |       |               +-+-+  +-+-+
+//	       |                          |  +-------+                 |      |
+//	GND ---+--------------------------+----------------------------+------+---
 
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //
@@ -79,7 +79,7 @@ void app_main(void) {
 		ESP_LOGE(__FUNCTION__, "iInputInterface module initialization failed");
 		
 	else {
-		uint8_t       btnA = 0; btnB = 0;
+		uint8_t       btnA = 0, btnB = 0;
 		gpio_config_t ledA, ledB;
 		
 		//
@@ -109,19 +109,29 @@ void app_main(void) {
 			ESP_LOGE(__FUNCTION__, "Object creation failed");
 		
 		else {
-			bool statA = false, statB;
+			bool    statA = false, statB;
+			uint8_t ea, eb;
+			ESP_LOGI(__FUNCTION__, "The library has been correctly initialized");
+			
 			while (1) {
-				if (
-					iInputInterface_get(btnA, &statA) != IINPUTIF_SUCCESS ||
-					iInputInterface_get(btnA, &statB) != IINPUTIF_SUCCESS
-				)
-					// ERROR!
-					ESP_LOGE(__FUNCTION__, "ERROR! buttons' status reading failed");
+				if ((ea = iInputInterface_get(btnA, &statA)) != IINPUTIF_SUCCESS) {
+					if (ea ==  IINPUTIF_WARNING_RESBUSY)
+						ESP_LOGW(__FUNCTION__, "button-a status reading: resource was busy");
+					else
+						ESP_LOGE(__FUNCTION__, "button-a status reading: %d-ID is not a valid one", btnA);
 				
-				else {
+				} else if ((eb = iInputInterface_get(btnA, &statB)) != IINPUTIF_SUCCESS) {
+					if (ea ==  IINPUTIF_WARNING_RESBUSY)
+						ESP_LOGW(__FUNCTION__, "button-b status reading: resource was busy");
+					else
+						ESP_LOGE(__FUNCTION__, "button-b status reading: %d-ID is not a valid one", btnA);
+				
+				} else {
 					gpio_set_level(o_KEEPALIVE, statA ? 1 : 0);
 					gpio_set_level(o_KEEPALIVE, statB ? 1 : 0);
 				}
+
+				vTaskDelay(10 / portTICK_PERIOD_MS);
 			}
 		}
 	}
