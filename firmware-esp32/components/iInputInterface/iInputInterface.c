@@ -207,7 +207,8 @@ void _iInputInterface_update(uint8_t inputID) {
 		ESP_LOGW(__FUNCTION__, "WARNING! I was unable to lock the module's db");
 		
 	else {
-		_iInputItem_print(db->list[inputID]);
+		// [!] Enable the following line to debug this function
+		//_iInputItem_print(db->list[inputID]);
 		
 		if (db->list[inputID].FSM == 0) {
 			db->list[inputID].FSM = 1;
@@ -412,7 +413,10 @@ uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin) {
 			db->list[db->size].timerOffset = 0;
 			db->list[db->size].status      = false;
 			db->list[db->size].FSM         = 0;
-	
+			
+			// The input-id used to by iInputInterface_get to find the object
+			*inputID = db->size;
+			
 			db->size++;
 		}
 		_moduleDB_get(INTDB_RELEASE);
@@ -444,10 +448,10 @@ uint8_t iInputInterface_get (uint8_t inputID, bool *currStat) {
 			ec = IINPUTIF_ERROR_ILLEGALARG;
 		else {
 			*currStat = db->list[inputID].status;
-			ESP_LOGI(
-				__FUNCTION__, "PIN=%d  status=%s", 
-				db->list[inputID].pinID, db->list[inputID].status ? "ACTIVE" : "NOT-ACTIVE"
-			);
+			//ESP_LOGI(
+			//	__FUNCTION__, "PIN=%d  status=%s", 
+			//	db->list[inputID].pinID, db->list[inputID].status ? "ACTIVE" : "NOT-ACTIVE"
+			//);
 		}
 		_moduleDB_get(INTDB_RELEASE);
 	}
