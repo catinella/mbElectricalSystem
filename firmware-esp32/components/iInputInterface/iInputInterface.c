@@ -95,7 +95,6 @@
 
 typedef struct {
 	int8_t       pinID;
-	TaskHandle_t taskHandle;
 	iInputType   type;
 	uint32_t     timerOffset;  // It allows the timer to count for about 1000 hours!!!! 
 	bool         status;
@@ -107,11 +106,26 @@ typedef enum {
 	INTDB_RELEASE = 1
 } moduleDB_cmd_t;
 
+typedef struct {
+	iInputItem_t list[IINPUTIF_MAXITEMSNUMB];
+	uint8_t      size;
+} moduleDB_t;
+
 //------------------------------------------------------------------------------------------------------------------------------
 //                                     P R I V A T E   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
+void _iInputItem_print (iInputItem_t obj) {
+	//
+	// JUST FOR DEBUG
+	//
+	ESP_LOGI(
+		__FUNCTION__, "pinID:%d, type:%d, timerOffset:%ld, status:%s, FSM:%d",
+		obj.pinID, obj.type, (long unsigned int)obj.timerOffset, obj.status ? "TRUE" : "FALSE", obj.FSM
+	);
+	return;
+}
 
-iInputItem_t* _moduleDB_get (moduleDB_cmd_t cmd, uint8_t *size) {
+moduleDB_t* _moduleDB_get (moduleDB_cmd_t cmd) {
 	//
 	// Description:
 	//	It returns a reference to its static db where all items information are stored. The function also manage race
@@ -119,17 +133,15 @@ iInputItem_t* _moduleDB_get (moduleDB_cmd_t cmd, uint8_t *size) {
 	//
 	// Arguments
 	//	cmd         {INTDB_TAKE|INTDB_RELEASE}
-	//	currIndex   Where the func. will store the db-size
 	//
 	// Returned value:
 	//	NULL             ERROR!
 	//	<db's address>   SUCCESS
 	//
-	static iInputItem_t      itemsStorage[IINPUTIF_MAXITEMSNUMB];
+	static moduleDB_t        itemsStorage;
 	static SemaphoreHandle_t mtx;
 	static bool              flag = false;
-	static uint8_t           index = 0;
-	iInputItem_t             *out = NULL;
+	moduleDB_t               *out = NULL;
 
 	//
 	// Initialization
@@ -138,7 +150,8 @@ iInputItem_t* _moduleDB_get (moduleDB_cmd_t cmd, uint8_t *size) {
 		if ((mtx = xSemaphoreCreateMutex()) == NULL)
 			ESP_LOGE(__FUNCTION__, "Mutex creation failed");
 		else {
-			ESP_LOGI(__FUNCTION__, "OK mutex created");
+			ESP_LOGI(__FUNCTION__, "OK! moduleDB has been initialized");
+			itemsStorage.size = 0;
 			flag = true;
 		}
 	}
@@ -150,14 +163,19 @@ iInputItem_t* _moduleDB_get (moduleDB_cmd_t cmd, uint8_t *size) {
 			LOGERR
 	
 	} else if (cmd == INTDB_TAKE) {
-		if (xSemaphoreTake(mtx, portMAX_DELAY) == pdTRUE) {
-			out = itemsStorage;
-			*size = index;
-		} else {
+		if (xSemaphoreTake(mtx, portMAX_DELAY) == pdTRUE)
+			out = &itemsStorage;
+			
+		else {
 			// ERROR!
 			LOGERR
 		}
+	
+	} else {
+		// ERROR!
+		LOGERR
 	}
+
 	return(out);
 }
 
@@ -181,120 +199,113 @@ void _iInputInterface_update(uint8_t inputID) {
 	//	|           (devType = switch)                          |
 	//	+-------------------------------------------------------+
 	//
-	uint8_t      noi;
-	iInputItem_t *item = _moduleDB_get(INTDB_TAKE, &noi);
-	uint32_t     myTimer = 0;
-		
-	ESP_LOGI(__FUNCTION__, "---->%d", __LINE__);
+	moduleDB_t      *db = _moduleDB_get(INTDB_TAKE);
+	static uint32_t myTimer = 0; 
 	
-	if (item == NULL)
+	if (db == NULL)
 		// WARNING
 		ESP_LOGW(__FUNCTION__, "WARNING! I was unable to lock the module's db");
 		
 	else {
-		item += inputID;
+		_iInputItem_print(db->list[inputID]);
+		
+		if (db->list[inputID].FSM == 0) {
+			db->list[inputID].FSM = 1;
 	
-		if (inputID >= noi)
-			// ERROR!
-			ESP_LOGE(__FUNCTION__, "ERROR! the required object does not exist");
-			
-		else if (item->FSM == 0) {
-			item->FSM = 1;
-	
-		} else if (item->FSM == 1) {
+		} else if (db->list[inputID].FSM == 1) {
 			//
 			// Waiting for the button/switch... pressing event
 			//
-			if (gpio_get_level(item->pinID) == 0) {
-				if (item->type == BUTTON || item->type == HOLDBUTTON) {
-					ESP_LOGI(__FUNCTION__, "button-%d has been PUSHED", inputID);
-					item->timerOffset = myTimer;
-					item->FSM = 2;
+			if (gpio_get_level(db->list[inputID].pinID) == 0) {
+				if (db->list[inputID].type == BUTTON || db->list[inputID].type == HOLDBUTTON) {
+					ESP_LOGW(__FUNCTION__, "button-%d has been PUSHED", inputID);
+					db->list[inputID].timerOffset = myTimer;
+					db->list[inputID].FSM = 2;
 	
-					if (item->type == BUTTON)
+					if (db->list[inputID].type == BUTTON)
 						// Button's value is "true"
-						item->status  = true;
+						db->list[inputID].status  = true;
 					else
 						// Swapping the old value
-						item->status  = item->status ? false : true; 
+						db->list[inputID].status  = db->list[inputID].status ? false : true; 
 	
-				} else if (item->type == SWITCH) {
+				} else if (db->list[inputID].type == SWITCH) {
 					// [!] The switch device does not need debouncing service
-					ESP_LOGI(__FUNCTION__, "switch-%d has moved to ON", inputID);
-					item->FSM     = 3;
-					item->status  = true;
+					ESP_LOGW(__FUNCTION__, "switch-%d has moved to ON", inputID);
+					db->list[inputID].FSM     = 3;
+					db->list[inputID].status  = true;
 	
 				}
 			}
 	 
 		
-		} else if (item->FSM == 2) {
+		} else if (db->list[inputID].FSM == 2) {
 			// If the object is in this state, then the associated selector has been pressed/switched-on.
 			// The selector will be disabled for a time slot
 			
 			//
 			// The button/switch... is ready to be released/deactivated
 			//
-			if (item->timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
+			if (db->list[inputID].timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
 				ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", inputID);
-				item->FSM = 3;
-				item->timerOffset = 0;
+				db->list[inputID].FSM = 3;
+				db->list[inputID].timerOffset = 0;
 				
 			} else {
 				ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", inputID,
-					(long unsigned int)(myTimer - item->timerOffset), 
+					(long unsigned int)(myTimer - db->list[inputID].timerOffset), 
 					(long unsigned int)IINPUTIF_DEBOUNCETIME
 				);
 			}
 			
 			
-		} else if (item->FSM == 3) {
+		} else if (db->list[inputID].FSM == 3) {
 			// The selector is ready to be released/switched-off
 			// New activities will be acknowledged
 			
-			if (gpio_get_level(item->pinID) == 1) {
+			if (gpio_get_level(db->list[inputID].pinID) == 1) {
 				//
 				// Selector releasing...
 				//
-				if (item->type == BUTTON || item->type == HOLDBUTTON) {
+				if (db->list[inputID].type == BUTTON || db->list[inputID].type == HOLDBUTTON) {
 					ESP_LOGI(__FUNCTION__, "button-%d released", inputID);
-					item->timerOffset = myTimer;
+					db->list[inputID].timerOffset = myTimer;
 					
-					item->FSM = 14;
+					db->list[inputID].FSM = 14;
 					
-					if (item->type == BUTTON)
-						item->status = false;
+					if (db->list[inputID].type == BUTTON)
+						db->list[inputID].status = false;
 	
-				} else if (item->type == SWITCH) {
+				} else if (db->list[inputID].type == SWITCH) {
 					ESP_LOGI(__FUNCTION__, "switch-%d move to OFF", inputID);
-					item->status = false;
-					item->FSM = 1;
+					db->list[inputID].status = false;
+					db->list[inputID].FSM = 1;
 				}
 		
 			}
 			
 			
-		} else if (item->FSM == 14) {
+		} else if (db->list[inputID].FSM == 14) {
 			// If the object is in this state, the selector is a button (or hold button) and it has been released.
 			// The seelector will be disabled for a time slot
 			
 			//
 			// The button/switch... is ready to be pressed/activated, again
 			//
-			if (item->timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
+			if (db->list[inputID].timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
 				ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", inputID);
-				item->FSM = 1;
-				item->timerOffset = 0;
+				db->list[inputID].FSM = 1;
+				db->list[inputID].timerOffset = 0;
 				
 			} else 
 				ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", inputID,
-					(long unsigned int)(myTimer - item->timerOffset),
+					(long unsigned int)(myTimer - db->list[inputID].timerOffset),
 					(long unsigned int)IINPUTIF_DEBOUNCETIME
 				);
 		}
 		
 		myTimer++;
-		_moduleDB_get(INTDB_RELEASE, NULL);
+		_moduleDB_get(INTDB_RELEASE);
 	}
 	
 	return;
@@ -302,22 +313,23 @@ void _iInputInterface_update(uint8_t inputID) {
 
 
 void _iInputInterface_updateAll() {
-	uint8_t      noi;
-	iInputItem_t *item = _moduleDB_get(INTDB_TAKE, &noi);
-	
-	if (item == NULL) {
+	moduleDB_t *db = _moduleDB_get(INTDB_TAKE);
+
+	if (db == NULL) {
 		// WARNING
 		ESP_LOGW(__FUNCTION__, "WARNING! I was unable to lock the module's db");
 		
 	} else {
-		_moduleDB_get(INTDB_RELEASE, NULL);
+		uint8_t noi = db->size;
+		_moduleDB_get(INTDB_RELEASE);
+		
 		for (uint8_t x=0; x<noi; x++)
 			_iInputInterface_update(x);
 	}
 	
 	return;
 }
-		
+	
 //------------------------------------------------------------------------------------------------------------------------------
 //                                           P U B L I C   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
@@ -345,7 +357,7 @@ uint8_t iInputInterface_init () {
 	
 	if (
 		esp_timer_create(&timerArgs, &timerHandle)    != ESP_OK ||
-		esp_timer_start_periodic(timerHandle, 150000) != ESP_OK
+		esp_timer_start_periodic(timerHandle, 100000) != ESP_OK
 	) {
             // ERROR!
             ESP_LOGE(__FUNCTION__, "ERROR! I cannot crate the timer");
@@ -367,8 +379,7 @@ uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin) {
 	//
 	uint8_t        ec = IINPUTIF_SUCCESS;
 	gpio_config_t  phyPin;
-	uint8_t        index = 0;
-	iInputItem_t   *db = _moduleDB_get(INTDB_TAKE, &index);
+	moduleDB_t     *db = _moduleDB_get(INTDB_TAKE);
 	
 	// PIN direction and PULL-UP resistor setting
 	phyPin.intr_type    = GPIO_INTR_DISABLE;
@@ -383,7 +394,7 @@ uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin) {
 		ec = IINPUTIF_WARNING_RESBUSY;
 		
 	} else {
-		if (index >= IINPUTIF_MAXITEMSNUMB) {
+		if ( db->size == IINPUTIF_MAXITEMSNUMB) {
 			// ERROR!
 			LOGERR
 			ec = IINPUTIF_ERROR_OVERFLOW;
@@ -394,15 +405,17 @@ uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin) {
 			ec = IINPUTIF_ERROR_GPIOAPI;
 			
 		} else {
-			db[index].pinID       = pin;
-			db[index].type        = type;
-			db[index].timerOffset = 0;
-			db[index].status      = false;
-			db[index].FSM         = 0;
+			ESP_LOGI(__FUNCTION__, "OK! The object-%d has been correctly regitered", db->size);
+			
+			db->list[db->size].pinID       = pin;
+			db->list[db->size].type        = type;
+			db->list[db->size].timerOffset = 0;
+			db->list[db->size].status      = false;
+			db->list[db->size].FSM         = 0;
 	
-			index++;
+			db->size++;
 		}
-		_moduleDB_get(INTDB_RELEASE, NULL);
+		_moduleDB_get(INTDB_RELEASE);
 	}
 	return(ec);
 }
@@ -418,22 +431,25 @@ uint8_t iInputInterface_get (uint8_t inputID, bool *currStat) {
 	//	IINPUTIF_WARNING_RESBUSY
 	//	IINPUTIF_ERROR_ILLEGALARG
 	//
-	uint8_t        index = 0;
-	uint8_t        ec = IINPUTIF_SUCCESS;
-	iInputItem_t   *db = _moduleDB_get(INTDB_TAKE, &index);
+	uint8_t    ec  = IINPUTIF_SUCCESS;
+	moduleDB_t *db = _moduleDB_get(INTDB_TAKE);
 	
 	if (db == NULL)
 		// WARNING!
 		ec = IINPUTIF_WARNING_RESBUSY;
 		
 	else {
-		if (index <= inputID)
+		if (db->size <= inputID)
 			// ERROR!
 			ec = IINPUTIF_ERROR_ILLEGALARG;
-		else
-			*currStat = db[inputID].status;
-		
-		_moduleDB_get(INTDB_RELEASE, NULL);
+		else {
+			*currStat = db->list[inputID].status;
+			ESP_LOGI(
+				__FUNCTION__, "PIN=%d  status=%s", 
+				db->list[inputID].pinID, db->list[inputID].status ? "ACTIVE" : "NOT-ACTIVE"
+			);
+		}
+		_moduleDB_get(INTDB_RELEASE);
 	}
 	
 	return(ec);
