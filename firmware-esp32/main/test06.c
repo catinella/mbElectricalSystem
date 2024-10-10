@@ -14,27 +14,29 @@
 //
 // Description:
 //	This simple test has been written to verify the iInputInterface module and requires the following circuit.
-//	The button-b (i_CONF2) has been configured as simple button, so everytime you will push it, the led-b (o_NEUTRAL) will
-//	be on. The button-a (i_CONF1) is configured ad HOLD-ON button. So, it will require a click to turn-on the led-a
-//	(o_KEEPALIVE), and another click to turn-off the led
+//	The button-A (i_CONF1) has been configured as simple button, so everytime you will push it, the led-A (o_KEEPALIVE pin)
+//	will be on. Instead, the button-B (i_CONF2 pin) is configured ad HOLD-ON button. So, it will require a click to turn-on
+//	the led-B (o_NEUTRAL pin), and another click to turn-off the led. The switch (i_UPLIGHT pin) functions like a simple
+//	button, but in the console you should see there is no disable time for debouncing
 //
-//	Vcc ----------------+-------+-----+------------------------------------------
-//	                    |       |     |
-//	                  +-+-+   +-+-+   |  +-------+
-//	                  |10K|   |10K|   |  |       |    +---------+
-//	                  |OHM|   |OHM|   +--+       +--->|   USB   |       
-//	                  +-+-+   +-+-+      |       |    | Console |
-//	            _--_    |       |        |       |    +---------+
-//	       +----O  O----+----------------+       +---[LED B]--------------+
-//	       | (button-A)         |        |       |                        |
-//	       |      _==_          |        |  MCU  +---[LED A]-------+      |
-//	       +------O  O----------+--------+       |                 |      |
-//	       |   (button-B)                |       |               +-+-+  +-+-+
-//	       |                             |       |               |2K |  |2K |
-//	       |                          +--+       |               |OHM|  |OHM|
-//	       |                          |  |       |               +-+-+  +-+-+
-//	       |                          |  +-------+                 |      |
-//	GND ---+--------------------------+----------------------------+------+---
+//	Vcc --------------+------+-------+-----+------------------------------------------
+//	                  |      |       |     |
+//	                +-+-+  +-+-+   +-+-+   |  +-------+    +---------+
+//	                |10K|  |10K|   |10K|   |  |       |    |   USB   |       
+//	                |OHM|  |OHM|   |OHM|   +--+       +--->| Console |
+//	                +-+-+  +-+-+   +-+-+      |       |    +---------+
+//	          _--_    |      |       |        |       +---[LED B]-------------------+    
+//	       +--O  O----+-----------------------+       |                             |
+//	       |(button-A)       |       |        |       +---[LED A]------------+      |
+//	       |    _==_         |       |        |  MCU  |                      |      |
+//	       +----O  O---------+----------------+       +---[LED C]-----+      |      |
+//	       |  (button-B)             |        |       |               |      |      |
+//	       +--------------o/ o-------+--------+       |             +-+-+  +-+-+  +-+-+
+//	       |            (switch)              |       |             |2K |  |2K |  |2K |
+//	       |                               +--+       |             |OHM|  |OHM|  |OHM|
+//	       |                               |  |       |             +-+-+  +-+-+  +-+-+
+//	       |                               |  +-------+               |      |      |
+//	GND ---+-------------------------------+--------------------------+------+------+---
 
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
 //
@@ -79,8 +81,8 @@ void app_main(void) {
 		ESP_LOGE(__FUNCTION__, "iInputInterface module initialization failed");
 		
 	else {
-		uint8_t       btnA = 0, btnB = 0;
-		gpio_config_t ledA, ledB;
+		uint8_t       btnA = 0, btnB = 0, swC = 0, ea = 0;
+		gpio_config_t ledA, ledB, ledC;
 		
 		//
 		// PIN configuration
@@ -90,48 +92,68 @@ void app_main(void) {
 		ledA.pin_bit_mask = (1ULL << o_KEEPALIVE);
 		ledA.pull_down_en = GPIO_PULLDOWN_DISABLE;
 		ledA.pull_up_en   = GPIO_PULLDOWN_DISABLE;
-	
-		ledB.intr_type    = GPIO_INTR_DISABLE;
-		ledB.mode         = GPIO_MODE_OUTPUT;
+
+		ledB = ledA;
 		ledB.pin_bit_mask = (1ULL << o_NEUTRAL);
-		ledB.pull_down_en = GPIO_PULLDOWN_DISABLE;
-		ledB.pull_up_en   = GPIO_PULLDOWN_DISABLE;
 		
-		if (gpio_config(&ledA) != ESP_OK || gpio_config(&ledB) != ESP_OK)
+		ledC = ledA;
+		ledC.pin_bit_mask = (1ULL << o_ENGINEREADY);
+		
+		if (
+			gpio_config(&ledA) != ESP_OK || 
+			gpio_config(&ledB) != ESP_OK ||
+			gpio_config(&ledC) != ESP_OK
+		)
 			// ERROR!
 			ESP_LOGE(__FUNCTION__, "ERROR! LED GPIO configuration failed");
 		
 		else if (	
-			iInputInterface_new(&btnA, BUTTON,     i_CONF1) != IINPUTIF_SUCCESS ||
-			iInputInterface_new(&btnB, HOLDBUTTON, i_CONF2) != IINPUTIF_SUCCESS
+			iInputInterface_new(&btnA, BUTTON,     i_CONF1)   != IINPUTIF_SUCCESS ||
+			iInputInterface_new(&btnB, HOLDBUTTON, i_CONF2)   != IINPUTIF_SUCCESS ||
+			iInputInterface_new(&swC,  SWITCH,     i_UPLIGHT) != IINPUTIF_SUCCESS   
+
 		)
 			// ERRPR!
 			ESP_LOGE(__FUNCTION__, "Object creation failed");
 		
 		else {
-			bool    statA = false, statB;
-			uint8_t ea, eb;
+			bool statA = false, statB = false, statC = false;
+			bool loop = true;
 			ESP_LOGI(__FUNCTION__, "The library has been correctly initialized");
-			
-			while (1) {
-				if ((ea = iInputInterface_get(btnA, &statA)) != IINPUTIF_SUCCESS) {
-					if (ea ==  IINPUTIF_WARNING_RESBUSY)
-						ESP_LOGW(__FUNCTION__, "button-a status reading: resource was busy");
-					else
-						ESP_LOGE(__FUNCTION__, "button-a status reading: %d-ID is not a valid one", btnA);
-				
-				} else if ((eb = iInputInterface_get(btnA, &statB)) != IINPUTIF_SUCCESS) {
-					if (ea ==  IINPUTIF_WARNING_RESBUSY)
-						ESP_LOGW(__FUNCTION__, "button-b status reading: resource was busy");
-					else
-						ESP_LOGE(__FUNCTION__, "button-b status reading: %d-ID is not a valid one", btnA);
-				
-				} else {
-					gpio_set_level(o_KEEPALIVE, statA ? 1 : 0);
-					gpio_set_level(o_KEEPALIVE, statB ? 1 : 0);
+	
+			//
+			// Hardware led test
+			//
+			{
+				gpio_num_t tmp[3] = {o_KEEPALIVE, o_NEUTRAL, o_ENGINEREADY};
+				for (uint8_t t=0; t<5; t++) {
+					for (uint8_t x=0; x<3; x++) {
+						gpio_set_level(tmp[x], 1);
+						vTaskDelay(100 / portTICK_PERIOD_MS);
+						gpio_set_level(tmp[x], 0);
+					}
 				}
-
-				vTaskDelay(10 / portTICK_PERIOD_MS);
+			}
+			
+			while (loop) {
+				if (
+					(ea = iInputInterface_get(btnA, &statA)) != IINPUTIF_SUCCESS ||
+					(ea = iInputInterface_get(btnB, &statB)) != IINPUTIF_SUCCESS ||
+					(ea = iInputInterface_get(swC,  &statC)) != IINPUTIF_SUCCESS
+				) {
+					if (ea ==  IINPUTIF_WARNING_RESBUSY)
+						ESP_LOGW(__FUNCTION__, "WARNING! resource was busy");
+					else {
+						ESP_LOGE(__FUNCTION__, "ERROR! The specified ID is not a valid one");
+						loop = false;
+					}
+				} else {
+					gpio_set_level(o_KEEPALIVE,   statA ? 1 : 0);
+					gpio_set_level(o_NEUTRAL,     statB ? 1 : 0);
+					gpio_set_level(o_ENGINEREADY, statC ? 1 : 0);
+				}
+				
+				vTaskDelay(50 / portTICK_PERIOD_MS);
 			}
 		}
 	}
