@@ -12,7 +12,9 @@
 # Author: Silvano Catinella <catinella@yahoo.com>
 #
 # Description:
-#
+#	
+#	Configuration:
+#		TTYSPEED=<bps> serial port troughput
 #
 #
 # License:
@@ -30,7 +32,7 @@
 #
 #-------------------------------------------------------------------------------------------------------------------------------
 
-TTYSPEED ?= $(shell /usr/bin/stty < /dev/ttyUSB0 speed)
+TTYSPEED ?= 115200
 
 ifeq ($(GDB), 1)
 	CCOPTS = -o0 -g
