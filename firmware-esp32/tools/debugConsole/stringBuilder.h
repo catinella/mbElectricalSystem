@@ -13,6 +13,13 @@
 //
 // Description:
 //
+//
+//	Symbols:
+//		BUILDER_MAXSTRINGSIZE   The maximum size of every single row
+//		BUILDER_ENDOFDATA       The character used to mark the end of the row
+//		BUILDER_NOSCAPECODES    If yout enable it, all the escape-codes will be skipped
+//
+//
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 //
@@ -34,6 +41,7 @@
 
 #define BUILDER_MAXSTRINGSIZE 1024
 #define BUILDER_ENDOFDATA     '\n'
+#define BUILDER_NOSCAPECODES
 
 typedef uint16_t buffSize_t;
 
