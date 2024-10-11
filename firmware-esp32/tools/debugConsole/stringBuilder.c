@@ -34,12 +34,21 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <stringBuilder.h>
+
 
 typedef struct _logsSetItem_t {
 	char buffer[BUILDER_MAXSTRINGSIZE];
 	struct _logsSetItem_t  *next;
 } logsSetItem_t;
+
+typedef enum {
+	BUILDER_NORMAL,
+	BUILDER_ENDROW,
+	BUILDER_OVRFLOW,
+	BUILDER_ESCSEQ
+} parser_FSM_t;
 
 static logsSetItem_t *oldest = NULL;
 static logsSetItem_t *newest = NULL;
@@ -110,33 +119,55 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 		}
 	}
 	if (ecode) {
-		uint16_t t = 0, x = 0;
+		uint16_t     t = 0, x = 0;
+		parser_FSM_t fsm = BUILDER_NORMAL;
 		
-		for (t=0; t<size; t++) {
-			if (data[t] == '\n') {
-				// Characters string assembling has been completed
-				*(newest->buffer + bufferSize + x) = '\0';
-				if (checkForValidData(newest->buffer) == 1) {
+		while (t < size) {
+			if (fsm == BUILDER_NORMAL) {
+				//
+				// Row assembling....
+				//
+				if (data[t] == '\n') {
+					*(newest->buffer + bufferSize + x) = '\0';
 					eolFlag = true;
+						
+				} else if (data[t] == 27  )
+					fsm = BUILDER_ESCSEQ;
+				
+				else if ((bufferSize + x) > (BUILDER_MAXSTRINGSIZE - 3)) {
+					fsm = BUILDER_OVRFLOW;
+					strcpy((newest->buffer + bufferSize + x), "...");
+					eolFlag = true;
+					
+				} else {
+					// Adding a char to the buffer line
+					*(newest->buffer + bufferSize + x) = data[t];
+					//partPrint(newest->buffer, (bufferSize+x+1));
+					x++;
 				}
-				x = 0;
-				bufferSize = 0;
-			
-			} else if ((bufferSize + x) > (BUILDER_MAXSTRINGSIZE - 3)) {
-				// WARNING! Too long string
-				strcpy((newest->buffer + bufferSize + x), "...");
-				eolFlag = true;
-			
-			} else if (data[t] > ' ' && data[t] < '~') {
-				// Adding a char to the buffer line
-				*(newest->buffer + bufferSize + x) = data[t];
-				//partPrint(newest->buffer, (bufferSize+x+1));
-				x++;
-			}
 		
+		
+			} else if (fsm == BUILDER_OVRFLOW) {
+				//
+				// Size overflow even detected I wait for the end of the row
+				//
+				if (data[t] == '\n') fsm = BUILDER_NORMAL;
+				
+		
+			} else if (fsm == BUILDER_ESCSEQ) {
+				//
+				// Escape char has been detected, I wait for the end of sequence
+				//
+				if (isdigit(data[t]) == 0 && data[t] != ';' && data[t] != '[' && data[t] != ']') {
+					fsm = BUILDER_NORMAL;
+					t--;
+				}
+			}
+	
+			
 			if (eolFlag) {
 				newest->next = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
-				memset(newest->next->buffer, '\0', sizeof(newest->buffer));
+				memset(newest->next->buffer, '\0', sizeof(newest->next->buffer));
 				
 				if (newest->next == NULL) {
 					// ERROR! Memory full
@@ -146,10 +177,15 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 					newest = newest->next;
 					eolFlag = false;
 					newest->next = NULL;
+					bufferSize = 0;
+					x = 0;
 				}
 			}
+			
+			t++;
 		}
 		bufferSize += x;
+		*(newest->buffer + bufferSize) = '\0';
 	}
 	
 	return(ecode);
