@@ -14,8 +14,8 @@
 # Description:
 #	
 #	Configuration:
-#		TTYSPEED=<bps> serial port troughput
-#
+#		TTYSPEED=<bps>              serial port troughput
+#		BUILDER_NOSCAPECODES={1|0}  enable/disable the escape codes skipping feature 
 #
 # License:
 #	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -33,6 +33,7 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 
 TTYSPEED ?= 115200
+BUILDER_NOSCAPECODES ?= 0
 
 ifeq ($(GDB), 1)
 	CCOPTS = -o0 -g
@@ -40,17 +41,20 @@ else
 	CCOPTS = -o3
 endif
 
-.PHONY: all clean cleanall
+SYMBOLS = -DTTYSPEED=B$(TTYSPEED) -DBUILDER_NOSCAPECODES=$(BUILDER_NOSCAPECODES)
+INCOPTS = -I.
+
+.PHONY: all clean cleanall conf
 
 all:			debugConsole
 
 debugConsole.o:	debugConsole.c
 			@echo "[ CC ] $@"
-			@gcc -Wall $(CCOPTS) -c $< -DTTYSPEED=B$(TTYSPEED) -I. -o $@
+			@gcc -Wall $(CCOPTS) -c $(SYMBOLS) $(INCOPTS) -o $@ $<
 
 %.o:			%.c %.h
 			@echo "[ CC ] $@"
-			@gcc -Wall $(CCOPTS) -c $< -I. -o $@
+			@gcc -Wall $(CCOPTS) -c $(SYMBOLS) $(INCOPTS) -o $@ $<
 
 debugConsole:	debugConsole.o stringBuilder.o pinToSymbol.o
 			@echo "[ LD ] $@"
@@ -62,3 +66,7 @@ clean:
 
 cleanall:		clean
 			@rm -fv debugConsole
+
+conf:
+			@echo "TTYSPEED = <BPS troughput>    # def. $(TTYSPEED)"
+			@echo "BUILDER_NOSCAPECODES = {0|1}  # def. $(BUILDER_NOSCAPECODES)"

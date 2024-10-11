@@ -90,6 +90,7 @@ static bool checkForValidData (const char *string) {
 }
 
 
+#if BUILDER_NOSCAPECODES == 1
 static bool chInSet (char ch, const char set[]) {
 	//
 	// Description:
@@ -103,6 +104,7 @@ static bool chInSet (char ch, const char set[]) {
 	}
 	return(out);
 }
+#endif
 //------------------------------------------------------------------------------------------------------------------------------
 //                                        P U B L I C   F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -120,9 +122,10 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 	//	0 ERROR! Out of memory
 	//	1 The chars have been succesfully parsed and stored
 	//
-	uint8_t     	ecode = 1;
-	bool      	      eolFlag = false;
-	static buffSize_t bufferSize = 0;  // The buffesr size of the newest's item or 0 if the log-item is completed
+	uint8_t             ecode = 1;
+	bool                eolFlag = false;
+	static buffSize_t   bufferSize = 0;  // The buffesr size of the newest's item or 0 if the log-item is completed
+	static parser_FSM_t fsm = BUILDER_NORMAL;
 	
 	if (oldest == NULL) {
 		oldest = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
@@ -138,7 +141,6 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 	}
 	if (ecode) {
 		uint16_t     t = 0, x = 0;
-		parser_FSM_t fsm = BUILDER_NORMAL;
 		
 		while (t < size) {
 			if (fsm == BUILDER_NORMAL) {
@@ -148,11 +150,11 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 				if (data[t] == '\n') {
 					*(newest->buffer + bufferSize + x) = '\0';
 					eolFlag = true;
-						
-				} else if (data[t] == 27  )
+#if BUILDER_NOSCAPECODES == 1
+				} else if (data[t] == 27  ) {
 					fsm = BUILDER_ESCSEQ;
-				
-				else if ((bufferSize + x) > (BUILDER_MAXSTRINGSIZE - 3)) {
+#endif
+				} else if ((bufferSize + x) > (BUILDER_MAXSTRINGSIZE - 3)) {
 					fsm = BUILDER_OVRFLOW;
 					*(newest->buffer + bufferSize + x) = '\0';
 					eolFlag = true;
@@ -172,6 +174,7 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 				if (data[t] == '\n') fsm = BUILDER_NORMAL;
 				
 		
+#if BUILDER_NOSCAPECODES == 1
 			} else if (fsm == BUILDER_ESCSEQ) {
 				//
 				// Escape char has been detected, I wait for the end of sequence
@@ -180,6 +183,7 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 					fsm = BUILDER_NORMAL;
 					t--;
 				}
+#endif
 			}
 	
 			

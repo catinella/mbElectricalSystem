@@ -17,7 +17,7 @@
 //	Symbols:
 //		BUILDER_MAXSTRINGSIZE   The maximum size of every single row
 //		BUILDER_ENDOFDATA       The character used to mark the end of the row
-//		BUILDER_NOSCAPECODES    If yout enable it, all the escape-codes will be skipped
+//		BUILDER_NOSCAPECODES    If it is set to 1 then all the escape codes will be skipped
 //
 //
 // License:
@@ -41,7 +41,10 @@
 
 #define BUILDER_MAXSTRINGSIZE 1024
 #define BUILDER_ENDOFDATA     '\n'
-#define BUILDER_NOSCAPECODES
+
+#ifndef BUILDER_NOSCAPECODES
+#define BUILDER_NOSCAPECODES 0
+#endif
 
 typedef uint16_t buffSize_t;
 
