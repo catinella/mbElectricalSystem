@@ -45,7 +45,6 @@ typedef struct _logsSetItem_t {
 
 typedef enum {
 	BUILDER_NORMAL,
-	BUILDER_ENDROW,
 	BUILDER_OVRFLOW,
 	BUILDER_ESCSEQ
 } parser_FSM_t;
@@ -74,17 +73,36 @@ static bool checkForValidData (const char *string) {
 	// Description:
 	//	It is used to prevent empty chasracters string
 	//
-	uint8_t size = strlen(string);
-	uint8_t err = 0;
+	// Returned value:
+	//	TRUE   OK! The string is valid
+	//	TALSE  WARNING! It is an empty string
+	//
+	uint8_t size  = strlen(string);
+	bool    valid = false;
+		
 	for (uint8_t t=0; t<size; t++) {
 		if (string[t] != ' ') {
-			err = 1;
+			valid = true;
 			break;
 		}
 	}
-	return(err);
+	return(valid);
 }
 
+
+static bool chInSet (char ch, const char set[]) {
+	//
+	// Description:
+	//	It returns true value if the argument defined character belongs to the other arg specified set
+	//
+	bool    out = false;
+	uint8_t t = 0;
+	while (set[t] != '\0' && out == false) {
+		if (set[t] == ch) out = true;
+		t++;
+	}
+	return(out);
+}
 //------------------------------------------------------------------------------------------------------------------------------
 //                                        P U B L I C   F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
@@ -136,7 +154,7 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 				
 				else if ((bufferSize + x) > (BUILDER_MAXSTRINGSIZE - 3)) {
 					fsm = BUILDER_OVRFLOW;
-					strcpy((newest->buffer + bufferSize + x), "...");
+					*(newest->buffer + bufferSize + x) = '\0';
 					eolFlag = true;
 					
 				} else {
@@ -158,7 +176,7 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 				//
 				// Escape char has been detected, I wait for the end of sequence
 				//
-				if (isdigit(data[t]) == 0 && data[t] != ';' && data[t] != '[' && data[t] != ']') {
+				if (isdigit(data[t]) == 0 && chInSet(data[t], ";[]m") == false) {
 					fsm = BUILDER_NORMAL;
 					t--;
 				}
@@ -166,20 +184,22 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 	
 			
 			if (eolFlag) {
-				newest->next = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
-				memset(newest->next->buffer, '\0', sizeof(newest->next->buffer));
+				if (checkForValidData(newest->buffer)) {
+					newest->next = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
 				
-				if (newest->next == NULL) {
-					// ERROR! Memory full
-					ecode = 0;
-					break;
-				} else {
-					newest = newest->next;
-					eolFlag = false;
-					newest->next = NULL;
-					bufferSize = 0;
-					x = 0;
+					if (newest->next == NULL) {
+						// ERROR! Memory full
+						ecode = 0;
+						break;
+					} else
+						newest = newest->next;
 				}
+				memset(newest->buffer, '\0', sizeof(newest->buffer));
+				eolFlag = false;
+				newest->next = NULL;
+				bufferSize = 0;
+				x = 0;
+				
 			}
 			
 			t++;
