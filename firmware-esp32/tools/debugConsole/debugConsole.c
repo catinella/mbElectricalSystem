@@ -78,7 +78,7 @@
 
 // Saved log item
 typedef struct _logRow {
-	char           message[TTY_MAXLOGSIZE];
+	char           message[BUILDER_MAXSTRINGSIZE];
 	uint32_t       tstamp;
 	struct _logRow *next;
 } logRow;
@@ -106,6 +106,7 @@ typedef enum {
 
 // Global vars
 bool loop = true;
+struct winsize ts;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S
@@ -333,6 +334,17 @@ logRow* new_logRow (logRow *item) {
 }
 
 
+void printSingleMsg (const logRow *item) {
+	printf("%5d: ", item->tstamp);
+	if (strlen(item->message) > (ts.ws_col - 10)) {
+		for (uint16_t x=0; x<(ts.ws_col - 10); x++) printf("%c", item->message[x]);
+		printf("...\n");
+	} else 
+		printf("%s\n", item->message);
+	return;
+}
+
+
 uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
 	//
 	// Description:
@@ -400,11 +412,11 @@ uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
 		logRow *ptr = oldest;
 		if (ptr != NULL) {
 			while (ptr != newest) {
-				printf("%5d: %s\n", ptr->tstamp, ptr->message);
+				printSingleMsg(ptr);
 				ptr = ptr->next;
 			}
-			if (newest != NULL)
-				printf("%5d: %s\n", newest->tstamp, newest->message);
+			printSingleMsg(newest);
+			
 		} else
 			printf("\n\n\n       EMPTY!!\n\n\n");
 	}
@@ -582,7 +594,7 @@ int main (int argc, char *argv[]) {
 
 	} else {
 		char     chunk[TTY_DATACHUNK];
-		char     buff[TTY_MAXLOGSIZE];
+		char     buff[BUILDER_MAXSTRINGSIZE];
 		int      nb       = 0;                // number of received bytes
 		int      value    = 0;                // PIN's value
 		char     pin[3]   = {'\0','\0','\0'}; // PIN-id
@@ -613,7 +625,7 @@ int main (int argc, char *argv[]) {
 			
 			} else {
 				//syslog(LOG_INFO, "New data detected");
-				memset(buff,  '\0', TTY_MAXLOGSIZE);
+				memset((void*)buff,  '\0', BUILDER_MAXSTRINGSIZE * sizeof(char));
 				
 				while (stringBuilder_get(buff) == 1) {
 
@@ -635,6 +647,7 @@ int main (int argc, char *argv[]) {
 						}
 			
 					} else {
+						
 						if (logAreaStorage(LGS_ADD, buff) == 0)
 							// ERROR!
 							syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
@@ -649,8 +662,6 @@ int main (int argc, char *argv[]) {
 			// Debug console displaying
 			//------------------------------------------
 			{
-				struct winsize ts;
-				
 				system("clear");
 				
 				ioctl(0, TIOCGWINSZ, &ts);
