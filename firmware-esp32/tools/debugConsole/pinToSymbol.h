@@ -12,11 +12,17 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
+//	This module manage the pin-to-customized symbols associations DB. These couples must be defined in a C-language header
+//	file.	Because the pins labels (they are symbols too) depend by the MCU and the used librarries, you have yo define
+//	the used arch. You can set it using the TARGET_ARCH Make's symbol
 //
 //	Symbols description:
-//		PTS_PINMAPFILE   Header file where every pin-symbol couple is defined
-//		PTS_MAXPINS      Maximum number of pins defined in the header file
-//		PTS_ROWMAXSIZE   Maximum length of the pin-symbol map file rows
+//		[PTS_PINMAPFILE]  Header file where every pin-symbol couple is defined
+//		PTS_MAXPINS       Maximum number of pins defined in the header file
+//		PTS_ROWMAXSIZE    Maximum length of the pin-symbol map file rows
+//		PTS_MAXSYMSIZE    
+//		PTS_DEFBREGEX     Regex used to match the pin definition (without ^#define). The pattern depends by the platform
+//		PTS_PINLABSIZE    PIN's label-size. This size depends by the platform's library (avr.h, esp-idf...)
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -36,23 +42,40 @@
 #define PINTOSYMBOL_UT
 
 #include <stdint.h>
+#include <werror.h>
 
+//
+// Platform independent symbols
+//
 #define PTS_MAXPINS      32
-#define PTS_PINMAPFILE   "../mbesPinsMap.h"
 #define PTS_DEFAREGEX    "^[ \t]*#define[ \t]\\+"
-#define PTS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
 #define PTS_ROWMAXSIZE   256
 #define PTS_MAXSYMSIZE   24
 
 
+//
+// Platform dependant symbols
+//
+#ifdef TARGET_AVR8
+#define PTS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
+#define PTS_PINLABSIZE   3
+
+#elifdef TARGET_ESP32
+#define PTS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+GPIO_NUM_[0-9]\\+"
+#define PTS_PINLABSIZE   16
+#endif
+
+
 // Pins-Symbols associations DB item
 typedef struct {
-	char pin[3];
+	char pin[PTS_PINLABSIZE];
 	char symbol[32];
 } ptsDbItem_t;
 
-
-uint8_t pinToSymbol_get  (char *symbol, const char *pin);
-uint8_t pinToSymbol_init (const char *headerFile);
+//------------------------------------------------------------------------------------------------------------------------------
+//                                         P U B L I C   F U N C T I O N S
+//------------------------------------------------------------------------------------------------------------------------------
+werror pinToSymbol_get  (char *symbol, const char *pin);
+werror pinToSymbol_init (const char *headerFile);
 
 #endif

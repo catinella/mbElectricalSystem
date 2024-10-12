@@ -33,12 +33,13 @@
 #include <regex.h>
 #include <errno.h>
 #include <string.h>
+#include <ctype.h>
 #include <pinToSymbol.h>
 		
 static ptsDbItem_t ptsDb[PTS_MAXPINS];
 static bool initFlag = false;
 
-uint8_t pinToSymbol_get (char *symbol, const char *pin) {
+werror pinToSymbol_get (char *symbol, const char *pin) {
 	//
 	// Description:
 	//	This function find the symbol associated to the argument defined pin and write it in the "symbol" argument.
@@ -48,22 +49,24 @@ uint8_t pinToSymbol_get (char *symbol, const char *pin) {
 	// 	pin:     The pin associated to the symbol
 	//	
 	// Returned value:
-	//	0:       ERROR! I cannot compile the regex or the map-file does not exist
-	//	1:       SUCCESS!
-	//	16:      WARNING! No symbol has been associated to the pin
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_WARNING_ITNOTFOUND
+	//	WERRCODE_ERROR_INITFAILED
 	//
-	uint8_t     ecode = 1;
+	werror ecode;
 
 	if (initFlag == false)
-		pinToSymbol_init(PTS_PINMAPFILE);
+		if (wErrCode_isError(pinToSymbol_init(PTS_PINMAPFILE)))
+			// ERROR!
+			ecode = WERRCODE_ERROR_INITFAILED;
 	
 	if (initFlag == true) {
 		uint8_t dbIndex = 0;
 		
-		ecode = 16;
+		ecode = WERRCODE_WARNING_ITNOTFOUND;
 		while (ptsDb[dbIndex].pin[0] != '\0' && dbIndex < PTS_MAXPINS) {
 			if (strcmp(ptsDb[dbIndex].pin, pin) == 0) {
-				ecode = 1;
+				ecode = WERRCODE_SUCCESS;
 				strcpy(symbol, ptsDb[dbIndex].symbol);
 				break;
 			} else {
@@ -76,19 +79,20 @@ uint8_t pinToSymbol_get (char *symbol, const char *pin) {
 
 
 
-uint8_t pinToSymbol_init (const char *headerFile) {
+werror pinToSymbol_init (const char *headerFile) {
 	//
 	// Description:
 	//	Initialization procedure. It reads the mbesPinsMap.h file as a text one, and stores all pin-symbol associations
 	//	inside the module's static array.
 	//
 	// Returned value:
-	//	0: ERROR! (data reading or regex-compiling ... faliled)
-	//	1: The module has been successfully initialized
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_ERROR_IOOPERFAILED
+	//	WERRCODE_ERROR_REGEXCOMP
 	//
 	regex_t reegex_a, reegex_b;
 	int     ea = 0,   eb = 0;     // Regexes error codes
-	uint8_t ecode = 1;
+	 werror ecode = WERRCODE_SUCCESS;
 	
 	// DB cleaning
 	for (uint8_t t=0; t<PTS_MAXPINS; t++) {
@@ -105,7 +109,7 @@ uint8_t pinToSymbol_init (const char *headerFile) {
 		if ((FH = fopen(headerFile, "r")) == NULL) {
 			// ERROR!
 			fprintf(stderr, "ERROR! I cannot open the \"%s\" file: %s\n", headerFile, strerror(errno));
-			ecode = 0;
+			ecode = WERRCODE_ERROR_IOOPERFAILED;
 		
 		} else {
 			size_t     size = PTS_ROWMAXSIZE;
@@ -121,7 +125,7 @@ uint8_t pinToSymbol_init (const char *headerFile) {
 				if (getline(&row, &size, FH) < 0 && errno != 0) {
 					// ERROR!
 					fprintf(stderr, "ERROR! data readingfailed: %s\n", strerror(errno));
-					ecode = 0;
+					ecode = WERRCODE_ERROR_IOOPERFAILED;
 					break;
 						
 				} else if (regexec(&reegex_a, row, 3, pmatch, 0) == 0) {
@@ -129,6 +133,9 @@ uint8_t pinToSymbol_init (const char *headerFile) {
 					strcpy (tmp, (row + pmatch[0].rm_eo));
 					
 					if (regexec(&reegex_b, tmp, 3, pmatch, 0) == 0) {
+						// TODO: inside definition comments deleting
+						//       (#define <pin> /*<comment*/ <symbol>
+						
 						*(tmp+pmatch[0].rm_eo+1) = '\0';
 						t = 0; x = 0; st = 0;
 						
@@ -142,22 +149,38 @@ uint8_t pinToSymbol_init (const char *headerFile) {
 									x++;
 								} else {
 									(ptsDb[dbIndex].symbol)[x] = '\0';
+									//printf("Symbol:%s\n", ptsDb[dbIndex].symbol);
 									st = 1;
 									x = 0;
 								}
 								
 							} else if (st == 1) {
+#ifdef TARGET_AVR8
+									// In AVR8 GPIOs are identified by a two chars string (eg. "A1")
 									if (tmp[t] == '"') st = 2;
+#elifdef TARGET_ESP32
+									// In ESP32 GPIO-ID is a symbol (eg. GPIO_NUM_0)
+									if (isalnum(tmp[t])) {
+										st = 2;
+										(ptsDb[dbIndex].pin)[x] = tmp[t];
+										x++;
+									}
+#endif 
 									
 							} else if (st == 2) {
 								//
 								// PIN name recording...
 								//
+#ifdef TARGET_AVR8
 								if (tmp[t] != '"') {
+#elifdef TARGET_ESP32
+								if (isalnum(tmp[t]) || tmp[t] == '_') {
+#endif
 									ptsDb[dbIndex].pin[x] = tmp[t];
 									x++;
 								} else {
 									ptsDb[dbIndex].pin[x] = '\0';
+									//printf("PIN: %s\n", ptsDb[dbIndex].pin);
 									break;
 								}
 							}
@@ -186,15 +209,16 @@ uint8_t pinToSymbol_init (const char *headerFile) {
 		char regErrBuff[128];
 		if (ea != 0) {
 			regerror(errno, &reegex_a, regErrBuff, 128);
-//			syslog(LOG_ERR, "ERROR! I cannot compile the \"%s\" regex: %s\n", PTS_DEFAREGEX, regErrBuff);
+			fprintf(stderr, "ERROR! I cannot compile the \"%s\" regex: %s\n", PTS_DEFAREGEX, regErrBuff);
 		}
 		if (eb != 0) {
 			regerror(errno, &reegex_b, regErrBuff, 128);
-//			syslog(LOG_ERR, "ERROR! I cannot compile the \"%s\" regex: %s\n", PTS_DEFBREGEX, regErrBuff);
+			fprintf(stderr, "ERROR! I cannot compile the \"%s\" regex: %s\n", PTS_DEFBREGEX, regErrBuff);
 		}
+		ecode = WERRCODE_ERROR_REGEXCOMP;
 	}
 	
-	if (ecode) initFlag = true;
+	if (wErrCode_isSuccess(ecode)) initFlag = true;
 	
 	return(ecode);
 }
