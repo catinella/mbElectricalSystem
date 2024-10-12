@@ -12,10 +12,14 @@
 # Author: Silvano Catinella <catinella@yahoo.com>
 #
 # Description:
-#	
-#	Configuration:
-#		TTYSPEED=<bps>              serial port troughput
-#		BUILDER_NOSCAPECODES={1|0}  enable/disable the escape codes skipping feature 
+#	This file allows you to build the executable tests in easy way. But, before to start the building process, you have
+#	to create a configuration file (Makefile.conf). This file must have the following symbol definitions
+#		TTYSPEED ?= <bps>              Serial port troughput setting
+#		BUILDER_NOSCAPECODES ?= {1|0}  iIt enables/disables the escape codes skipping feature 
+#		TARGET_ARCH ?= {AVR8|ESP32}    It sets the target MCU family (it is used to adjust the MCU's pins names)
+#		PTS_PINMAPFILE ?= <filename>   It sets the header-file name where customized symbols are defined
+#
+#	[!] The "?=" assigment allows you to overwrite those values using shell variables
 #
 # License:
 #	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -31,9 +35,7 @@
 #		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 #
 #-------------------------------------------------------------------------------------------------------------------------------
-
-TTYSPEED ?= 115200
-BUILDER_NOSCAPECODES ?= 0
+include Makefile.conf
 
 ifeq ($(GDB), 1)
 	CCOPTS = -o0 -g
@@ -41,10 +43,18 @@ else
 	CCOPTS = -o3
 endif
 
-SYMBOLS = -DTTYSPEED=B$(TTYSPEED) -DBUILDER_NOSCAPECODES=$(BUILDER_NOSCAPECODES)
+ifeq ($(TARGET_ARCH), ESP32)
+	ARCH = -DTARGET_ESP32=1
+endif
+
+ifeq ($(TARGET_ARCH), AVR8)
+	ARCH = -DTARGET_AVR8=1
+endif
+
+SYMBOLS = -DTTYSPEED=B$(TTYSPEED) -DBUILDER_NOSCAPECODES=$(BUILDER_NOSCAPECODES) $(ARCH)
 INCOPTS = -I.
 
-.PHONY: all clean cleanall conf
+.PHONY: all clean cleanall help
 
 all:			debugConsole
 
@@ -67,6 +77,8 @@ clean:
 cleanall:		clean
 			@rm -fv debugConsole
 
-conf:
-			@echo "TTYSPEED = <BPS troughput>    # def. $(TTYSPEED)"
-			@echo "BUILDER_NOSCAPECODES = {0|1}  # def. $(BUILDER_NOSCAPECODES)"
+help:
+			@echo "TTYSPEED = <BPS troughput>    # $(TTYSPEED)"
+			@echo "BUILDER_NOSCAPECODES = {0|1}  # $(BUILDER_NOSCAPECODES)"
+			@echo "TARGET_ARCH = {AVR8|ESP32}    # $(TARGET_ARCH)"
+			@echo "PTS_PINMAPFILE = <file.h>     # $(PTS_PINMAPFILE)"
