@@ -29,25 +29,32 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <stdio.h>
+#include <werror.h>
 #include <pinToSymbol.h>
 
 int main (int argc, char *argv[]) {
-	int ecode = 0;
-	char symbol[PTS_MAXSYMSIZE];
+	werror wecode = WERRCODE_SUCCESS;
+	char   symbol[PTS_MAXSYMSIZE];
 	
 	if (argc == 1) {
 		fprintf(stderr, "ERROR! Use: %s [A-Z][0-9]\n", argv[0]);
-		ecode = 127;
+		wecode = WERRCODE_ERROR_ILLEGALARG;
+		
 	} else {
-		if (pinToSymbol_init("../../mbesPinsMap.h") != 1) {
-			fprintf(stderr, "ERROR! Initialization failed\n");
-			ecode = 129;
-		} else if (pinToSymbol_get(symbol, argv[1]) != 1) {
-			fprintf(stderr, "ERROR! I cannot find a symbol definition for the \"%s\" pin\n", argv[1]);
-			ecode = 131;
-		} else
+		wecode = pinToSymbol_get(symbol, argv[1]);
+		if (wErrCode_isSuccess(wecode))
 			printf("Symbol: %s\n", symbol);
-	}
+		else {
+			if (wecode == WERRCODE_ERROR_INITFAILED)
+				fprintf(stderr, "ERROR! Module's initialization failed\n");
+				
+			else if (wecode == WERRCODE_WARNING_ITNOTFOUND)
+				fprintf(stderr, "WARNING! No symbol defined for the \"%s\" pin\n", argv[1]);
+				
+			else
+				fprintf(stderr, "*** Unexpected returned code ***\n");
+		}
+	}		
 	
-	return(ecode);
+	return((wErrCode_isSuccess(wecode) ? 0 : wecode));
 }

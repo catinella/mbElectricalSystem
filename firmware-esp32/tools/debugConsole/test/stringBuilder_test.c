@@ -36,7 +36,6 @@
 #include <stringBuilder.h>
 
 int main (int argc, char *argv[]) {
-	int      ec = 0;
 	werror   wec = WERRCODE_SUCCESS;
 	char     inputString[64];
 	char     builtString[1024];
@@ -71,12 +70,11 @@ int main (int argc, char *argv[]) {
 			printf("\n");
 			
 		} else if ((wec = stringBuilder_put(inputString, strlen(inputString))) != WERRCODE_SUCCESS) {
-			if (wec == WERRCODE_ERROR_OUTOFMEM) {
+			if (wec == WERRCODE_ERROR_OUTOFMEMORY) {
 				fprintf(stderr, "ERROR! Out of memory\n");
-				ec = 127;
 			} else {
 				fprintf(stderr, "ERROR! Unknown problem\n");
-				ec = 1;
+				wec = WERRCODE_ERROR_GENIRIC;
 			}
 			break;
 			
@@ -86,5 +84,5 @@ int main (int argc, char *argv[]) {
 	}
 	stringBuilder_close();
 	
-	return(ec);
+	return((wErrCode_isSuccess(wec) ? 0 : wec));
 }
