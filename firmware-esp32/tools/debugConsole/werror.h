@@ -44,27 +44,33 @@
 #define WERRCODE
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define WERRCODE_LAST_SUCCESS 63
 #define WERRCODE_LAST_WARNING 127
 #define WERRCODE_LAST_ERROR   255
 
 typedef enum {
-	WERRCODE_ERROR_GENIRIC    = 0,
+	WERRCODE_ERROR_GENIRIC      = 0,
 
-	WERRCODE_SUCCESS          = 1,
+	WERRCODE_SUCCESS            = 1,
 
-	WERRCODE_WARNING_RESBUSY  = 65,
-	WERRCODE_WARNING_EMPTYLST = 67,
+	WERRCODE_WARNING_RESBUSY    = 65,
+	WERRCODE_WARNING_EMPTYLIST  = 67,
+	WERRCODE_WARNING_ITNOTFOUND = 69,
 	
-	WERRCODE_ERROR_OUTOFMEM   = 129
+	WERRCODE_ERROR_OUTOFMEMORY  = 129,
+	WERRCODE_ERROR_INITFAILED   = 131,
+	WERRCODE_ERROR_IOOPERFAILED = 133,
+	WERRCODE_ERROR_REGEXCOMP    = 135,
+	WERRCODE_ERROR_ILLEGALARG   = 137
 
 } werror;
 
 
 static inline bool wErrCode_isSuccess (werror ec) {return((ec>0                     && ec<=WERRCODE_LAST_SUCCESS));}
 static inline bool wErrCode_isWarning (werror ec) {return((ec>WERRCODE_LAST_SUCCESS && ec<=WERRCODE_LAST_WARNING));}
-static inline bool ErrCode_isError   (werror ec) {return((ec>WERRCODE_LAST_WARNING && ec<=WERRCODE_LAST_ERROR));  }
+static inline bool wErrCode_isError   (werror ec) {return((ec>WERRCODE_LAST_WARNING && ec<=WERRCODE_LAST_ERROR));  }
 
 // [!] The inline optimization has meaning just in GNU-C not in ANSI-C
 //     DO NOT REMOVE static, it can cause un-predictable behavior
