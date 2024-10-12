@@ -38,6 +38,7 @@
 #define MBES_BUILDER
 
 #include <stdint.h>
+#include <werror.h>
 
 #define BUILDER_MAXSTRINGSIZE 1024
 #define BUILDER_ENDOFDATA     '\n'
@@ -48,8 +49,8 @@
 
 typedef uint16_t buffSize_t;
 
-uint8_t stringBuilder_put(const char *data, buffSize_t size);
-uint8_t stringBuilder_get(char *data);
+werror stringBuilder_put(const char *data, buffSize_t size);
+werror stringBuilder_get(char *data);
 void    stringBuilder_close();
 
 #endif

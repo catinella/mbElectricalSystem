@@ -36,7 +36,8 @@
 #include <stringBuilder.h>
 
 int main (int argc, char *argv[]) {
-	int      ecode = 0;
+	int      ec = 0;
+	werror   wec = WERRCODE_SUCCESS;
 	char     inputString[64];
 	char     builtString[1024];
 	uint16_t size = 0, t = 0;
@@ -64,13 +65,19 @@ int main (int argc, char *argv[]) {
 			
 		else if (inputString[0] == '?' && inputString[1] == '\0') {
 			printf("--------- Build strings --------- \n");
-			while (stringBuilder_get(builtString) == 1)
+			// When the list will be empty the call will returns WERRCODE_WARNING_EMPTYLST
+			while (wErrCode_isSuccess(stringBuilder_get(builtString)))
 				printf("\"%s\"\n", builtString);
 			printf("\n");
 			
-		} else if (stringBuilder_put(inputString, strlen(inputString)) == 0) {
-			fprintf(stderr, "ERROR!\n");
-			ecode = 127;
+		} else if ((wec = stringBuilder_put(inputString, strlen(inputString))) != WERRCODE_SUCCESS) {
+			if (wec == WERRCODE_ERROR_OUTOFMEM) {
+				fprintf(stderr, "ERROR! Out of memory\n");
+				ec = 127;
+			} else {
+				fprintf(stderr, "ERROR! Unknown problem\n");
+				ec = 1;
+			}
 			break;
 			
 		}
@@ -79,5 +86,5 @@ int main (int argc, char *argv[]) {
 	}
 	stringBuilder_close();
 	
-	return(ecode);
+	return(ec);
 }

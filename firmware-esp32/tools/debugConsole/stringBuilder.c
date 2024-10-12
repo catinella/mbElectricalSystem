@@ -108,7 +108,7 @@ static bool chInSet (char ch, const char set[]) {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                        P U B L I C   F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
-uint8_t stringBuilder_put(const char *data, buffSize_t size) {
+werror stringBuilder_put(const char *data, buffSize_t size) {
 	//
 	// Decription:
 	//	Use this function to store/parse new characters stream. It can contains many strings definitions or no one
@@ -119,10 +119,10 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 	//	size    the size of the stream (remember, '\0' can be missed in the stream)
 	//
 	// Returned value
-	//	0 ERROR! Out of memory
-	//	1 The chars have been succesfully parsed and stored
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_ERROR_OUTOFMEM
 	//
-	uint8_t             ecode = 1;
+	werror              ecode = WERRCODE_SUCCESS;
 	bool                eolFlag = false;
 	static buffSize_t   bufferSize = 0;  // The buffesr size of the newest's item or 0 if the log-item is completed
 	static parser_FSM_t fsm = BUILDER_NORMAL;
@@ -131,8 +131,9 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 		oldest = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
 		memset(oldest->buffer, '\0', sizeof(oldest->buffer));
 		if (oldest == NULL)
-			// ERROR! Memory full
-			ecode = 0;
+			// ERROR!
+			ecode = WERRCODE_ERROR_OUTOFMEM;
+			
 		else {
 			*(oldest->buffer) = '\0';
 			newest = oldest;
@@ -192,8 +193,8 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 					newest->next = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
 				
 					if (newest->next == NULL) {
-						// ERROR! Memory full
-						ecode = 0;
+						// ERROR!
+						ecode = WERRCODE_ERROR_OUTOFMEM;
 						break;
 					} else
 						newest = newest->next;
@@ -216,23 +217,23 @@ uint8_t stringBuilder_put(const char *data, buffSize_t size) {
 }
 
 
-uint8_t stringBuilder_get(char *data) {
+werror stringBuilder_get(char *data) {
 	//
 	// Decription:
 	//	This function allows you to retrive the strings defined in the previousely added chras streams
 	//	
 	// Returned value:
-	//	0: ERROR! No strings available
-	//	1: SUCCESS!
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_WARNING_EMPTYLST
 	//
-	uint8_t ecode = 0;
+	werror ecode = WERRCODE_WARNING_EMPTYLST;
 
 	if (oldest != NULL && oldest != newest) {
 		logsSetItem_t *ptr = oldest;
 		strcpy(data, oldest->buffer);
 		oldest = oldest->next;
 		free(ptr);
-		ecode = 1;
+		ecode = WERRCODE_SUCCESS;
 	}
 	
 	return(ecode);
@@ -240,7 +241,7 @@ uint8_t stringBuilder_get(char *data) {
 
 void stringBuilder_close() {
 	//
-	// Description_
+	// Description:
 	//	It releases all in-use system resources
 	//
 	logsSetItem_t *ptr = oldest;

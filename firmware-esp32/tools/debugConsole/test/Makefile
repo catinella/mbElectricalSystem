@@ -14,7 +14,7 @@ endif
 
 all:	$(exes)
 
-%.o:		%.c
+%.o:		%.c ../werror.h
 		@echo "[ CC ] $@"
 		@gcc -Wall $(CCOPTS) $(INCOPTS) -c $< -o $@
 
