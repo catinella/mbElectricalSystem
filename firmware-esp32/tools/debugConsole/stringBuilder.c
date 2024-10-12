@@ -120,7 +120,7 @@ werror stringBuilder_put(const char *data, buffSize_t size) {
 	//
 	// Returned value
 	//	WERRCODE_SUCCESS
-	//	WERRCODE_ERROR_OUTOFMEM
+	//	WERRCODE_ERROR_OUTOFMEMORY
 	//
 	werror              ecode = WERRCODE_SUCCESS;
 	bool                eolFlag = false;
@@ -132,7 +132,7 @@ werror stringBuilder_put(const char *data, buffSize_t size) {
 		memset(oldest->buffer, '\0', sizeof(oldest->buffer));
 		if (oldest == NULL)
 			// ERROR!
-			ecode = WERRCODE_ERROR_OUTOFMEM;
+			ecode = WERRCODE_ERROR_OUTOFMEMORY;
 			
 		else {
 			*(oldest->buffer) = '\0';
@@ -191,10 +191,9 @@ werror stringBuilder_put(const char *data, buffSize_t size) {
 			if (eolFlag) {
 				if (checkForValidData(newest->buffer)) {
 					newest->next = (logsSetItem_t*)malloc(sizeof(logsSetItem_t));
-				
 					if (newest->next == NULL) {
 						// ERROR!
-						ecode = WERRCODE_ERROR_OUTOFMEM;
+						ecode = WERRCODE_ERROR_OUTOFMEMORY;
 						break;
 					} else
 						newest = newest->next;
@@ -204,7 +203,6 @@ werror stringBuilder_put(const char *data, buffSize_t size) {
 				newest->next = NULL;
 				bufferSize = 0;
 				x = 0;
-				
 			}
 			
 			t++;
@@ -224,9 +222,9 @@ werror stringBuilder_get(char *data) {
 	//	
 	// Returned value:
 	//	WERRCODE_SUCCESS
-	//	WERRCODE_WARNING_EMPTYLST
+	//	WERRCODE_WARNING_EMPTYLIST
 	//
-	werror ecode = WERRCODE_WARNING_EMPTYLST;
+	werror ecode = WERRCODE_WARNING_EMPTYLIST;
 
 	if (oldest != NULL && oldest != newest) {
 		logsSetItem_t *ptr = oldest;
