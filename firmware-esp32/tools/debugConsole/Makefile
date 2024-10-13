@@ -51,7 +51,13 @@ ifeq ($(TARGET_ARCH), AVR8)
 	ARCH = -DTARGET_AVR8=1
 endif
 
-SYMBOLS = -DTTYSPEED=B$(TTYSPEED) -DBUILDER_NOSCAPECODES=$(BUILDER_NOSCAPECODES) $(ARCH)
+SYMBOLS =                                              \
+	"-DTTYSPEED=B$(TTYSPEED)"                        \
+	"-DBUILDER_NOSCAPECODES=$(BUILDER_NOSCAPECODES)" \
+	$(ARCH)                                          \
+	"-DPTS_PINMAPFILE=\"$(PTS_PINMAPFILE)\""
+
+
 INCOPTS = -I.
 
 .PHONY: all clean cleanall help
