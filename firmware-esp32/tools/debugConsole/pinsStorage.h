@@ -7,7 +7,7 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File: pinStorage.h
+// File: pinsStorage.h
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
