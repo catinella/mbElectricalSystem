@@ -83,7 +83,7 @@ void fillUp (char *string, uint8_t newsz) {
 //-----------------------------------------------------------------------------------------------------------------------------
 //                                       P U B L I C   F U N C T I O N S
 //-----------------------------------------------------------------------------------------------------------------------------
-void pinStorage_print (uint16_t screenCols) {
+void pinsStorage_print (uint16_t screenCols) {
 	//
 	// Description:
 	//	This function prints every recorded pins and its value formatted by columns considering the argument defined
@@ -119,7 +119,7 @@ void pinStorage_print (uint16_t screenCols) {
 	
 }
 
-werror pinStorage_update (const char *pinID, uint32_t value) {
+werror pinsStorage_update (const char *pinID, uint32_t value) {
 	//
 	// Description:
 	//	This function updates or adds the argument defined pin and its associated value

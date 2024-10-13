@@ -38,8 +38,8 @@
 
 #define MBES_MAXNUMOFPINS 64
 
-void   pinStorage_print  (uint16_t screenColumns);
-werror pinStorage_update (const char *pinID, uint32_t value);
+void   pinsStorage_print  (uint16_t screenColumns);
+werror pinsStorage_update (const char *pinID, uint32_t value);
 
 
 #endif

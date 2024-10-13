@@ -51,7 +51,7 @@ int main() {
 		linePrinting('-', ts.ws_col);
 		titlePrinting("PIDs CONSOLE", ts.ws_col);
 		linePrinting('-', ts.ws_col);
-		pinStorage_print(ts.ws_col);
+		pinsStorage_print(ts.ws_col);
 		linePrinting('=', ts.ws_col);
 		printf("\n\n");
 		
@@ -64,7 +64,7 @@ int main() {
 		} else {
 			memset(pinvalue, '0', sizeof(pinvalue));
 			printf("PIN's value > "); scanf("%s", pinvalue);
-			if (wErrCode_isError(pinStorage_update(pinid, atoi(pinvalue)))) {
+			if (wErrCode_isError(pinsStorage_update(pinid, atoi(pinvalue)))) {
 				// ERROR!
 				err = 1;
 				loop = false;
