@@ -62,28 +62,35 @@ SYMBOLS = $(ARCH) "-DPTS_PINMAPFILE=\"$(PTS_PINMAPFILE)\""
 
 .PHONY: all clean cleanall help
 
+#-------------------------------------------------------------------------------------------------------------------------------
+#                                                    R U L E S
+#-------------------------------------------------------------------------------------------------------------------------------
 all:	$(exes)
 
-%.o:		%.c ../werror.h
-		@echo "[ CC ] $@"
-		@gcc -Wall $(CCOPTS) $(INCOPTS) $(SYMBOLS) -c $< -o $@
+pinsStorage_test:	pinsStorage_test.o screenUtils.o pinsStorage.o pinToSymbol.o
+			@echo "[ LD* ] $@"
+			@gcc -Wall $(CCOPTS) $^ -o $@
 
-%_test:	%_test.o %.o
-		@echo "[ LD ] $@"
-		@gcc -Wall $(CCOPTS) $^ -o $@
+%.o:			%.c ../werror.h
+			@echo "[ CC ] $@"
+			@gcc -Wall $(CCOPTS) $(INCOPTS) $(SYMBOLS) -c $< -o $@
 
-%.o:		../%.c ../%.h
-		@echo "[ CC* ] $@"
-		@gcc -Wall $(CCOPTS) $(INCOPTS) $(SYMBOLS) -c $< -I. -o $@
+%_test:		%_test.o %.o screenUtils.o
+			@echo "[ LD ] $@"
+			@gcc -Wall $(CCOPTS) $^ -o $@
+
+%.o:			../%.c ../%.h
+			@echo "[ CC* ] $@"
+			@gcc -Wall $(CCOPTS) $(INCOPTS) $(SYMBOLS) -c $< -I. -o $@
 
 clean:
-		@echo "[CLEAN]"
-		@rm -fv *.o
+			@echo "[CLEAN]"
+			@rm -fv *.o
 
-cleanall:	clean
-		@rm -fv $(exes)
+cleanall:		clean
+			@rm -fv $(exes)
 	
 help:
-		@echo "[CONFIG]"
-		@echo "TARGET_ARCH=$(TARGET_ARCH)"
-		@echo "PTS_PINMAPFILE=$(PTS_PINMAPFILE)"
+			@echo "[CONFIG]"
+			@echo "TARGET_ARCH=$(TARGET_ARCH)"
+			@echo "PTS_PINMAPFILE=$(PTS_PINMAPFILE)"
