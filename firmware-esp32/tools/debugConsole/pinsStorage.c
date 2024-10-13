@@ -7,7 +7,7 @@
 // |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 //                                                                                                 |___/                       
 //
-// File: pinStorage.c
+// File: pinsStorage.c
 //
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
@@ -55,7 +55,7 @@
 
 // Pins status DB item
 typedef struct {
-	char     pin[3];
+	char     pin[PTS_PINLABSIZE];
 	uint32_t value;
 } pinsDbItem;
 
@@ -97,7 +97,6 @@ void pinStorage_print (uint16_t screenCols) {
 	cols = (cols == 0) ? 1 : cols;
 		
 	for (x = 0; x < counter; x++) {
-		fprintf(stderr, "PIN: %s", pinsDb[x].pin);
 			
 		// Symbol retriving
 		if (pinToSymbol_get(buff, pinsDb[x].pin) != 1)
