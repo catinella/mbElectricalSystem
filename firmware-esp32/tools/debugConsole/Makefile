@@ -71,6 +71,10 @@ all:			debugConsole
 			@echo "[ CC ] $@"
 			@gcc -Wall $(CCOPTS) -c $(SYMBOLS) $(INCOPTS) -o $@ $<
 
+%.o:			%.c
+			@echo "[ CC ] $@"
+			@gcc -Wall $(CCOPTS) -c $(SYMBOLS) $(INCOPTS) -o $@ $<
+
 debugConsole:	$(OBJs)
 			@echo "[ LD ] $@"
 			@gcc -Wall $^ -o $@
