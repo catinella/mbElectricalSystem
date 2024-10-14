@@ -68,21 +68,37 @@ typedef enum {
 	WERRCODE_ERROR_OUTOFMEMORY  = 129,
 	WERRCODE_ERROR_INITFAILED   = 131,
 	WERRCODE_ERROR_IOOPERFAILED = 133,
+	WERRCODE_ERROR_SYSCALL      = 134,
 	WERRCODE_ERROR_TIMESYNC     = 135,
 	WERRCODE_ERROR_TTYCONFIG    = 137,
+	WERRCODE_ERROR_FILENOTFOUND = 138,
 	
 	WERRCODE_ERROR_REGEXCOMP    = 139,
 	WERRCODE_ERROR_ILLEGALARG   = 141,
 	WERRCODE_ERROR_INVALIDDATA  = 143,
-	WERRCODE_ERROR_DATAOVERFLOW = 145
+	WERRCODE_ERROR_DATAOVERFLOW = 145,
+	WERRCODE_ERROR_MISSINGARG   = 147
 	
 
 } werror;
 
 
-static inline bool wErrCode_isSuccess (werror ec) {return((ec>0                     && ec<=WERRCODE_LAST_SUCCESS));}
-static inline bool wErrCode_isWarning (werror ec) {return((ec>WERRCODE_LAST_SUCCESS && ec<=WERRCODE_LAST_WARNING));}
-static inline bool wErrCode_isError   (werror ec) {return((ec>WERRCODE_LAST_WARNING && ec<=WERRCODE_LAST_ERROR));  }
+static inline bool wErrCode_isSuccess (werror ec) {
+	return((ec>0 && ec<=WERRCODE_LAST_SUCCESS));
+}
+static inline bool wErrCode_isWarning (werror ec) {
+	return((ec>WERRCODE_LAST_SUCCESS && ec<=WERRCODE_LAST_WARNING));
+}
+static inline bool wErrCode_isError (werror ec) {
+	return((ec>WERRCODE_LAST_WARNING && ec<=WERRCODE_LAST_ERROR));
+}
+
+static inline int  wErrCodeToShell (werror ec) {
+	if      (wErrCode_isSuccess(ec)) return(0);
+	else if (ec == 0)                return(1);
+	else                             return(ec);
+}
+
 
 // [!] The inline optimization has meaning just in GNU-C not in ANSI-C
 //     DO NOT REMOVE static, it can cause un-predictable behavior
