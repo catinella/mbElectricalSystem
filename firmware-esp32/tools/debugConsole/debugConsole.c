@@ -23,7 +23,6 @@
 //		TTY_DATACHUNK     Number of bytes the console will try to read on every round
 //		TTY_MAXLOGSIZE    Max length of the log-message to display
 //		TTY_MAXLOGLINES   Max number of lines to show in the console before to drop the oldest logs
-//		MBES_MAXNUMOFPINS Max number of monitored pins
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -48,7 +47,6 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
@@ -57,136 +55,27 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <math.h>
+
 #include <stringBuilder.h>
 #include <pinToSymbol.h>
+#include <pinsStorage.h>
+#include <screenUtils.h>
+#include <logsStorage.h>
 
 #define TTY_DATACHUNK     16
 #define TTY_MAXLOGSIZE    126
-#define TTY_MAXLOGLINES   16
-
-#define MBES_MAXNUMOFPINS 64
 
 #define CONS_FACILITY     LOG_LOCAL0
-#define CONS_PINDEMATCH   "^[A-Z0-9][0-9]:[0-9]\\+$"
 
 #define CONS_KEEPTRACK syslog(LOG_INFO, "------->%s(%d)", __FUNCTION__, __LINE__);
 
 
-//
-// Custom data-types
-//
-
-// Saved log item
-typedef struct _logRow {
-	char           message[BUILDER_MAXSTRINGSIZE];
-	uint32_t       tstamp;
-	struct _logRow *next;
-} logRow;
-
-// Pins status DB item
-typedef struct {
-	char     pin[3];
-	uint32_t value;
-} pinsDbItem;
-
-// Available commands for the Log Storadge engine
-typedef enum {
-	LGS_ADD,
-	LGS_CLOSE,
-	LGS_PRINT
-} logStorage_cmd;
-
-// Available commands for the monitored-pins DB ngine
-typedef enum {
-	MPS_UPDATE,
-	MPS_SETSCR,
-	MPS_PRINT
-} mpsStorage_cmd;
-
-
 // Global vars
 bool loop = true;
-struct winsize ts;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
-	
-uint8_t iatoi (int *dst, const char *src) {
-	//
-	// Description:
-	//	Intelligent atoi() function
-	//
-	// Arguments:
-	//	dst:  the converted number
-	//	src:  the characters string version of the number
-	//
-	// Returned vale:
-	//	0:  conversion error
-	//	1:  SUCCESS
-	//
-	uint8_t t   = 0;
-	uint8_t err = 1;
-	char    tmp[16];
-	
-	// Zero padding removing...
-	if (strlen(src) > 1) while (src[t] == '0') t++;
-		 
-	strcpy(tmp, (src+t));
-	*dst = atoi(tmp);
-	
-	// Checking for atoi() error
-	if (dst == 0 && (strlen(tmp) > 1 || *tmp != '0'))
-		// ERROR!
-		err = 0;
-	
-	return(err);
-}
-
-	
-void linePrinting (char pattern, uint16_t colums) {
-	//
-	// Description:
-	//	It prints a line on the screen
-	//
-	for (uint16_t t=0; t<colums; t++) printf("%c", pattern);
-	printf("\n");
-	return;
-}
-	
-				
-void titlePrinting (const char *title, uint16_t colums) {
-	uint16_t padSize = (colums - strlen(title))/2;
-	for (uint16_t t=0; t<padSize; t++) printf(" ");
-	printf("%s\n", title);
-	return;
-}
-
-
-uint8_t getMyEpoch(uint32_t *tstamp) {
-	//
-	// Description:
-	//	It returns a time-stamp in milliseconds
-	//
-	// Returned value:
-	//	0: Error
-	//	1: Success
-	//
-	static long int tZero = 0;
-	struct timeval tv = {0, 0};
-	uint8_t        err = 1;
-
-	if (gettimeofday(&tv,NULL) < 0)
-		err = 0;
-	else if (tZero == 0) {
-		tZero = tv.tv_sec*1000 + tv.tv_usec/1000;
-		*tstamp = 0;
-	} else 
-		*tstamp = (tv.tv_sec*1000 + tv.tv_usec/1000) - tZero;
-
-	return(err);
-}
-
 
 void sigHandler (int signum) {
 	//
@@ -205,27 +94,27 @@ void sigHandler (int signum) {
 }
 
 
-uint8_t set_ttyAttribs (int fd) {
+werror set_ttyAttribs (int fd) {
 	//
 	// Description:
 	//	It sets the serial port's attributes
 	//
 	// Returned value
-	//	0: Error
-	//	1: Success
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_ERROR_TTYCONFIG
 	//
 	struct termios tty;
-	uint8_t err = 1;
+	werror err = WERRCODE_SUCCESS;
 
 	if (tcgetattr (fd, &tty) != 0) {
 		// ERROR!
 		fprintf(stderr, "ERROR! tcgetattr() call failed: %s\n", strerror(errno));
-		err = 0;
+		err = WERRCODE_ERROR_TTYCONFIG;
 	
 	} else if ((cfsetospeed(&tty, TTYSPEED) < 0) || cfsetispeed(&tty, TTYSPEED) < 0) {
 		// ERROR!
 		fprintf(stderr, "ERROR! cfsetospeed() call failed: %s\n", strerror(errno));
-		err = 0;
+		err = WERRCODE_ERROR_TTYCONFIG;
 	
 	} else {
 
@@ -301,7 +190,7 @@ uint8_t set_ttyAttribs (int fd) {
 		if (tcsetattr (fd, TCSANOW, &tty) < 0) {
 			// ERROR!
 			fprintf(stderr, "ERROR! tcsetattr() call failed: %s\n", strerror(errno));
-			err = 0;
+			err = WERRCODE_ERROR_TTYCONFIG;
 		}
 	}
 	
@@ -309,318 +198,67 @@ uint8_t set_ttyAttribs (int fd) {
  }
 
 
-logRow* new_logRow (logRow *item) {
-	//
-	// Description:
-	//	This function creates a new object, links it to the argument defined object, and sets the log timestamp field
-	//
-	// Returned value:
-	//	NULL:         malloc() failed
-	//	<valid addr>: The new-oject's address
-	//
-	logRow *newObj = (logRow*)malloc(sizeof(logRow));
-
-	if (newObj != NULL) {
-		// Object creation
-		newObj->message[0] = '\0';
-		newObj->tstamp     = 0;
-		newObj->next       = NULL;
-
-		// Object linking
-		if (item != NULL) item->next = newObj;
-	}
-
-	return(newObj);
-}
-
-
-void printSingleMsg (const logRow *item) {
-	printf("%5d: ", item->tstamp);
-	if (strlen(item->message) > (ts.ws_col - 10)) {
-		for (uint16_t x=0; x<(ts.ws_col - 10); x++) printf("%c", item->message[x]);
-		printf("...\n");
-	} else 
-		printf("%s\n", item->message);
-	return;
-}
-
-
-uint8_t logAreaStorage (logStorage_cmd cmd, const char *logMsg) {
-	//
-	// Description:
-	//	This function manages the log storage and the log display area
-	//	The storage is a tipycal dynamically allocated ring list.
-	//
-	//	Available commands:
-	//		LGS_ADD     It saves the new log-message in the ring-queue 
-	//		LGS_CLOSE   It releases all the used system resources
-	//		LGS_PRINT   It prints all queued log-messages on screen
-	//
-	// Returned value:
-	//	O:   ERROR! Out of memory
-	//    1:   SUCCESS
-	//
-	static logRow   *newest = NULL, *oldest = NULL;
-	static uint16_t logCounter = 0;
-	static bool     ringFlag = false;
-	uint8_t         err = 1;
-
-	if (cmd == LGS_ADD) {
-		if (logCounter < TTY_MAXLOGLINES) {
-			newest = new_logRow(newest);
-			if (newest == NULL) {
-				// ERROR!
-				err = 0;
-				syslog(LOG_ERR, "ERROR(%d)! new_logRow() failed", __LINE__);
-			} else {
-				if (logCounter == 0) oldest = newest;
-				logCounter++;
-			}
-
-		} else {
-			// It closes the ring structure
-			if (ringFlag == false) {
-				newest->next = oldest;
-				ringFlag = true;
-			}
-			newest = oldest;
-			oldest = oldest->next ;
-		}
-		strcpy(newest->message, logMsg);
-		
-		// Timestamp
-		if (getMyEpoch(&(newest->tstamp)) == 0) {
-			// ERROR!
-			fprintf(stderr, "ERROR! System-time retriving operation failed: %s\n", strerror(errno));
-		}
-		//syslog(LOG_INFO, "timestamp: %d", newObj->tstamp);
-
-	
-	} else if (cmd == LGS_CLOSE) {
-		logRow *ptr = NULL;
-		while (oldest != newest) {
-			ptr = oldest;
-			oldest = oldest->next;
-			free(ptr);
-		}
-		if (oldest != NULL) free(oldest);
-
-	} else if (cmd == LGS_PRINT) {
-		//
-		// Data printing mode
-		//
-		logRow *ptr = oldest;
-		if (ptr != NULL) {
-			while (ptr != newest) {
-				printSingleMsg(ptr);
-				ptr = ptr->next;
-			}
-			printSingleMsg(newest);
-			
-		} else
-			printf("\n\n\n       EMPTY!!\n\n\n");
-	}
-
-
-	return(err);
-}
-
-
-void fillUp (char *string, uint8_t newsz) {
-	//
-	// Description:
-	//	This function is used to get a pre-defined size string. To achieve the result, the procedure will append
-	//	enough spaces to get the argument define size
-	//
-	uint8_t t = 0;
-	for (t = strlen(string); t < newsz; t++) string[t] = ' ';
-	string[t] = '\0';
-	
-	return;
-}
-
-
-uint8_t pinAreaStorage (mpsStorage_cmd cmd, const char *pin, uint32_t value) {
-	//
-	// Description:
-	//	This function manages the monitored-pins DB and the visualization process of its items
-	//
-	//
-	//
-	uint8_t err = 1;
-	static pinsDbItem pinsDb[MBES_MAXNUMOFPINS];
-	static uint8_t    counter = 0;
-	static uint16_t   screenCols = 0;
-	
-	if (cmd == MPS_UPDATE) {
-		uint8_t t = 0;
-		while (t < counter) {
-			if (strcmp(pin, pinsDb[t].pin) == 0) break;
-			else                                 t++;
-		}
-		if (t == counter) {
-			// New pin adding...
-			strcpy(pinsDb[counter].pin, pin);
-			pinsDb[counter].value = value;
-			counter++;
-		} else {
-			// Updating...
-			pinsDb[t].value = value;
-		}
-		
-	} else if (cmd == MPS_SETSCR) {
-		screenCols = (uint16_t)value;
-
-	} else if (cmd == MPS_PRINT) {
-		// Colums calculating
-		uint8_t t = 0, x = 0;
-		uint8_t cols = roundf(((screenCols) / (PTS_MAXSYMSIZE + 5)) - 1);
-		char    *buff = (char*)malloc(PTS_MAXSYMSIZE+5);
-		
-		cols = cols == 0 ? 1 : cols;
-		
-		for (x = 0; x < counter; x++) {
-			// Symbol retriving
-			if (pinToSymbol_get(buff, pinsDb[x].pin) != 1)
-				strcpy(buff, pinsDb[x].pin);
-				
-			sprintf((buff + strlen(buff)), ":%d", pinsDb[x].value);
-			fillUp(buff, PTS_MAXSYMSIZE);
-			printf("%s", buff);
-			
-			if (t == cols) {
-				printf("\n");
-				t = 0;
-			} else {
-				printf("      ");
-				t++;
-			}
-		}
-		free(buff);
-		if (t != 0) printf("\n");
-	}
-	return(err);
-}
-
-
-uint8_t checkPinStatus (char *pin, const char *log, int *value) {
-	//
-	// Description:
-	//	This function checks for special-log syntax inside the argument defined (log) string.
-	//	The special ones are used to keep track of the pins' value, and they have to respect the following syntax:
-	//		<port><pin-number>:<int value> // port=<A-Z>, pin=<0-9>, value=<0..n>
-	//
-	// Arguments:
-	//	log:    The received log message
-	//	pin:    The memory area where the pin-id will be stored
-	//	value:  The area where the pin'svalue will be stored. It can be an ADC result, too.
-	//
-	// Returned value:
-	//	0:  ERROR!
-	//	1:  It is a pin status information
-	//
-	static regex_t regx;
-	static bool    initFlag = false;
-	uint8_t        err = 1;
-	
-	if (initFlag == false) {
-		if (regcomp(&regx, CONS_PINDEMATCH, 0) == 0) {
-			initFlag = true;
-		} else {
-			// ERROR!
-			char regErrBuff[128];
-			regerror(errno, &regx, regErrBuff, 128);
-			syslog(LOG_ERR, "ERROR(%d)! I cannot compile the regex: %s\n", __LINE__, regErrBuff);
-			err = 0;
-		}
-	} 
-	
-	if (initFlag) {
-		if (pin == NULL) {
-			// System resources releasing
-			regfree(&regx);
-			
-		} else {
-			regmatch_t pmatch[3];
-		
-			if (regexec(&regx, log, 3, pmatch, 0) == 0) {
-				strncpy(pin, log, 2);
-				pin[2] = '\0';
-				if (iatoi(value, (log+3)) == 0) {
-					// ERROR!
-					syslog(LOG_ERR, "ERROR(%d)! atoi() failed\n", __LINE__);
-					err = 0;
-				}
-			} else
-				// It is a normal log message
-				err = 4;
-		}
-	}
-	
-	return(err);
-}
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                     M A I N
 //------------------------------------------------------------------------------------------------------------------------------
 int main (int argc, char *argv[]) {
-	uint8_t     err = 0;
+	werror      err = 0;
 	struct stat buff;
 	int         ttyFD;
 
 	if (argc != 2 || *argv[1] == '\0') {
 		// ERROR!
 		fprintf(stderr, "ERROR! port name missing\n");
-		err = 127;
+		err = WERRCODE_ERROR_MISSINGARG;
 
 	} else if (stat(argv[1], &buff) < 0) {
 		// ERROR!
 		fprintf(stderr, "ERROR! \"%s\" file not found\n", argv[1]);
-		err = 129;
+		err = WERRCODE_ERROR_FILENOTFOUND;
 
 	} else if (signal(SIGTERM, sigHandler) == SIG_ERR || signal(SIGINT, sigHandler) == SIG_ERR) {
 		// ERROR!
 		fprintf(stderr, "ERROR! I cannot set the signal-handlers: %s\n", strerror(errno));
-		err = 131;
+		err = WERRCODE_ERROR_SYSCALL;
 
 	} else if ((ttyFD = open(argv[1], O_RDWR | O_NOCTTY | O_SYNC)) < 0) {
 		// ERROR!
 		fprintf(stderr, "ERROR! I cannot open the \"%s\" file: %s\n", argv[1], strerror(errno));
-		err = 133;
+		err = WERRCODE_ERROR_IOOPERFAILED;
 
-	} else if (set_ttyAttribs(ttyFD) == 0) {
+	} else if (wErrCode_isError(set_ttyAttribs(ttyFD))) {
 		// ERROR!
-		err = 135;
+		err = WERRCODE_ERROR_TTYCONFIG;
 
 	} else {
 		char     chunk[TTY_DATACHUNK];
 		char     buff[BUILDER_MAXSTRINGSIZE];
 		int      nb       = 0;                // number of received bytes
 		int      value    = 0;                // PIN's value
-		char     pin[3]   = {'\0','\0','\0'}; // PIN-id
+		char     pin[PTS_PINLABSIZE];
+		struct winsize ts;
 		
 
 		openlog(argv[0], LOG_NDELAY|LOG_PID, CONS_FACILITY);
 		//syslog(LOG_INFO, "------------------------- [DEBUG CONSOLE START] -------------------------");
 		
-		while (loop) {
+		while (loop && wErrCode_isError(err) == false) {
 			memset(chunk, '\0', TTY_DATACHUNK);
 			nb = read(ttyFD, &chunk, (TTY_DATACHUNK * sizeof(char)));
 			
 			if (nb < 0) {
 				// ERROR!
 				syslog(LOG_ERR, "ERROR! data reading operation failed: %s\n", strerror(errno));
-				loop = 0;
-				err = 137;
+				err = WERRCODE_ERROR_IOOPERFAILED;
 				
 			} else if (nb == 0) {
 				// Timeout (NO new messages)
 				//printf("!\n");
 				
-			} else if (stringBuilder_put(chunk, nb) == 0) {
+			} else if (wErrCode_isError(stringBuilder_put(chunk, nb))) {
 				// ERROR!
-				syslog(LOG_ERR, "ERROR! stringBuilder_put() failed for out of memory");
-				loop = 0;
+				syslog(LOG_ERR, "ERROR(%d)! Out of memory", __LINE__);
 				err = 139;
 			
 			} else {
@@ -628,32 +266,34 @@ int main (int argc, char *argv[]) {
 				memset((void*)buff,  '\0', BUILDER_MAXSTRINGSIZE * sizeof(char));
 				
 				while (stringBuilder_get(buff) == 1) {
-
 					//syslog(LOG_INFO, "Acknowledged log: \"%s\"", buff);
 							
-					err = checkPinStatus(pin, buff, &value);
-					if (err == 0) {
+					err = pinDef_get(buff, pin, &value);
+					if (wErrCode_isError(err)) {
 						// ERROR!
 						syslog(LOG_ERR, "ERROR(%d)! checkPinStatus() failed", __LINE__);
 	
-					} else if (err == 1) {
+					} else if (err == WERRCODE_SUCCESS) {
 						// Keeping-track info
-						if (pinAreaStorage (LGS_ADD, pin, value) == 1) {
-							//syslog(LOG_INFO, "New PIN status information: %s = %d", pin, value);
-							
-						} else {
+						if (wErrCode_isError(pinsStorage_update(pin, value))) {
 							// ERROR!
-							syslog(LOG_ERR, "ERROR(%d)! pinAreaStorage(ADD) failed", __LINE__);
+							syslog(
+								LOG_ERR, "ERROR(%d)! I cannot add the \"%s\" pin to the moniotored ones",
+								__LINE__, pin
+							);
 						}
 			
-					} else {
-						
-						if (logAreaStorage(LGS_ADD, buff) == 0)
+					} else if (err == WERRCODE_WARNING_ITNOTFOUND) {
+						if (wErrCode_isError(logsStorage_add(buff)))
 							// ERROR!
-							syslog(LOG_ERR, "ERROR(%d)! logAreaStorage(ADD) failed", __LINE__);
+							syslog(LOG_ERR, "ERROR(%d)! I cannot store further new logs", __LINE__);
 						else {
 							//syslog(LOG_INFO, "OK the log-message has been saved");
 						}
+						
+					} else {
+						// Unknown error!
+						err = WERRCODE_ERROR_GENIRIC;
 					}
 				}	
 			}
@@ -665,7 +305,6 @@ int main (int argc, char *argv[]) {
 				system("clear");
 				
 				ioctl(0, TIOCGWINSZ, &ts);
-				pinAreaStorage (MPS_SETSCR, NULL, ts.ws_col);
 				//printf ("columns %d\n", ts.ws_col);
 
 				linePrinting('-', ts.ws_col);
@@ -673,22 +312,22 @@ int main (int argc, char *argv[]) {
 				
 				linePrinting('=', ts.ws_col);
 
-				pinAreaStorage (MPS_PRINT, NULL, 0l);
+				pinsStorage_print(ts.ws_col);
 				
 				// Normal log section printing
 				linePrinting('-', ts.ws_col);
-				logAreaStorage(LGS_PRINT, NULL);
+				logsStorage_print(ts.ws_col);
 				
 				linePrinting('=', ts.ws_col);
 			}
 		}
 		
 		stringBuilder_close();
-		checkPinStatus(NULL, NULL, NULL);
-		logAreaStorage(LGS_CLOSE, NULL);
+		pinDef_free();
+		logsStorage_free();
 		close(ttyFD);
 		closelog();
 	}
 
-	return(err);
+	return(wErrCodeToShell(err));
 }
