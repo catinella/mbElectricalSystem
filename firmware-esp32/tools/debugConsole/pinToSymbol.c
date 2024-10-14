@@ -37,7 +37,56 @@
 #include <pinToSymbol.h>
 		
 static ptsDbItem_t ptsDb[PTS_MAXPINS];
-static bool initFlag = false;
+static bool        initFlag = false;
+static regex_t     pinDef_regx;
+
+	
+werror _iatoi (int *dst, const char *src) {
+	//
+	// Description:
+	//	Intelligent atoi() function
+	//
+	// Arguments:
+	//	dst:  the converted number
+	//	src:  the characters string version of the number
+	//
+	// Returned vale:
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_ERROR_INVALIDDATA
+	//
+	werror  err  = WERRCODE_SUCCESS;
+	
+	if (strlen(src) > 0) {
+		uint8_t t    = 0;
+		char    *ptr = (char*)src;
+		
+		// Zero padding removing...
+		while (src[t] == '0' && src[t] != '\0') ptr++;
+	
+		if (src[t] == '\0')
+			// 00000.. = 0
+			*dst = 0;
+			
+		else {
+			*dst = atoi(ptr);
+	
+			// Checking for atoi() error
+			if (dst == 0)
+				// ERROR!
+				// The string contains not-numeric characters too
+				err = WERRCODE_ERROR_INVALIDDATA; 
+		}
+	} else
+		// ERROR!
+		// Empty data is not allowed
+		err = WERRCODE_ERROR_INVALIDDATA;
+		
+	return(err);
+}
+
+//-----------------------------------------------------------------------------------------------------------------------------
+//                                       P U B L I C   F U N C T I O N S
+//-----------------------------------------------------------------------------------------------------------------------------
 
 werror pinToSymbol_get (char *symbol, const char *pin) {
 	//
@@ -221,4 +270,66 @@ werror pinToSymbol_init (const char *headerFile) {
 	if (wErrCode_isSuccess(ecode)) initFlag = true;
 	
 	return(ecode);
+}
+
+
+
+werror pinDef_get (const char *log, char *pin, int *value) {
+	//
+	// Description:
+	//	This function checks for special-log syntax inside the argument defined (log) string.
+	//	The special ones are used to keep track of the pins' value, and they have to respect the following syntax:
+	//		<port><pin-number>:<int value> // port=<A-Z>, pin=<0-9>, value=<0..n>
+	//
+	// Arguments:
+	//	log:    The received log message
+	//	pin:    The memory area where the pin-id will be stored
+	//	value:  The area where the pin'svalue will be stored. It can be an ADC result, too.
+	//
+	// Returned value:
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_WARNING_ITNOTFOUND
+	//	WERRCODE_ERROR_REGEXCOMP
+	//	WERRCODE_ERROR_INVALIDDATA
+	//
+	static bool    initFlag = false;
+	werror         err = WERRCODE_SUCCESS;
+	
+	if (initFlag == false) {
+		if (regcomp(&pinDef_regx, CONS_PINDEMATCH, 0) == 0) {
+			initFlag = true;
+		} else {
+			// ERROR!
+			char regErrBuff[128];
+			regerror(errno, &pinDef_regx, regErrBuff, 128);
+			fprintf(stderr, "ERROR(%d)! I cannot compile the regex: %s", __LINE__, regErrBuff);
+			err = WERRCODE_ERROR_REGEXCOMP;
+		}
+	} 
+	
+	if (initFlag) {
+		regmatch_t pmatch[3];
+		char       strValue[16]; 
+		
+		if (regexec(&pinDef_regx, log, 3, pmatch, 0) == 0) {
+			strcpy(strValue, (strchr(log, ':') + 1));
+			*strchr(log, ':') = '\0';
+			strcpy(pin, log);
+			
+			if (wErrCode_isError(_iatoi(value, strValue))) {
+				// ERROR!
+				err = WERRCODE_ERROR_INVALIDDATA;
+			}
+		} else
+			// It is just a normal log message
+			err = WERRCODE_WARNING_ITNOTFOUND;
+	}
+	
+	return(err);
+}
+
+
+void pinDef_free() {
+	regfree(&pinDef_regx);
+	return;
 }

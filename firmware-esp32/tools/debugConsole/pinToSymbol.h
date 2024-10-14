@@ -20,9 +20,12 @@
 //		[PTS_PINMAPFILE]  Header file where every pin-symbol couple is defined
 //		PTS_MAXPINS       Maximum number of pins defined in the header file
 //		PTS_ROWMAXSIZE    Maximum length of the pin-symbol map file rows
-//		PTS_MAXSYMSIZE    
+//		PTS_MAXSYMSIZE
+//		-------- Platform dependent symbols -------- 
 //		PTS_DEFBREGEX     Regex used to match the pin definition (without ^#define). The pattern depends by the platform
 //		PTS_PINLABSIZE    PIN's label-size. This size depends by the platform's library (avr.h, esp-idf...)
+//		CONS_PINDEMATCH   Regex used to check for pin definiton
+//
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -58,10 +61,12 @@
 //
 #ifdef TARGET_AVR8
 #define PTS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+\"[A-Z0-9][0-9]\""
+#define CONS_PINDEMATCH   "^[A-Z0-9][0-9]:[0-9]\\+$"
 #define PTS_PINLABSIZE   3
 
 #elifdef TARGET_ESP32
 #define PTS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+GPIO_NUM_[0-9]\\+"
+#define CONS_PINDEMATCH   "^GPIO_NUM_[0-9]\\+:[0-9]\\+$"
 #define PTS_PINLABSIZE   16
 #endif
 
@@ -77,5 +82,7 @@ typedef struct {
 //------------------------------------------------------------------------------------------------------------------------------
 werror pinToSymbol_get  (char *symbol, const char *pin);
 werror pinToSymbol_init (const char *headerFile);
+werror pinDef_get       (const char *log, char *pin, int *value);
+void   pinDef_free      ();
 
 #endif
