@@ -61,7 +61,7 @@ werror _iatoi (int *dst, const char *src) {
 		char    *ptr = (char*)src;
 		
 		// Zero padding removing...
-		while (src[t] == '0' && src[t] != '\0') ptr++;
+		while (src[t] == '0' && src[t] != '\0') t++;
 	
 		if (src[t] == '\0')
 			// 00000.. = 0
