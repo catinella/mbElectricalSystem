@@ -37,6 +37,9 @@
 #-------------------------------------------------------------------------------------------------------------------------------
 include Makefile.conf
 
+SRCs := $(shell ls *.c)
+OBJs := $(SRCs:.c=.o)
+
 ifeq ($(GDB), 1)
 	CCOPTS = -o0 -g
 else
@@ -64,15 +67,11 @@ INCOPTS = -I.
 
 all:			debugConsole
 
-debugConsole.o:	debugConsole.c
-			@echo "[ CC ] $@"
-			@gcc -Wall $(CCOPTS) -c $(SYMBOLS) $(INCOPTS) -o $@ $<
-
 %.o:			%.c %.h
 			@echo "[ CC ] $@"
 			@gcc -Wall $(CCOPTS) -c $(SYMBOLS) $(INCOPTS) -o $@ $<
 
-debugConsole:	debugConsole.o stringBuilder.o pinToSymbol.o
+debugConsole:	$(OBJs)
 			@echo "[ LD ] $@"
 			@gcc -Wall $^ -o $@
 
