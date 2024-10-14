@@ -29,32 +29,78 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 #include <stdio.h>
-#include <werror.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdlib.h>
 #include <pinToSymbol.h>
+
+void usageErr (const char *file) {
+	fprintf(stderr, "ERROR! Use: %s -p <pin-id> | -d \"<pin definition>\"\n", file);
+}
 
 int main (int argc, char *argv[]) {
 	werror wecode = WERRCODE_SUCCESS;
-	char   symbol[PTS_MAXSYMSIZE];
-	
+
 	if (argc == 1) {
-		fprintf(stderr, "ERROR! Use: %s [A-Z][0-9]\n", argv[0]);
+		usageErr(argv[0]);
 		wecode = WERRCODE_ERROR_ILLEGALARG;
-		
-	} else {
-		wecode = pinToSymbol_get(symbol, argv[1]);
-		if (wErrCode_isSuccess(wecode))
-			printf("Symbol: %s\n", symbol);
-		else {
-			if (wecode == WERRCODE_ERROR_INITFAILED)
-				fprintf(stderr, "ERROR! Module's initialization failed\n");
-				
-			else if (wecode == WERRCODE_WARNING_ITNOTFOUND)
-				fprintf(stderr, "WARNING! No symbol defined for the \"%s\" pin\n", argv[1]);
-				
-			else
-				fprintf(stderr, "*** Unexpected returned code ***\n");
-		}
-	}		
 	
-	return((wErrCode_isSuccess(wecode) ? 0 : wecode));
+	} else {
+		char   pinid[PTS_MAXSYMSIZE];
+		char   string[PTS_MAXSYMSIZE];
+		int    opt = 0;
+
+		memset(pinid, '\0', sizeof(pinid));
+		memset(string, '\0', sizeof(string));
+
+		while ((opt = getopt(argc, argv, "p:d:")) != -1) {
+			switch (opt) {
+				case 'p':
+					strcpy(pinid, optarg);
+					break;
+				case 'd':
+					strcpy(string, optarg);
+					break;
+				default:
+					usageErr(argv[0]);
+					wecode = WERRCODE_ERROR_ILLEGALARG;
+					break;
+			}
+		}
+
+		if (wErrCode_isSuccess(wecode)) {
+			char alias[PTS_PINLABSIZE];
+			int  value = 0;
+
+			memset(alias, '\0', sizeof(alias));
+
+			if (*pinid != '\0') {
+				wecode = pinToSymbol_get(alias, pinid);
+				if (wErrCode_isSuccess(wecode))
+					printf("Symbol: %s\n", alias);
+				else {
+					if (wecode == WERRCODE_ERROR_INITFAILED)
+						fprintf(stderr, "ERROR! Module's initialization failed\n");
+				
+					else if (wecode == WERRCODE_WARNING_ITNOTFOUND)
+						fprintf(stderr, "WARNING! No symbol defined for the \"%s\" pin\n", pinid);
+				
+					else
+						fprintf(stderr, "*** Unexpected returned code ***\n");
+				}
+			}
+			if (*string != '\0') {
+				wecode = pinDef_get(string, pinid, &value);
+				if (wErrCode_isSuccess(wecode))
+					printf("The string contained the \"%s\"-pin definition (value=%d)\n", pinid, value);
+
+				else if (wecode == WERRCODE_WARNING_ITNOTFOUND)
+					printf("The typed string does not containe a valid pin definition\n");
+
+				else
+					printf("ERROR! pinDef_get() call failed\n");
+			}
+		}
+	}
+	return(wErrCodeToShell(wecode));
 }
