@@ -36,9 +36,34 @@
 #include <stdio.h>
 #include "esp_log.h"
 #include "esp_err.h"
+#include <pinToSymbol.h>
 #include <debugConsoleAPI.h>
 
-void keepTrack(const char *code, uint8_t value) {
-	ESP_LOGI("[DEBCON]", "%s:%d\n\r", code, value);
+
+void keepTrack_strID(const char *code, uint8_t value) {
+	//
+	// Description:
+	//	This function is a platform independent one, mainly. You can always specity the pin's symbol as a string. But
+	//	the name must be equal to the specidied in the map-file one
+	//
+	printf("%s:%d\n\r", code, value); 
+	return;
+}
+
+void keepTrack_numID(uint8_t pin, uint8_t value) {
+	//
+	// Description:
+	//	This API has been created for all MCU that use just numeric ID to indicate a pin, it is usual in 32bit
+	//	architectures (eg. ESP32). But using this you can only keep track of (GPIO) digital pins.
+	//
+#ifdef TARGET_AVR8
+	; // It should be not used for AVR8 architecture. Use keepTrack_strID() instead.
+	
+#elifdef TARGET_ESP32
+	printf("GPIO_NUM_%d:%d\n\r", pin, value); 
+	
+#else
+#error "ERROR! TARGET_<ARCH> has not been defined or it is an unknown one"
+#endif
 	return;
 }
