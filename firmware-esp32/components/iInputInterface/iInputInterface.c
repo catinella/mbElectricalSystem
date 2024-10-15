@@ -218,6 +218,8 @@ void _iInputInterface_update(uint8_t inputID) {
 			// Waiting for the button/switch... pressing event
 			//
 			if (gpio_get_level(db->list[inputID].pinID) == 0) {
+				KEEPTRACK_numID(db->list[inputID].pinID, 0);
+				
 				if (db->list[inputID].type == BUTTON || db->list[inputID].type == HOLDBUTTON) {
 					ESP_LOGW(__FUNCTION__, "button-%d has been PUSHED", inputID);
 					db->list[inputID].timerOffset = myTimer;
@@ -229,7 +231,7 @@ void _iInputInterface_update(uint8_t inputID) {
 					else
 						// Swapping the old value
 						db->list[inputID].status  = db->list[inputID].status ? false : true; 
-	
+					
 				} else if (db->list[inputID].type == SWITCH) {
 					// [!] The switch device does not need debouncing service
 					ESP_LOGW(__FUNCTION__, "switch-%d has moved to ON", inputID);
@@ -265,6 +267,8 @@ void _iInputInterface_update(uint8_t inputID) {
 			// New activities will be acknowledged
 			
 			if (gpio_get_level(db->list[inputID].pinID) == 1) {
+				KEEPTRACK_numID(db->list[inputID].pinID, 1);
+
 				//
 				// Selector releasing...
 				//
