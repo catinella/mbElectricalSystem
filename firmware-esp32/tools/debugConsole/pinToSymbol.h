@@ -68,6 +68,9 @@
 #define PTS_DEFBREGEX    "^[io]_[A-Z0-9]\\+ \\+GPIO_NUM_[0-9]\\+"
 #define CONS_PINDEMATCH   "^GPIO_NUM_[0-9]\\+:[0-9]\\+$"
 #define PTS_PINLABSIZE   16
+
+#else
+#error "ERROR! TARGET_<ARCH> has not been defined or it is an unknown one"
 #endif
 
 
