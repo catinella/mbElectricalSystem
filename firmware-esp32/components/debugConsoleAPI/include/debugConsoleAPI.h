@@ -32,6 +32,16 @@
 #define MBES_DEBUGCONSOLE
 #include <stdint.h>
 
-void keepTrack(const char *code, uint8_t value);
+
+#ifdef DBGCON_KEEPTRACK
+#define KEEPTRACK_strID(PIN,VALUE) keepTrack_strID (PIN, VALUE);
+#define KEEPTRACK_numID(PIN,VALUE) keepTrack_numID (PIN, VALUE);
+#else
+#define KEEPTRACK_strID(X,Y) ;
+#define KEEPTRACK_numID(X,Y) ;
+#endif
+
+void keepTrack_strID (const char *code, uint8_t value);
+void keepTrack_numID (uint8_t pin,      uint8_t value);
 
 #endif
