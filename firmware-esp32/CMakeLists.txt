@@ -13,7 +13,14 @@
 # Description:
 #	CMAKE building software cofiguration file
 #
-#	use FIRMWARETEST=<source file> cmake <CMakeLists.txt path>
+#	To build the rimware use the framework command "idf.by build" or type cmake <CMakeLists.txt path> in a proper path.
+#	
+#	Environment vars:
+#	=================
+#	To allow you to configure the build process, the project provides the following useful environment vars:
+#		FIRMWARETEST=<source file> It allows you to build a test instead the prod-firmware.
+#		DBGCON_KEEPTRACK={0|1}     If it is set to 1, then It enable the support for the debug console tool
+#
 #
 #-----------------------------------------------------------------------------------------------------------------------------------
 
@@ -38,5 +45,6 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/main/${myexec}")
 		COMMAND ${CMAKE_COMMAND} -E chdir "${CMAKE_CURRENT_SOURCE_DIR}/main" ./clink.sh ${myexec}
 	)
 else()
-	message(WARNING "Firmware file '${CMAKE_CURRENT_SOURCE_DIR}/main/${myexec}' does not exist.")
+	message(FATAL_ERROR "Firmware file '[ERROR!] ${CMAKE_CURRENT_SOURCE_DIR}/main/${myexec}' does not exist.")
 endif()
+
