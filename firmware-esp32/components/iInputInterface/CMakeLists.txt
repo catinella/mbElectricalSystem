@@ -3,7 +3,8 @@ idf_component_register(
 		"iInputInterface.c"
 	INCLUDE_DIRS
 		"include"
-	PRIV_REQUIRES
+		"../werror/include"
+	REQUIRES
 		esp_driver_gpio
 		debugConsoleAPI
 		esp_timer
@@ -15,4 +16,3 @@ if(DEFINED ENV{DBGCON_KEEPTRACK})
 		target_compile_definitions(${COMPONENT_LIB} PRIVATE DBGCON_KEEPTRACK=1)
 	endif()
 endif()
-
