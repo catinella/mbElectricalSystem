@@ -433,15 +433,15 @@ werror iInputInterface_get (uint8_t inputID, bool *currStat) {
 	//	pointed by the currStat argument
 	//
 	// Returned value:
-	//	IINPUTIF_SUCCESS
-	//	IINPUTIF_ERROR_ILLEGALARG   The specified input-id does NOT exists
+	//	WERRCODE_SUCCESS
+	//	WERRCODE_ERROR_ILLEGALARG  The specified input-id does NOT exists
 	//
-	werror     ec  = IINPUTIF_SUCCESS;
+	werror     ec  = WERRCODE_SUCCESS;
 	moduleDB_t *db = _moduleDB_get(INTDB_TAKE);
 	
 	if (db->size <= inputID)
 		// ERROR!
-		ec = IINPUTIF_ERROR_ILLEGALARG;
+		ec = WERRCODE_ERROR_ILLEGALARG;
 	else {
 		*currStat = db->list[inputID].status;
 		//ESP_LOGI(
