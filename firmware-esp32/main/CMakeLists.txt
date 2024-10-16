@@ -4,6 +4,8 @@ idf_component_register(
 	INCLUDE_DIRS
 		"." 
 		"../components/iInputInterface/include"
+		"../components/werror/include"
+		"../components/debugConsoleAPI/include"
 	PRIV_REQUIRES
 		esp_driver_gpio
 		esp_adc
