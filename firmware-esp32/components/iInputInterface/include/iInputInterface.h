@@ -52,39 +52,25 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "../../werror/include/werror.h"
 
 
 #define IINPUTIF_DEBOUNCETIME 10
 #define IINPUTIF_MAXITEMSNUMB 64
 
 
-typedef enum _iInputType {
+typedef enum {
 	BUTTON,
 	HOLDBUTTON,
 	SWITCH
-} iInputType;
-
-
-//
-// Error codes
-//
-#define IINPUTIF_ERROR_GENIRIC    0
-
-#define IINPUTIF_SUCCESS          1
-
-#define IINPUTIF_WARNING_RESBUSY  65
-
-#define IINPUTIF_ERROR_OVERFLOW   129
-#define IINPUTIF_ERROR_GPIOAPI    131
-#define IINPUTIF_ERROR_ILLEGALARG 133
-#define IINPUTIF_ERROR_TIMERAPI   135
+} iInputType_t;
 
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                  F U N C T I O N S 
 //------------------------------------------------------------------------------------------------------------------------------
-uint8_t iInputInterface_init ();
-uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin);
-uint8_t iInputInterface_get  (uint8_t inputID, bool *status);
+werror iInputInterface_init ();
+werror iInputInterface_new  (uint8_t *inputID, iInputType_t type, int8_t pin);
+werror iInputInterface_get  (uint8_t inputID, bool *status);
 
 #endif

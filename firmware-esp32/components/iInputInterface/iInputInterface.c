@@ -70,6 +70,7 @@
 // Project's libraries
 //
 #include <mock.h>
+#include <werror.h>
 #include <debugConsoleAPI.h>
 #include <iInputInterface.h>
 
@@ -95,7 +96,7 @@
 
 typedef struct {
 	int8_t       pinID;
-	iInputType   type;
+	iInputType_t type;
 	uint32_t     timerOffset;  // It allows the timer to count for about 1000 hours!!!! 
 	bool         status;
 	uint8_t      FSM;
@@ -114,7 +115,8 @@ typedef struct {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                     P R I V A T E   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
-void _iInputItem_print (iInputItem_t obj) {
+/*
+static void _iInputItem_print (iInputItem_t obj) {
 	//
 	// JUST FOR DEBUG
 	//
@@ -124,12 +126,15 @@ void _iInputItem_print (iInputItem_t obj) {
 	);
 	return;
 }
+*/
 
-moduleDB_t* _moduleDB_get (moduleDB_cmd_t cmd) {
+static moduleDB_t* _moduleDB_get (moduleDB_cmd_t cmd) {
 	//
 	// Description:
 	//	It returns a reference to its static db where all items information are stored. The function also manage race
 	//	conditions using a mutex that you can control using the argument defined commans
+	//
+	//	If the semaphore is already taken, the INTDB_TAKE command will wait for the semaphore, INDEFINITELY!
 	//
 	// Arguments
 	//	cmd         {INTDB_TAKE|INTDB_RELEASE}
@@ -180,7 +185,7 @@ moduleDB_t* _moduleDB_get (moduleDB_cmd_t cmd) {
 }
 
 
-void _iInputInterface_update(uint8_t inputID) {
+static void _iInputInterface_update(uint8_t inputID) {
 	//
 	// Description:
 	//	This function updates the internal representation of the phisical device (button/switch..).
@@ -317,7 +322,7 @@ void _iInputInterface_update(uint8_t inputID) {
 }
 
 
-void _iInputInterface_updateAll() {
+static void _iInputInterface_updateAll() {
 	moduleDB_t *db = _moduleDB_get(INTDB_TAKE);
 
 	if (db == NULL) {
@@ -339,17 +344,17 @@ void _iInputInterface_updateAll() {
 //                                           P U B L I C   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
 
-uint8_t iInputInterface_init () {
+werror iInputInterface_init () {
 	//
 	// Description:
 	//	Module's initialization. This is the first function the user has to call
 	//	The timer period should be 5ms
 	//
 	// Returned value:
-	//	IINPUTIF_SUCCESS
-	//	IINPUTIF_ERROR_TIMERAPI
+	//	WERRCODE_SUCCESS            Module successfully initialized
+	//	WERRCODE_ERROR_INITFAILED   HW timer initialization failed
 	//
-	uint8_t                 ec = IINPUTIF_SUCCESS;
+	uint8_t                 ec = WERRCODE_SUCCESS;
 	esp_timer_create_args_t timerArgs;
 	esp_timer_handle_t      timerHandle;
 
@@ -366,23 +371,22 @@ uint8_t iInputInterface_init () {
 	) {
             // ERROR!
             ESP_LOGE(__FUNCTION__, "ERROR! I cannot crate the timer");
-		ec = IINPUTIF_ERROR_TIMERAPI;
+		ec = WERRCODE_ERROR_INITFAILED;
 	}
 	return(ec);
 }
 
-uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin) {
+werror iInputInterface_new (uint8_t *inputID, iInputType_t type, int8_t pin) {
 	//
 	// Description:
 	//	It create a new internal object to manage the argument defined input-control and returns its numeric id
 	//
 	// Returned value:
-	//	IINPUTIF_SUCCESS             Interface has been correctly created
-	//	IINPUTIF_WARNING_RESBUSY     Interface not created because I was unable to get the db's mutex control
-	//	IINPUTIF_ERROR_OVERFLOW      The nax interfaces number has been reach
-	//	IINPUTIF_ERROR_GPIOAPI       The system GPIO API failed
+	//	WERRCODE_SUCCESS             Interface has been correctly created
+	//	WERRCODE_ERROR_DATAOVERFLOW  The nax interfaces number has been reach
+	//	WERRCODE_ERROR_SYSCALL       The GPIO-configuration API failed
 	//
-	uint8_t        ec = IINPUTIF_SUCCESS;
+	werror         ec = WERRCODE_SUCCESS;
 	gpio_config_t  phyPin;
 	moduleDB_t     *db = _moduleDB_get(INTDB_TAKE);
 	
@@ -393,42 +397,36 @@ uint8_t iInputInterface_new  (uint8_t *inputID, iInputType type, int8_t pin) {
 	phyPin.pull_down_en = GPIO_PULLDOWN_DISABLE;
 	phyPin.pull_up_en   = GPIO_PULLUP_ENABLE;
 
-	if (db == NULL) {
-		// WARNING!
-		ESP_LOGW(__FUNCTION__, "WARNING! I cannot get the module's db control");
-		ec = IINPUTIF_WARNING_RESBUSY;
+	if ( db->size == IINPUTIF_MAXITEMSNUMB) {
+		// ERROR!
+		LOGERR
+		ec = WERRCODE_ERROR_DATAOVERFLOW;
+		
+	} else if (gpio_config(&phyPin) != ESP_OK) {
+		// ERROR!
+		LOGERR
+		ec = WERRCODE_ERROR_SYSCALL;
 		
 	} else {
-		if ( db->size == IINPUTIF_MAXITEMSNUMB) {
-			// ERROR!
-			LOGERR
-			ec = IINPUTIF_ERROR_OVERFLOW;
-			
-		} else if (gpio_config(&phyPin) != ESP_OK) {
-			// ERROR!
-			LOGERR
-			ec = IINPUTIF_ERROR_GPIOAPI;
-			
-		} else {
-			ESP_LOGI(__FUNCTION__, "OK! The object-%d has been correctly regitered", db->size);
-			
-			db->list[db->size].pinID       = pin;
-			db->list[db->size].type        = type;
-			db->list[db->size].timerOffset = 0;
-			db->list[db->size].status      = false;
-			db->list[db->size].FSM         = 0;
-			
-			// The input-id used to by iInputInterface_get to find the object
-			*inputID = db->size;
-			
-			db->size++;
-		}
-		_moduleDB_get(INTDB_RELEASE);
+		ESP_LOGI(__FUNCTION__, "OK! The object-%d has been correctly regitered", db->size);
+		
+		db->list[db->size].pinID       = pin;
+		db->list[db->size].type        = type;
+		db->list[db->size].timerOffset = 0;
+		db->list[db->size].status      = false;
+		db->list[db->size].FSM         = 0;
+		
+		// The input-id used to by iInputInterface_get to find the object
+		*inputID = db->size;
+		
+		db->size++;
 	}
+	_moduleDB_get(INTDB_RELEASE);
+		
 	return(ec);
 }
 
-uint8_t iInputInterface_get (uint8_t inputID, bool *currStat) {
+werror iInputInterface_get (uint8_t inputID, bool *currStat) {
 	//
 	// Description:
 	//	It looks for interface with id equals to the argument defined one, and writes its status in the memory area
@@ -436,29 +434,22 @@ uint8_t iInputInterface_get (uint8_t inputID, bool *currStat) {
 	//
 	// Returned value:
 	//	IINPUTIF_SUCCESS
-	//	IINPUTIF_WARNING_RESBUSY
-	//	IINPUTIF_ERROR_ILLEGALARG
+	//	IINPUTIF_ERROR_ILLEGALARG   The specified input-id does NOT exists
 	//
-	uint8_t    ec  = IINPUTIF_SUCCESS;
+	werror     ec  = IINPUTIF_SUCCESS;
 	moduleDB_t *db = _moduleDB_get(INTDB_TAKE);
 	
-	if (db == NULL)
-		// WARNING!
-		ec = IINPUTIF_WARNING_RESBUSY;
-		
+	if (db->size <= inputID)
+		// ERROR!
+		ec = IINPUTIF_ERROR_ILLEGALARG;
 	else {
-		if (db->size <= inputID)
-			// ERROR!
-			ec = IINPUTIF_ERROR_ILLEGALARG;
-		else {
-			*currStat = db->list[inputID].status;
-			//ESP_LOGI(
-			//	__FUNCTION__, "PIN=%d  status=%s", 
-			//	db->list[inputID].pinID, db->list[inputID].status ? "ACTIVE" : "NOT-ACTIVE"
-			//);
-		}
-		_moduleDB_get(INTDB_RELEASE);
+		*currStat = db->list[inputID].status;
+		//ESP_LOGI(
+		//	__FUNCTION__, "PIN=%d  status=%s", 
+		//	db->list[inputID].pinID, db->list[inputID].status ? "ACTIVE" : "NOT-ACTIVE"
+		//);
 	}
+	_moduleDB_get(INTDB_RELEASE);
 	
 	return(ec);
 }
