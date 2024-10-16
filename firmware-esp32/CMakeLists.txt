@@ -48,3 +48,5 @@ else()
 	message(FATAL_ERROR "Firmware file '[ERROR!] ${CMAKE_CURRENT_SOURCE_DIR}/main/${myexec}' does not exist.")
 endif()
 
+# Inside tools sub-folder there are software packages for PC
+set(EXCLUDE_DIR "${CMAKE_SOURCE_DIR}/tools")
