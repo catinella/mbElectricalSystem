@@ -95,12 +95,12 @@
 #define o_NEUTRAL        GPIO_NUM_14
 // ==== available ====   GPIO_NUM_15/ADC2_CH4
 #define o_ENGINEON       GPIO_NUM_16
-#define i_HORN           GPIO_NUM_17
+// ==== available ====   GPIO_NUM_17
 #define o_LEFTARROW      GPIO_NUM_18
 // !!!!                  USB/GPIO_NUM_19
 // !!!!                  USB/GPIO_NUM_20
 #define i_ADDLIGHT       GPIO_NUM_21
-#define o_HORN           GPIO_NUM_26
+// ==== available ====   GPIO_NUM_26
 #define i_RIGHTARROW     GPIO_NUM_33
 #define o_ADDLIGHT       GPIO_NUM_34
 #define i_DOWNLIGHT      GPIO_NUM_35
