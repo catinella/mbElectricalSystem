@@ -70,13 +70,13 @@
 // Project's libs
 #include <mbesPinsMap.h>
 #include <iInputInterface.h>
-
+#include <werror.h>
 
 
 void app_main(void) {
 	
 	
-	if (iInputInterface_init() != IINPUTIF_SUCCESS)
+	if (iInputInterface_init() != WERRCODE_SUCCESS)
 		// ERRPR!
 		ESP_LOGE(__FUNCTION__, "iInputInterface module initialization failed");
 		
@@ -108,9 +108,9 @@ void app_main(void) {
 			ESP_LOGE(__FUNCTION__, "ERROR! LED GPIO configuration failed");
 		
 		else if (	
-			iInputInterface_new(&btnA, BUTTON,     i_CONF1)   != IINPUTIF_SUCCESS ||
-			iInputInterface_new(&btnB, HOLDBUTTON, i_CONF2)   != IINPUTIF_SUCCESS ||
-			iInputInterface_new(&swC,  SWITCH,     i_UPLIGHT) != IINPUTIF_SUCCESS   
+			iInputInterface_new(&btnA, BUTTON,     i_CONF1)   != WERRCODE_SUCCESS ||
+			iInputInterface_new(&btnB, HOLDBUTTON, i_CONF2)   != WERRCODE_SUCCESS ||
+			iInputInterface_new(&swC,  SWITCH,     i_UPLIGHT) != WERRCODE_SUCCESS 
 
 		)
 			// ERRPR!
@@ -137,16 +137,13 @@ void app_main(void) {
 			
 			while (loop) {
 				if (
-					(ea = iInputInterface_get(btnA, &statA)) != IINPUTIF_SUCCESS ||
-					(ea = iInputInterface_get(btnB, &statB)) != IINPUTIF_SUCCESS ||
-					(ea = iInputInterface_get(swC,  &statC)) != IINPUTIF_SUCCESS
+					(ea = iInputInterface_get(btnA, &statA)) != WERRCODE_SUCCESS ||
+					(ea = iInputInterface_get(btnB, &statB)) != WERRCODE_SUCCESS ||
+					(ea = iInputInterface_get(swC,  &statC)) != WERRCODE_SUCCESS 
 				) {
-					if (ea ==  IINPUTIF_WARNING_RESBUSY)
-						ESP_LOGW(__FUNCTION__, "WARNING! resource was busy");
-					else {
-						ESP_LOGE(__FUNCTION__, "ERROR! The specified ID is not a valid one");
-						loop = false;
-					}
+					ESP_LOGE(__FUNCTION__, "ERROR! The specified ID is not a valid one");
+					loop = false;
+					
 				} else {
 					gpio_set_level(o_KEEPALIVE,   statA ? 1 : 0);
 					gpio_set_level(o_NEUTRAL,     statB ? 1 : 0);
