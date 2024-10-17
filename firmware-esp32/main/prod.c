@@ -50,6 +50,23 @@
 #include <debugConsoleAPI.h>
 
 
+#define OUTPUTPINS_LIST { \
+	o_KEEPALIVE,        \
+	o_STARTENGINE,      \
+	o_ENGINEON,         \
+	o_ENGINEREADY,      \
+	o_NEUTRAL,          \
+	o_RIGHTARROW,       \
+	o_LEFTARROW,        \
+	o_DOWNLIGHT,        \
+	o_UPLIGHT,          \
+	o_ADDLIGHT          \
+}
+
+#define BLINK_PERIOD pdMS_TO_TICKS(200)
+
+#define V_TOLERANCE  10
+
 typedef enum {
 	RKEY_EVALUATION,
 	HW_FAILURE,
@@ -59,11 +76,15 @@ typedef enum {
 
 typedef enum {
 	MTB_STOPPED_ST,
-	MTB_WFR1_ST,
-	MTB_WFR2_ST,
+	MTB_WFR_ST,
 	MTB_ELSTARTING_ST,
 	MTB_RUNNIG_ST
 } mtbStates_t;
+
+typedef enum {
+	BLINKER_TICK,
+	BLINKER_GET
+} blinkerCmd_t;
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                 F U N C T I O N S
@@ -78,70 +99,120 @@ void setPinValue (gpio_num_t pin, uint32_t value) {
 	return;
 }
 
+bool blinker (blinkerCmd_t cmd) {
+	static volatile bool     status = false;
+	static SemaphoreHandle_t mtx;
+	bool                     out = true;
+	
+	xSemaphoreTake(mtx, (10/portTICK_PERIOD_MS));
+	if (cmd == BLINKER_TICK)
+		status = !status;
+	else
+		out = status;
+	xSemaphoreGive(mtx);
+		
+	return(out);
+}
+
+void tickerCB(TimerHandle_t xTimer) {
+	//
+	// Software-timer callback
+	//
+	blinker(BLINKER_TICK);
+}
+
+/*
+uint16_t normalizz (uint16_t raw) {
+	//
+	// Description:
+	//	It convert the read-from-ADC raw data in millivolts. This function is useful when you are setting the key and
+	//	for debug
+	//
+	return((raw * DEFAULT_VREF) / 8191 * 2.4);
+}
+*/
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                      M A I N
 //------------------------------------------------------------------------------------------------------------------------------
 
 int main(void) {
-	bool        loop         = true;              // It enables the main loop (Just for future applications)
-	bool        decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
-	fsmStates_t FSM          = RKEY_EVALUATION;
-	mtbStates_t mtbState     = MTB_STOPPED_ST;
-	bool        firstRound   = true;
-	uint8_t     leftArr_sel, rightArr_sel, uLight_sel, addLight_sel, light_sel;    // Lights
-	uint8_t     engStart_sel, decomp_sel, engOn_sel;                               // Engine controls
-	uint8_t     neutral_sw, bykestand_sw, clutch_sw;                               // Motorbyke int switches
-		
-	bool	      leftArr_value, rightArr_value, uLight_value, addLight_value, light_value, engStart_value, decomp_value,
-	            engOn_value, neutral_value, bykestand_value, clutch_value;
-		
-	gpio_config_t outputConfTemplate = {
-		.intr_type    = GPIO_INTR_DISABLE,
-		.mode         = GPIO_MODE_OUTPUT,
-		.pull_down_en = GPIO_PULLDOWN_DISABLE,
-		.pull_up_en   = GPIO_PULLDOWN_DISABLE
-	};
+	bool          loop         = true;              // It enables the main loop (Just for future applications)
+	bool          decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
+	fsmStates_t   FSM          = RKEY_EVALUATION;
+	mtbStates_t   mtbState     = MTB_STOPPED_ST;
+	uint8_t       leftArr_sel, rightArr_sel, uLight_sel, addLight_sel, light_sel;           // Lights
+	bool	        leftArr_value, rightArr_value, uLight_value, addLight_value, light_value;
+	uint8_t       engStart_sel, decomp_sel, engOn_sel;                                      // Engine controls
+	bool          engStart_value, decomp_value, engOn_value;
+	uint8_t       neutral_sw, bykestand_sw, clutch_sw;                                      // Motorbyke int switches
+	bool          neutral_value, bykestand_value, clutch_value;
+	uint8_t       value = 0;
+	TimerHandle_t xBlinkTimer;
 	
-	uint64_t outputBitMasksList[] = {
-		o_KEEPALIVE,
-		o_STARTENGINE,
-		o_ENGINEON,
-		o_ENGINEREADY,  // It is just the LED indicator
-		o_NEUTRAL,
-		o_RIGHTARROW,
-		o_LEFTARROW,
-		o_DOWNLIGHT,
-		o_UPLIGHT,
-		o_ADDLIGHT,
-	};
+	adc_oneshot_unit_handle_t adcX1_handle, adcX2_handle, adcY1_handle, adcY2_handle;
+	int                       adc_rawX1, adc_rawX2, adc_rawY1, adc_rawY2;
+	
+	
+	//
+	// A/D converter configuration
+	//
+	{
+		adc_oneshot_chan_cfg_t config = {
+			.bitwidth = ADC_BITWIDTH_DEFAULT,
+			.atten    = ADC_ATTEN_DB_12
+		};
+		adc_oneshot_unit_init_cfg_t init_config1 = {
+			.unit_id  = ADC_UNIT_1,               // ADC unit selection
+			.clk_src  = ADC_DIGI_CLK_SRC_DEFAULT, // Clock's source
+			.ulp_mode = ADC_ULP_MODE_DISABLE     // Ultra Low Power FSM coprocessor
+		};
+	
+		if (
+			adc_oneshot_new_unit(&init_config1, &adcX1_handle)       != ESP_OK ||
+			adc_oneshot_config_channel(adcX1_handle, i_VX1, &config) != ESP_OK ||
+			adc_oneshot_new_unit(&init_config1, &adcX2_handle)       != ESP_OK ||
+			adc_oneshot_config_channel(adcX2_handle, i_VX2, &config) != ESP_OK ||
+			adc_oneshot_new_unit(&init_config1, &adcY1_handle)       != ESP_OK ||
+			adc_oneshot_config_channel(adcY1_handle, i_VY1, &config) != ESP_OK ||
+			adc_oneshot_new_unit(&init_config1, &adcY2_handle)       != ESP_OK ||
+			adc_oneshot_config_channel(adcY2_handle, i_VY1, &config) != ESP_OK
+		) {
+			// ERROR!
+			ESP_LOGE("MAIN", "A/D converter initialization failed");
+			FSM =  HW_FAILURE;
+		};
+	}
+
 
 	//
 	// Output pins configuration
 	//
-	for (uint8_t t=0; t<4; t++) {
-		outputConfTemplate.pin_bit_mask = (1ULL << outputBitMasksList[t]);
-		if (gpio_config(&outputConfTemplate) != ESP_OK) {
-			// ERROR!
-			ESP_LOGE("MAIN", "ERROR! Output %ld-pin configuration failed", (unsigned long int)outputBitMasksList[t]);
-			FSM =  HW_FAILURE;
-			break;
+	if (FSM != HW_FAILURE) {
+		uint64_t outputBitMasksList[] = OUTPUTPINS_LIST ;
+		gpio_config_t outputConfTemplate = {
+			.intr_type    = GPIO_INTR_DISABLE,
+			.mode         = GPIO_MODE_OUTPUT,
+			.pull_down_en = GPIO_PULLDOWN_DISABLE,
+			.pull_up_en   = GPIO_PULLDOWN_DISABLE
+		};
+
+		for (uint8_t t=0; t<4; t++) {
+			outputConfTemplate.pin_bit_mask = (1ULL << outputBitMasksList[t]);
+			if (gpio_config(&outputConfTemplate) != ESP_OK) {
+				// ERROR!
+				ESP_LOGE("MAIN", "ERROR! Output %ld-pin configuration failed", (unsigned long int)outputBitMasksList[t]);
+				FSM =  HW_FAILURE;
+				break;
+			}
 		}
 	}
-	
-	//
-	// Important output-pins initial values
-	//
-	setPinValue(o_KEEPALIVE,   0);
-	setPinValue(o_STARTENGINE, 0);
-	setPinValue(o_ENGINEON,    0);
-	setPinValue(o_STARTENGINE, 0);
 
 	
 	//
 	// Input pin/controls configuration
 	//
 	if (
-		iInputInterface_init()                                    != WERRCODE_SUCCESS ||
+		FSM == HW_FAILURE || iInputInterface_init() != WERRCODE_SUCCESS ||
 		
 		iInputInterface_new(&engStart_sel, BUTTON, i_STARTBUTTON) != WERRCODE_SUCCESS ||
 		iInputInterface_new(&decomp_sel,   BUTTON, i_DECOMPRESS)  != WERRCODE_SUCCESS ||
@@ -160,22 +231,57 @@ int main(void) {
 		// ERROR!
 		ESP_LOGE("MAIN", "ERROR! input pins configuration failed");
 		FSM =  HW_FAILURE;
+	
+	} else {
+		//
+		// Important output-pins initial values
+		//
+		setPinValue(o_KEEPALIVE,   0);
+		setPinValue(o_STARTENGINE, 0);
+		setPinValue(o_ENGINEON,    0);
+		setPinValue(o_ENGINEREADY, 0);
+
+		xBlinkTimer = xTimerCreate("BlinkTimer", BLINK_PERIOD, pdTRUE, (void *)0, tickerCB);
+
+		if (xBlinkTimer != NULL)
+			xTimerStart(xBlinkTimer, 0);
 	}
 
 	while (loop) {
-
-		if (FSM == RKEY_EVALUATION) {
+		if (FSM == HW_FAILURE) {
+			//
+			// Critic hardware failure state
+			// [!] In order to go out from this state you can just turn-off and turn-on your motorbike
+			//
+			value = value ? false : true;
+			setPinValue(o_LEFTARROW,  value);
+			setPinValue(o_RIGHTARROW, value);
+			setPinValue(o_NEUTRAL,   value);
+			
+			// Are you paranoying??
+			setPinValue(o_STARTENGINE, 0);
+			setPinValue(o_ENGINEON,    0);
+			setPinValue(o_ENGINEREADY, 0);
+			
+			vTaskDelay(200 / portTICK_PERIOD_MS);
+		
+		
+		} else if (FSM == RKEY_EVALUATION) {
 			//
 			// Resistor keys evaluation
 			//
 			if (
-				abs(ADC_read(i_VX1) - ADC_read(i_VY1)) < V_TOLERANCE &&
-				abs(ADC_read(i_VX2) - ADC_read(i_VY2)) < V_TOLERANCE 
+				adc_oneshot_read(adcX1_handle, i_VX1, &adc_rawX1) == ESP_OK &&
+				adc_oneshot_read(adcX2_handle, i_VX2, &adc_rawX2) == ESP_OK &&
+				adc_oneshot_read(adcY1_handle, i_VY1, &adc_rawY1) == ESP_OK &&
+				adc_oneshot_read(adcY2_handle, i_VY2, &adc_rawY2) == ESP_OK &&
+				abs(adc_rawX1 - adc_rawY1) < V_TOLERANCE                    &&
+				abs(adc_rawX2 - adc_rawY2) < V_TOLERANCE
 			) {
 				// The keyword has been authenicated, you can unplug it
 				setPinValue(o_KEEPALIVE, 1);
 				FSM = MAIN_LOOP;
-				ESP_LOGI("MAIN", "[ OK ] key has been accepted\n\r");
+				ESP_LOGI("MAIN", "[ OK ] key has been accepted");
 			
 			} else { 
 				setPinValue(o_RIGHTARROW,  0);
@@ -196,6 +302,8 @@ int main(void) {
 			
 			
 		} else if (FSM == MAIN_LOOP) {
+
+			// 
 
 			if (
 				wErrCode_isError(iInputInterface_get(leftArr_sel,  &leftArr_value))   ||
@@ -236,13 +344,12 @@ int main(void) {
 				// Blinking lights
 				//
 				if (leftArr_value) {
-					// TODO: timer enabling
-					setPinValue(o_LEFTARROW,  blinker);
+					setPinValue(o_LEFTARROW, blinker(BLINKER_GET));
 					setPinValue(o_RIGHTARROW, 0);
 	
 				} else if (rightArr_value) {
 					// TODO: timer enabling
-					setPinValue(o_RIGHTARROW, blinker);
+					setPinValue(o_RIGHTARROW, blinker(BLINKER_GET));
 					setPinValue(o_LEFTARROW,  0);
 	
 				} else {
@@ -295,7 +402,7 @@ int main(void) {
 						setPinValue(o_ENGINEREADY, 0);   // LED: mtb is not yet ready to start
 						setPinValue(o_STARTENGINE, 0);
 						
-						LOGMSG("MTB_STOPPED_ST\n\r");
+						ESP_LOGI("MAIN", "MTB_STOPPED_ST");
 						if ((neutral_value || clutch_value) && decompPushed && engOn_value)
 							mtbState = MTB_WFR_ST;
 					} break;
@@ -305,7 +412,7 @@ int main(void) {
 						//
 						// In tis state driver can choise to start the mtb using the electric eng or manually
 						//
-						LOGMSG("MTB_WFRST\n\r");
+						ESP_LOGI("MAIN", "MTB_WFRST");
 						setPinValue(o_ENGINEON,    1);                 // Engine no more locked by CDI
 						setPinValue(o_ENGINEREADY, 1);                 // LED: mtb is ready to start
 						
@@ -313,11 +420,11 @@ int main(void) {
 							decompPushed = false;                    // The mtb has been started manually
 							mtbState = MTB_RUNNIG_ST;
 							setPinValue(o_ENGINEREADY, 0);
-							LOGMSG("MTB started manually\n\r");
+							ESP_LOGI("MAIN", "MTB started manually");
 						
 						} else if (engStart_value) {                  // i_STARTBUTTON
 							setPinValue(o_ENGINEREADY, 0);
-							LOGMSG("OK electric starter is running\n\r");
+							ESP_LOGI("MAIN", "OK electric starter is running");
 							decompPushed = false;
 							mtbState = MTB_ELSTARTING_ST;
 						}
@@ -328,7 +435,7 @@ int main(void) {
 						//
 						// The electric start engine is running
 						//
-						LOGMSG("MTB_ELSTARTING_ST\n\r");
+						ESP_LOGI("MAIN", "MTB_ELSTARTING_ST");
 						setPinValue(o_STARTENGINE, engStart_value);  // i_STARTBUTTON
 						if (engStart_value == false) 
 							mtbState = MTB_RUNNIG_ST;
@@ -338,15 +445,15 @@ int main(void) {
 					case MTB_RUNNIG_ST: {
 						//
 						// The motorbike's engine is running....
-						// Unfortunately, because the MCU does not know the real eng status (by RPM signal), to come back
-						// in the MTB_STOPPED_ST status, the driver MUST set the engine-on switch to off
+						// Unfortunately, because the MCU does not know the real eng status (by RPM signal), to
+						// come back in the MTB_STOPPED_ST status, the driver MUST set the engine-on switch to off
 						//
-						// If the ebgine stops to run for so,e reason, ad the driver will push the decompressor control,
-						// then the engine will be immediately ready to be started again. Also if the driver want to stop
-						// the engine using the decompressor (but he should not do this!)
+						// If the ebgine stops to run for so,e reason, ad the driver will push the decompressor
+						// control, then the engine will be immediately ready to be started again. Also if the
+						// driver want to stop the engine using the decompressor (but he should not do this!)
 						//
 						setPinValue(o_ENGINEREADY, 0);
-						LOGMSG("MTB_RUNNIG_ST\n\r");
+						ESP_LOGI("MAIN", "MTB_RUNNIG_ST");
 	
 						if (decomp_value) {
 							mtbState = MTB_STOPPED_ST;
@@ -372,9 +479,10 @@ int main(void) {
 			//
 			// Parcking status
 			//
-			LOGMSG("Parking mode\n\r");
-			setPinValue(o_LEFTARROW,  blink(false));
-			setPinValue(o_RIGHTARROW, blink(false));
+			ESP_LOGI("MAIN", "Parking mode");
+			value = blinker(BLINKER_GET);
+			setPinValue(o_LEFTARROW,  value);
+			setPinValue(o_RIGHTARROW, value);
 			setPinValue(o_DOWNLIGHT,  1);
 
 			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
