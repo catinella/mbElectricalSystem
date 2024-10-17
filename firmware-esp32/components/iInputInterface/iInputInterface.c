@@ -143,10 +143,10 @@ static moduleDB_t* _moduleDB_get (moduleDB_cmd_t cmd) {
 	//	NULL             ERROR!
 	//	<db's address>   SUCCESS
 	//
-	static moduleDB_t        itemsStorage;
-	static SemaphoreHandle_t mtx;
-	static bool              flag = false;
-	moduleDB_t               *out = NULL;
+	static volatile moduleDB_t itemsStorage;
+	static SemaphoreHandle_t   mtx;
+	static bool                flag = false;
+	moduleDB_t                 *out = NULL;
 
 	//
 	// Initialization
