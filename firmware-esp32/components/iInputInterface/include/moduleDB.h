@@ -49,8 +49,15 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "../../werror/include/werror.h"
 
+
+typedef enum {
+	BUTTON,
+	HOLDBUTTON,
+	SWITCH
+} iInputType_t;
 
 typedef enum {
 	MODULEDB_READ,
