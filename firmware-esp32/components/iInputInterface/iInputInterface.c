@@ -261,11 +261,12 @@ static void _iInputInterface_updateAll() {
 	while (wErrCode_isError(ec) == false) {
 		ec = moduleDB_iter(&inputID, &item);
 		
-		if (wErrCode_isSuccess(ec))
-			_iInputInterface_update(&item);
-			
-		else if (wErrCode_isWarning(ec)) {
+		if (wErrCode_isWarning(ec)) {
+			//
+			// WARNING!
+			//
 			ESP_LOGW(__FUNCTION__, "WARNING! internal db resource was busy");
+			
 			vTaskDelay(1 / portTICK_PERIOD_MS);
 			if (retryCounter > 0)
 				retryCounter--;
@@ -274,7 +275,21 @@ static void _iInputInterface_updateAll() {
 				ec = WERRCODE_WARNING_RESNOTAV;
 				
 		} else if (wErrCode_isError(ec) && ec != WERRCODE_ERROR_DATAOVERFLOW) {
+			//
+			// ERROR!
+			//
 			ESP_LOGE(__FUNCTION__, "ERROR! moduleDB_iter() returned %d", ec);
+		
+		
+		} else if (wErrCode_isSuccess(ec)) {
+			//
+			// SUCCESS
+			//
+			// ESP_LOGI(__FUNCTION__, "item-%d updating...", inputID);
+			_iInputInterface_update(&item);
+			
+			// DB updating with the updated item data
+			ec = moduleDB_rw(inputID, &item, MODULEDB_WRITE);
 		}
 	}
 	
