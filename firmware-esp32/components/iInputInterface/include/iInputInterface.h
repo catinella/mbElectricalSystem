@@ -53,17 +53,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "../../werror/include/werror.h"
-
+#include "moduleDB.h"
 
 #define IINPUTIF_DEBOUNCETIME 10
-#define IINPUTIF_MAXITEMSNUMB 64
-
-
-typedef enum {
-	BUTTON,
-	HOLDBUTTON,
-	SWITCH
-} iInputType_t;
 
 
 //------------------------------------------------------------------------------------------------------------------------------

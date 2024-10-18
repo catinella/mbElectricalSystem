@@ -94,24 +94,6 @@
 #define KEEPTRACK(X, Y) ;
 #endif
 
-typedef struct {
-	int8_t       pinID;
-	iInputType_t type;
-	uint32_t     timerOffset;  // It allows the timer to count for about 1000 hours!!!! 
-	bool         status;
-	uint8_t      FSM;
-} iInputItem_t;
-
-typedef enum {
-	INTDB_TAKE    = 0,
-	INTDB_RELEASE = 1
-} moduleDB_cmd_t;
-
-typedef struct {
-	iInputItem_t list[IINPUTIF_MAXITEMSNUMB];
-	uint8_t      size;
-} moduleDB_t;
-
 //------------------------------------------------------------------------------------------------------------------------------
 //                                     P R I V A T E   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
@@ -128,64 +110,9 @@ static void _iInputItem_print (iInputItem_t obj) {
 }
 */
 
-static moduleDB_t* _moduleDB_get (moduleDB_cmd_t cmd) {
-	//
-	// Description:
-	//	It returns a reference to its static db where all items information are stored. The function also manage race
-	//	conditions using a mutex that you can control using the argument defined commans
-	//
-	//	If the semaphore is already taken, the INTDB_TAKE command will wait for the semaphore, INDEFINITELY!
-	//
-	// Arguments
-	//	cmd         {INTDB_TAKE|INTDB_RELEASE}
-	//
-	// Returned value:
-	//	NULL             ERROR!
-	//	<db's address>   SUCCESS
-	//
-	static volatile moduleDB_t itemsStorage;
-	static SemaphoreHandle_t   mtx;
-	static bool                flag = false;
-	moduleDB_t                 *out = NULL;
-
-	//
-	// Initialization
-	//
-	if (flag == false) {
-		if ((mtx = xSemaphoreCreateMutex()) == NULL)
-			ESP_LOGE(__FUNCTION__, "Mutex creation failed");
-		else {
-			ESP_LOGI(__FUNCTION__, "OK! moduleDB has been initialized");
-			itemsStorage.size = 0;
-			flag = true;
-		}
-	}
-
-	if (cmd == INTDB_RELEASE) {
-		//ESP_LOGI(__FUNCTION__, "---->%d", __LINE__);
-		if (xSemaphoreGive(mtx) != pdTRUE)
-			// ERROR!
-			LOGERR
-	
-	} else if (cmd == INTDB_TAKE) {
-		if (xSemaphoreTake(mtx, portMAX_DELAY) == pdTRUE)
-			out = &itemsStorage;
-			
-		else {
-			// ERROR!
-			LOGERR
-		}
-	
-	} else {
-		// ERROR!
-		LOGERR
-	}
-
-	return(out);
-}
 
 
-static void _iInputInterface_update(uint8_t inputID) {
+static void _iInputInterface_update(iInputItem_t *item) {
 	//
 	// Description:
 	//	This function updates the internal representation of the phisical device (button/switch..).
@@ -204,137 +131,151 @@ static void _iInputInterface_update(uint8_t inputID) {
 	//	|           (devType = switch)                          |
 	//	+-------------------------------------------------------+
 	//
-	moduleDB_t      *db = _moduleDB_get(INTDB_TAKE);
 	static uint32_t myTimer = 0; 
 	
-	if (db == NULL)
-		// WARNING
-		ESP_LOGW(__FUNCTION__, "WARNING! I was unable to lock the module's db");
+	// [!] Enable the following line to debug this function
+	//_iInputItem_print(*item);
 		
-	else {
-		// [!] Enable the following line to debug this function
-		//_iInputItem_print(db->list[inputID]);
-		
-		if (db->list[inputID].FSM == 0) {
-			db->list[inputID].FSM = 1;
+	if (item->FSM == 0) {
+		item->FSM = 1;
 	
-		} else if (db->list[inputID].FSM == 1) {
-			//
-			// Waiting for the button/switch... pressing event
-			//
-			if (gpio_get_level(db->list[inputID].pinID) == 0) {
-				KEEPTRACK_numID(db->list[inputID].pinID, 0);
+	} else if (item->FSM == 1) {
+		//
+		// Waiting for the button/switch... pressing event
+		//
+		if (gpio_get_level(item->pinID) == 0) {
+			KEEPTRACK_numID(item->pinID, 0);
 				
-				if (db->list[inputID].type == BUTTON || db->list[inputID].type == HOLDBUTTON) {
-					ESP_LOGW(__FUNCTION__, "button-%d has been PUSHED", inputID);
-					db->list[inputID].timerOffset = myTimer;
-					db->list[inputID].FSM = 2;
-	
-					if (db->list[inputID].type == BUTTON)
-						// Button's value is "true"
-						db->list[inputID].status  = true;
-					else
-						// Swapping the old value
-						db->list[inputID].status  = db->list[inputID].status ? false : true; 
-					
-				} else if (db->list[inputID].type == SWITCH) {
-					// [!] The switch device does not need debouncing service
-					ESP_LOGW(__FUNCTION__, "switch-%d has moved to ON", inputID);
-					db->list[inputID].FSM     = 3;
-					db->list[inputID].status  = true;
-	
-				}
+			if (item->type == BUTTON || item->type == HOLDBUTTON) {
+				ESP_LOGW(__FUNCTION__, "button-%d has been PUSHED", item->pinID);
+				item->timerOffset = myTimer;
+				item->FSM = 2;
+
+				if (item->type == BUTTON)
+					// Button's value is "true"
+					item->status  = true;
+				else
+					// Swapping the old value
+					item->status  = item->status ? false : true; 
+				
+			} else if (item->type == SWITCH) {
+				// [!] The switch device does not need debouncing service
+				ESP_LOGW(__FUNCTION__, "switch-%d has moved to ON", item->pinID);
+				item->FSM     = 3;
+				item->status  = true;
+
 			}
+		}
 	 
 		
-		} else if (db->list[inputID].FSM == 2) {
-			// If the object is in this state, then the associated selector has been pressed/switched-on.
-			// The selector will be disabled for a time slot
-			
-			//
-			// The button/switch... is ready to be released/deactivated
-			//
-			if (db->list[inputID].timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
-				ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", inputID);
-				db->list[inputID].FSM = 3;
-				db->list[inputID].timerOffset = 0;
-				
-			} else {
-				ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", inputID,
-					(long unsigned int)(myTimer - db->list[inputID].timerOffset), 
-					(long unsigned int)IINPUTIF_DEBOUNCETIME
-				);
-			}
-			
-			
-		} else if (db->list[inputID].FSM == 3) {
-			// The selector is ready to be released/switched-off
-			// New activities will be acknowledged
-			
-			if (gpio_get_level(db->list[inputID].pinID) == 1) {
-				KEEPTRACK_numID(db->list[inputID].pinID, 1);
-
-				//
-				// Selector releasing...
-				//
-				if (db->list[inputID].type == BUTTON || db->list[inputID].type == HOLDBUTTON) {
-					ESP_LOGI(__FUNCTION__, "button-%d released", inputID);
-					db->list[inputID].timerOffset = myTimer;
-					
-					db->list[inputID].FSM = 14;
-					
-					if (db->list[inputID].type == BUTTON)
-						db->list[inputID].status = false;
-	
-				} else if (db->list[inputID].type == SWITCH) {
-					ESP_LOGI(__FUNCTION__, "switch-%d move to OFF", inputID);
-					db->list[inputID].status = false;
-					db->list[inputID].FSM = 1;
-				}
+	} else if (item->FSM == 2) {
+		// If the object is in this state, then the associated selector has been pressed/switched-on.
+		// The selector will be disabled for a time slot
 		
-			}
+		//
+		// The button/switch... is ready to be released/deactivated
+		//
+		if (item->timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
+			ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", item->pinID);
+			item->FSM = 3;
+			item->timerOffset = 0;
 			
-			
-		} else if (db->list[inputID].FSM == 14) {
-			// If the object is in this state, the selector is a button (or hold button) and it has been released.
-			// The seelector will be disabled for a time slot
-			
-			//
-			// The button/switch... is ready to be pressed/activated, again
-			//
-			if (db->list[inputID].timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
-				ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", inputID);
-				db->list[inputID].FSM = 1;
-				db->list[inputID].timerOffset = 0;
-				
-			} else 
-				ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", inputID,
-					(long unsigned int)(myTimer - db->list[inputID].timerOffset),
-					(long unsigned int)IINPUTIF_DEBOUNCETIME
-				);
+		} else {
+			ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", item->pinID,
+				(long unsigned int)(myTimer - item->timerOffset), (long unsigned int)IINPUTIF_DEBOUNCETIME
+			);
 		}
+			
+			
+	} else if (item->FSM == 3) {
+		// The selector is ready to be released/switched-off
+		// New activities will be acknowledged
 		
-		myTimer++;
-		_moduleDB_get(INTDB_RELEASE);
+		if (gpio_get_level(item->pinID) == 1) {
+			KEEPTRACK_numID(item->pinID, 1);
+
+			//
+			// Selector releasing...
+			//
+			if (item->type == BUTTON || item->type == HOLDBUTTON) {
+				ESP_LOGI(__FUNCTION__, "button-%d released", item->pinID);
+				item->timerOffset = myTimer;
+				
+				item->FSM = 14;
+				
+				if (item->type == BUTTON)
+					item->status = false;
+
+			} else if (item->type == SWITCH) {
+				ESP_LOGI(__FUNCTION__, "switch-%d move to OFF", item->pinID);
+				item->status = false;
+				item->FSM = 1;
+			}
+	
+		}
+			
+			
+	} else if (item->FSM == 14) {
+		// If the object is in this state, the selector is a button (or hold button) and it has been released.
+		// The seelector will be disabled for a time slot
+		
+		//
+		// The button/switch... is ready to be pressed/activated, again
+		//
+		if (item->timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
+			ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", item->pinID);
+			item->FSM = 1;
+			item->timerOffset = 0;
+			
+		} else 
+			ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", item->pinID,
+				(long unsigned int)(myTimer - item->timerOffset), (long unsigned int)IINPUTIF_DEBOUNCETIME
+			);
 	}
+		
+	myTimer++;
+	
 	
 	return;
 }
 
 
 static void _iInputInterface_updateAll() {
-	moduleDB_t *db = _moduleDB_get(INTDB_TAKE);
-
-	if (db == NULL) {
-		// WARNING
-		ESP_LOGW(__FUNCTION__, "WARNING! I was unable to lock the module's db");
+	//
+	// Description:
+	//	This function sends all registered item to _iInputInterface_update() function, one be one.
+	//	[!] If the db is already-in-use then the function will retry indefinitely
+	//
+	// Returned value:
+	//	WERRCODE_WARNING_RESNOTAV    // Resource is not available
+	//	The returned-by-moduleDB_iter() code
+	//
+	werror       ec = WERRCODE_SUCCESS;
+	uint8_t      inputID;
+	uint8_t      retryCounter = 10;
+	iInputItem_t item;
+	
+	// Iterator resetting...
+	moduleDB_iter(NULL, NULL);
+	
+	while (wErrCode_isError(ec) == false) {
+		ec = moduleDB_iter(&inputID, &item);
 		
-	} else {
-		uint8_t noi = db->size;
-		_moduleDB_get(INTDB_RELEASE);
-		
-		for (uint8_t x=0; x<noi; x++)
-			_iInputInterface_update(x);
+		if (wErrCode_isSuccess(ec))
+			_iInputInterface_update(&item);
+			
+		else if (wErrCode_isWarning(ec)) {
+			ESP_LOGW(__FUNCTION__, "WARNING! internal db resource was busy");
+			vTaskDelay(1 / portTICK_PERIOD_MS);
+			if (retryCounter > 0)
+				retryCounter--;
+			else
+				// ERROR!
+				ec = WERRCODE_WARNING_RESNOTAV;
+				
+		} else if (wErrCode_isError(ec) && ec != WERRCODE_ERROR_DATAOVERFLOW) {
+			ESP_LOGE(__FUNCTION__, "ERROR! moduleDB_iter() returned %d", ec);
+		}
 	}
 	
 	return;
@@ -383,12 +324,11 @@ werror iInputInterface_new (uint8_t *inputID, iInputType_t type, int8_t pin) {
 	//
 	// Returned value:
 	//	WERRCODE_SUCCESS             Interface has been correctly created
-	//	WERRCODE_ERROR_DATAOVERFLOW  The nax interfaces number has been reach
 	//	WERRCODE_ERROR_SYSCALL       The GPIO-configuration API failed
+	//	moduleDB_add() error codes
 	//
 	werror         ec = WERRCODE_SUCCESS;
 	gpio_config_t  phyPin;
-	moduleDB_t     *db = _moduleDB_get(INTDB_TAKE);
 	
 	// PIN direction and PULL-UP resistor setting
 	phyPin.intr_type    = GPIO_INTR_DISABLE;
@@ -397,32 +337,23 @@ werror iInputInterface_new (uint8_t *inputID, iInputType_t type, int8_t pin) {
 	phyPin.pull_down_en = GPIO_PULLDOWN_DISABLE;
 	phyPin.pull_up_en   = GPIO_PULLUP_ENABLE;
 
-	if ( db->size == IINPUTIF_MAXITEMSNUMB) {
-		// ERROR!
-		LOGERR
-		ec = WERRCODE_ERROR_DATAOVERFLOW;
-		
-	} else if (gpio_config(&phyPin) != ESP_OK) {
+	if (gpio_config(&phyPin) != ESP_OK) {
 		// ERROR!
 		LOGERR
 		ec = WERRCODE_ERROR_SYSCALL;
-		
+	
 	} else {
-		ESP_LOGI(__FUNCTION__, "OK! The object-%d has been correctly regitered", db->size);
+		iInputItem_t it = {	
+			.pinID       = pin,
+			.type        = type,
+			.timerOffset = 0,
+			.status      = false,
+			.FSM         = 0
+		};
 		
-		db->list[db->size].pinID       = pin;
-		db->list[db->size].type        = type;
-		db->list[db->size].timerOffset = 0;
-		db->list[db->size].status      = false;
-		db->list[db->size].FSM         = 0;
-		
-		// The input-id used to by iInputInterface_get to find the object
-		*inputID = db->size;
-		
-		db->size++;
+		ec = moduleDB_add (inputID, it);
 	}
-	_moduleDB_get(INTDB_RELEASE);
-		
+	
 	return(ec);
 }
 
@@ -433,23 +364,13 @@ werror iInputInterface_get (uint8_t inputID, bool *currStat) {
 	//	pointed by the currStat argument
 	//
 	// Returned value:
-	//	WERRCODE_SUCCESS
-	//	WERRCODE_ERROR_ILLEGALARG  The specified input-id does NOT exists
+	//	moduleDB_rw() error codes
 	//
-	werror     ec  = WERRCODE_SUCCESS;
-	moduleDB_t *db = _moduleDB_get(INTDB_TAKE);
+	iInputItem_t it;
+	werror       ec = moduleDB_rw(inputID, &it, MODULEDB_READ);
 	
-	if (db->size <= inputID)
-		// ERROR!
-		ec = WERRCODE_ERROR_ILLEGALARG;
-	else {
-		*currStat = db->list[inputID].status;
-		//ESP_LOGI(
-		//	__FUNCTION__, "PIN=%d  status=%s", 
-		//	db->list[inputID].pinID, db->list[inputID].status ? "ACTIVE" : "NOT-ACTIVE"
-		//);
-	}
-	_moduleDB_get(INTDB_RELEASE);
-	
+	if (wErrCode_isSuccess(ec) && currStat != NULL)
+		*currStat = it.status;
+		
 	return(ec);
 }
