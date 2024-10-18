@@ -43,6 +43,12 @@
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/portmacro.h>
+#include <freertos/task.h>
+#include "esp_err.h"
+#include <esp_log.h>
+
 #include <moduleDB.h>
 
 
@@ -50,6 +56,15 @@ static iInputItem_t      intDb[MODULEDB_MAXITEMSNUMB];
 static uint8_t           DBsize = 0;
 static SemaphoreHandle_t mtx;
 static bool              initFlag = false;
+
+//
+// ERROR messages in not-MOCKed mode
+//
+#if MOCK == 0
+#define LOGERR   ESP_LOGE(__FILE__, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
+#else
+#define LOGERR   fprintf(stderr, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
+#endif
 
 //------------------------------------------------------------------------------------------------------------------------------
 //                                      P U B L I C   F U N C T I O N S
@@ -107,7 +122,7 @@ werror moduleDB_rw (uint8_t inputID, iInputItem_t *item, moduleDBopType_t op) {
 		}
 	}
 	
-	return(out);
+	return(ec);
 }
 
 werror moduleDB_add (uint8_t *inputID, iInputItem_t item) {
@@ -122,7 +137,7 @@ werror moduleDB_add (uint8_t *inputID, iInputItem_t item) {
 	//	WERRCODE_WARNING_RESBUSY       The internal db was already in-use by someonelse
 	//	WERRCODE_ERROR_MUTEXOP         The mutex has been created in wrong way
 	//
-	werror ec = WERRCODE_SUCCESS;
+	werror      ec = WERRCODE_SUCCESS;
 	
 	if (initFlag == false) {
 		if ((mtx = xSemaphoreCreateMutex()) == NULL) {
@@ -136,7 +151,7 @@ werror moduleDB_add (uint8_t *inputID, iInputItem_t item) {
 	}
 
 	if (initFlag == false) {
-		if ( dìDBsize == MODULEDB_MAXITEMSNUMB) {
+		if ( DBsize == MODULEDB_MAXITEMSNUMB) {
 			// ERROR!
 			LOGERR
 			ec = WERRCODE_ERROR_DATAOVERFLOW;
@@ -144,16 +159,20 @@ werror moduleDB_add (uint8_t *inputID, iInputItem_t item) {
 		} else {
 			if (xSemaphoreTake(mtx, MODULEDB_TIMEOUT) == pdTRUE) {
 				*inputID = DBsize;
-				intDb[inputID] = item;
-				db->size++;
+				intDb[*inputID] = item;
+				DBsize++;
 			
-				ESP_LOGI(__FUNCTION__, "OK! The object-%d has been correctly regitered", inputID);
+				ESP_LOGI(__FUNCTION__, "OK! The object-%d has been correctly regitered", *inputID);
 				
 				if (xSemaphoreGive(mtx) != pdTRUE) {
 					// ERROR!
 					ESP_LOGE(__FUNCTION__, "ERROR! I cannot release the db-access' mutex");
 					ec = WERRCODE_ERROR_MUTEXOP;
-				}
+				
+				} else
+					// Small delay after the mutex has been released
+					vTaskDelay(1 / portTICK_PERIOD_MS);
+					
 			} else {
 				// WARNING!
 				ESP_LOGE(__FUNCTION__, "WARNING! resource busy");
@@ -161,8 +180,6 @@ werror moduleDB_add (uint8_t *inputID, iInputItem_t item) {
 			}
 		}
 	}
-	
-	vTaskDelay(1 / portTICK_PERIOD_MS);
 	
 	return(ec);
 }
