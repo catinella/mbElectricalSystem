@@ -62,6 +62,7 @@ static bool              initFlag = false;
 //
 #if MOCK == 0
 #define LOGERR   ESP_LOGE(__FILE__, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
+#define LOGMARK  ESP_LOGW(__FILE__, "-------> %s():%d", __FUNCTION__, __LINE__);
 #else
 #define LOGERR   fprintf(stderr, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
 #endif
@@ -150,7 +151,7 @@ werror moduleDB_add (uint8_t *inputID, iInputItem_t item) {
 		}
 	}
 
-	if (initFlag == false) {
+	if (initFlag) {
 		if ( DBsize == MODULEDB_MAXITEMSNUMB) {
 			// ERROR!
 			LOGERR
@@ -203,13 +204,14 @@ werror moduleDB_iter (uint8_t *inputID, iInputItem_t *item) {
 	werror         ec = WERRCODE_SUCCESS;
 	
 	// Iterator resetting...
-	if (inputID == NULL || item == NULL)
+	if (inputID == NULL || item == NULL) {
 		it = 0;
 	
-	else if (it <= MODULEDB_MAXITEMSNUMB) {
+	} else if (it <= DBsize) {
 		*inputID = it;
-		ec = moduleDB_rw(inputID, item, MODULEDB_READ);
+		ec = moduleDB_rw(*inputID, item, MODULEDB_READ);
 		if (wErrCode_isSuccess(ec)) it++;
+		
 	} else {
 		// ERROR!
 		ec = WERRCODE_ERROR_DATAOVERFLOW;
