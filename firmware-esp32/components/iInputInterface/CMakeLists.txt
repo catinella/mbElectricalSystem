@@ -1,6 +1,7 @@
 idf_component_register(
 	SRCS
 		"iInputInterface.c"
+		"moduleDB.c"
 	INCLUDE_DIRS
 		"include"
 		"../werror/include"
