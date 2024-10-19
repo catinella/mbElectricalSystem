@@ -93,7 +93,7 @@
 #define o_KEEPALIVE      GPIO_NUM_12
 #define o_ENGINEREADY    GPIO_NUM_13
 #define o_NEUTRAL        GPIO_NUM_14
-// ==== available ====   GPIO_NUM_15/ADC2_CH4
+#define i_DECOMPRESS     GPIO_NUM_15
 #define o_ENGINEON       GPIO_NUM_16
 // ==== available ====   GPIO_NUM_17
 #define o_LEFTARROW      GPIO_NUM_18
@@ -111,7 +111,7 @@
 #define o_STARTENGINE    GPIO_NUM_40
 #define i_CLUTCH         GPIO_NUM_41
 #define i_BYKESTAND      GPIO_NUM_42
-#define i_DECOMPRESS     GPIO_NUM_43
+// !!! DON'T USE IT !!!  GPIO_NUM_43
 #define i_ENGINEON       GPIO_NUM_44
 #define i_STARTBUTTON    GPIO_NUM_45
 #define i_LEFTARROW      GPIO_NUM_46
