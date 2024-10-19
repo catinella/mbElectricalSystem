@@ -100,17 +100,23 @@ void setPinValue (gpio_num_t pin, uint32_t value) {
 }
 
 bool blinker (blinkerCmd_t cmd) {
+	bool                     out = true;
 	static volatile bool     status = false;
 	static SemaphoreHandle_t mtx;
-	bool                     out = true;
+	static bool              initFlag = false;
 	
-	xSemaphoreTake(mtx, (10/portTICK_PERIOD_MS));
-	if (cmd == BLINKER_TICK)
-		status = !status;
-	else
-		out = status;
-	xSemaphoreGive(mtx);
-		
+	if (initFlag == false) {
+		mtx = xSemaphoreCreateMutex();
+		initFlag = true;
+	}
+	
+	if (xSemaphoreTake(mtx, (10/portTICK_PERIOD_MS) == pdTRUE)) {
+		if (cmd == BLINKER_TICK)
+			status = !status;
+		else
+			out = status;
+		xSemaphoreGive(mtx);
+	}
 	return(out);
 }
 
@@ -118,7 +124,7 @@ void tickerCB(TimerHandle_t xTimer) {
 	//
 	// Software-timer callback
 	//
-	blinker(BLINKER_TICK);
+	//blinker(BLINKER_TICK);
 }
 
 /*
@@ -135,10 +141,10 @@ uint16_t normalizz (uint16_t raw) {
 //                                                      M A I N
 //------------------------------------------------------------------------------------------------------------------------------
 
-int main(void) {
+int app_main(void) {
 	bool          loop         = true;              // It enables the main loop (Just for future applications)
-	bool          decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
 	fsmStates_t   FSM          = RKEY_EVALUATION;
+	bool          decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
 	mtbStates_t   mtbState     = MTB_STOPPED_ST;
 	uint8_t       leftArr_sel, rightArr_sel, uLight_sel, addLight_sel, light_sel;           // Lights
 	bool	        leftArr_value, rightArr_value, uLight_value, addLight_value, light_value;
@@ -149,10 +155,10 @@ int main(void) {
 	uint8_t       value = 0;
 	TimerHandle_t xBlinkTimer;
 	
-	adc_oneshot_unit_handle_t adcX1_handle, adcX2_handle, adcY1_handle, adcY2_handle;
+	adc_oneshot_unit_handle_t adc_handle;
 	int                       adc_rawX1, adc_rawX2, adc_rawY1, adc_rawY2;
-	
-	
+
+
 	//
 	// A/D converter configuration
 	//
@@ -166,21 +172,22 @@ int main(void) {
 			.clk_src  = ADC_DIGI_CLK_SRC_DEFAULT, // Clock's source
 			.ulp_mode = ADC_ULP_MODE_DISABLE     // Ultra Low Power FSM coprocessor
 		};
-	
-		if (
-			adc_oneshot_new_unit(&init_config1, &adcX1_handle)       != ESP_OK ||
-			adc_oneshot_config_channel(adcX1_handle, i_VX1, &config) != ESP_OK ||
-			adc_oneshot_new_unit(&init_config1, &adcX2_handle)       != ESP_OK ||
-			adc_oneshot_config_channel(adcX2_handle, i_VX2, &config) != ESP_OK ||
-			adc_oneshot_new_unit(&init_config1, &adcY1_handle)       != ESP_OK ||
-			adc_oneshot_config_channel(adcY1_handle, i_VY1, &config) != ESP_OK ||
-			adc_oneshot_new_unit(&init_config1, &adcY2_handle)       != ESP_OK ||
-			adc_oneshot_config_channel(adcY2_handle, i_VY1, &config) != ESP_OK
-		) {
-			// ERROR!
+
+		// A/D converter initialization
+		if (adc_oneshot_new_unit(&init_config1, &adc_handle) != ESP_OK) {
 			ESP_LOGE("MAIN", "A/D converter initialization failed");
-			FSM =  HW_FAILURE;
-		};
+			FSM = HW_FAILURE;
+	
+		// Channel configuration
+		} else if (
+			adc_oneshot_config_channel(adc_handle, i_VX1, &config) != ESP_OK ||
+			adc_oneshot_config_channel(adc_handle, i_VX2, &config) != ESP_OK ||
+			adc_oneshot_config_channel(adc_handle, i_VY1, &config) != ESP_OK ||
+			adc_oneshot_config_channel(adc_handle, i_VY2, &config) != ESP_OK
+		) {
+			ESP_LOGE("MAIN", "A/D channel configuration failed");
+			FSM = HW_FAILURE;
+		}
 	}
 
 
@@ -209,11 +216,18 @@ int main(void) {
 
 	
 	//
+	// Input pin/controls initializations
+	//
+	if (iInputInterface_init() != WERRCODE_SUCCESS) {
+		// ERROR!
+		ESP_LOGE("MAIN", "ERROR! input-pins management initialization failed");
+		FSM =  HW_FAILURE;
+	
+		
+	//
 	// Input pin/controls configuration
 	//
-	if (
-		FSM == HW_FAILURE || iInputInterface_init() != WERRCODE_SUCCESS ||
-		
+	} else if (
 		iInputInterface_new(&engStart_sel, BUTTON, i_STARTBUTTON) != WERRCODE_SUCCESS ||
 		iInputInterface_new(&decomp_sel,   BUTTON, i_DECOMPRESS)  != WERRCODE_SUCCESS ||
 		iInputInterface_new(&engOn_sel,    SWITCH, i_ENGINEON)    != WERRCODE_SUCCESS ||
@@ -263,6 +277,7 @@ int main(void) {
 			setPinValue(o_ENGINEON,    0);
 			setPinValue(o_ENGINEREADY, 0);
 			
+			ESP_LOGE("MAIN", "ERROR! *** HARDWARE FAILURE ***");
 			vTaskDelay(200 / portTICK_PERIOD_MS);
 		
 		
@@ -271,10 +286,10 @@ int main(void) {
 			// Resistor keys evaluation
 			//
 			if (
-				adc_oneshot_read(adcX1_handle, i_VX1, &adc_rawX1) == ESP_OK &&
-				adc_oneshot_read(adcX2_handle, i_VX2, &adc_rawX2) == ESP_OK &&
-				adc_oneshot_read(adcY1_handle, i_VY1, &adc_rawY1) == ESP_OK &&
-				adc_oneshot_read(adcY2_handle, i_VY2, &adc_rawY2) == ESP_OK &&
+				adc_oneshot_read(adc_handle, i_VX1, &adc_rawX1) == ESP_OK &&
+				adc_oneshot_read(adc_handle, i_VX2, &adc_rawX2) == ESP_OK &&
+				adc_oneshot_read(adc_handle, i_VY1, &adc_rawY1) == ESP_OK &&
+				adc_oneshot_read(adc_handle, i_VY2, &adc_rawY2) == ESP_OK &&
 				abs(adc_rawX1 - adc_rawY1) < V_TOLERANCE                    &&
 				abs(adc_rawX2 - adc_rawY2) < V_TOLERANCE
 			) {
@@ -283,23 +298,21 @@ int main(void) {
 				FSM = MAIN_LOOP;
 				ESP_LOGI("MAIN", "[ OK ] key has been accepted");
 			
-			} else { 
+			} else {
+				// I keep everything OFF!!
 				setPinValue(o_RIGHTARROW,  0);
 				setPinValue(o_LEFTARROW,   0);
 				setPinValue(o_DOWNLIGHT,   0);
 				setPinValue(o_UPLIGHT,     0);
 				setPinValue(o_ADDLIGHT,    0);
+				
+				ESP_LOGI("MAIN", "Authentication: (%d/%d) (%d/%d)", adc_rawX1, adc_rawY1, adc_rawX2, adc_rawY2);
 			}
 			
 			// [!] The following delay is used to prevent brutal-force attack (when ready_flag == 0) and to allow
 			//    the MCP23008 to boot
 			vTaskDelay(100 / portTICK_PERIOD_MS);
 		
-			
-		} else if (FSM == HW_FAILURE) {
-			ESP_LOGE("MAIN", "HW failure event detected");
-			// TODO: Neutral led blinking
-			
 			
 		} else if (FSM == MAIN_LOOP) {
 
@@ -398,13 +411,18 @@ int main(void) {
 						// In this state the mtb is stopped and it CANNOT be started by the electric engine and
 						// manually too
 						//
+						ESP_LOGI("MAIN", "MTB_STOPPED_ST");
 						setPinValue(o_ENGINEON,    0);   // Engine locked by CDI
 						setPinValue(o_ENGINEREADY, 0);   // LED: mtb is not yet ready to start
 						setPinValue(o_STARTENGINE, 0);
 						
-						ESP_LOGI("MAIN", "MTB_STOPPED_ST");
-						if ((neutral_value || clutch_value) && decompPushed && engOn_value)
+						// Parcking mode
+						if (engOn_value == false && uLight_value == true && bykestand_value == false)
+							FSM = PARCKING_STATUS;
+			
+						else if ((neutral_value || clutch_value) && decompPushed && engOn_value)
 							mtbState = MTB_WFR_ST;
+			
 					} break;
 	
 	
@@ -464,16 +482,7 @@ int main(void) {
 					} break;
 				} // === mtbstate switch ===
 			}
-/*
-			// Parcking mode
-			if (
-				mbesSelector_get(engOn_sel)  == false &&
-				mbesSelector_get(light_sel)  == false &&
-				mbesSelector_get(uLight_sel) == false
-			) 
-				FSM = PARCKING_STATUS;
-*/
-			
+
 			
 		} else if (FSM == PARCKING_STATUS) {
 			//
@@ -495,7 +504,8 @@ int main(void) {
 		#else
 		vTaskDelay(10 / portTICK_PERIOD_MS);
 		#endif
-	}
+		
+	} // === MAIN LOOP ===
 
 	return(0);
 }
