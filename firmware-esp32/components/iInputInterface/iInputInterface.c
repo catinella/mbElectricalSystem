@@ -88,7 +88,7 @@
 #define LOGERR   fprintf(stderr, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
 #endif
 
-#if MBES_KEEPTRACK > 0
+#ifdef DBGCON_KEEPTRACK
 #define KEEPTRACK(X, Y) keepTrack(X, Y);
 #else
 #define KEEPTRACK(X, Y) ;
