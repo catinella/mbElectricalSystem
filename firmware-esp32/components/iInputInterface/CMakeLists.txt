@@ -1,3 +1,5 @@
+include(${CMAKE_CURRENT_LIST_DIR}/../../configUtils.cmake)
+
 idf_component_register(
 	SRCS
 		"iInputInterface.c"
@@ -11,8 +13,11 @@ idf_component_register(
 		esp_timer
 )
 
-if(DEFINED ENV{DBGCON_KEEPTRACK})
-	if($ENV{DBGCON_KEEPTRACK} EQUAL 1)
+# Configuration file reading...
+parse_config("${CMAKE_SOURCE_DIR}/CMakeLists.conf")
+
+if(DEFINED DBGCON_KEEPTRACK)
+	if(${DBGCON_KEEPTRACK} EQUAL 1)
 		message(WARNING "[WARNING!] Debug console support has been activated")
 		target_compile_definitions(${COMPONENT_LIB} PRIVATE DBGCON_KEEPTRACK=1)
 	endif()
