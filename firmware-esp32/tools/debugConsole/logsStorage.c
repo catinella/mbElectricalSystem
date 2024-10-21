@@ -78,8 +78,8 @@ void printSingleMsg (const logRow *item, uint16_t cols) {
 	//	will trunc the message is a nice way
 	//
 	printf("%5d: ", item->tstamp);
-	if (strlen(item->message) > (cols - 10)) {
-		for (uint16_t x=0; x<(cols - 10); x++) printf("%c", item->message[x]);
+	if (strlen(item->message) > (cols - 16)) {
+		for (uint16_t x=0; x<(cols - 16); x++) printf("%c", item->message[x]);
 		printf("...\n");
 	} else 
 		printf("%s\n", item->message);
