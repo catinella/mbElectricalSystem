@@ -16,7 +16,7 @@
 #	To build the rimware use the framework command "idf.by build" or type cmake <CMakeLists.txt path> in a proper path.
 #	
 #-----------------------------------------------------------------------------------------------------------------------------------
-include(${CMAKE_CURRENT_LIST_DIR}/../../configUtils.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/../configUtils.cmake)
 
 idf_component_register(
 	SRCS	
