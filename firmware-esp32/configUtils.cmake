@@ -14,26 +14,27 @@
 #	C-Make library for the configuration file parsing. The files want to use this library have to incude the following
 #	statements:
 #
-#	include(${CMAKE_SOURCE_DIR}/config_utils.cmake)      # Including the library file
-#	parse_config("${CMAKE_SOURCE_DIR}/CMakeLists.conf")  # It calls the parser and creates the variables
+#	include(${CMAKE_SOURCE_DIR}/config_utils.cmake)  # Including the library file
+#	parse_config("<configuration file>" "<label>")   # It calls the parser and creates the variables
+#	                                                 # Project's config file: "${CMAKE_SOURCE_DIR}/CMakeLists.conf"
 #
 #-----------------------------------------------------------------------------------------------------------------------------------
 
-function(parse_config CONFIG_FILE)
+function(parse_config CONFIG_FILE TAG)
+	set(filecontent "")
 	message(STATUS "\n")
 	message(STATUS "------------------------------------------------------------------------------")
-	message(STATUS "             B U I L D I N G   C O N F I G U R A T I O N "                     )
+	message(STATUS " ${TAG} module building configuration")
 	message(STATUS "------------------------------------------------------------------------------")
-	file(READ "${CONFIG_FILE}" filecontent)
-	string(REGEX MATCHALL "^[ \t]*([A-Za-z][^=]+)=([^\n]+)" rowsarray "${filecontent}")
-	foreach(row ${rowsarray})
+	file(STRINGS "${CONFIG_FILE}" filecontent REGEX "^[ \t]*([A-Za-z_][^=]+)=([^\n]+)")
+	string(STRIP filecontent "${filecontent}")
+	string(CONCAT filecontent "${filecontent}" ";")
+	#message(WARNING "===>${filecontent}")
+	
+	foreach(row ${filecontent})
 		string(REGEX REPLACE "\n" "" match  "${row}")
 		string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\1" varname  "${row}")
 		string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\2" varvalue "${row}")
-		
-		# No blank spaces
-		string(STRIP "${varname}" varname)
-		string(STRIP "${varvalue}" varvalue)
 		
 		# Global vars creation....
 		set(${varname} "${varvalue}" PARENT_SCOPE)
