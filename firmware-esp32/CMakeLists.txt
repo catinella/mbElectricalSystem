@@ -45,26 +45,13 @@ set(IDF_TARGET "esp32s2")
 add_custom_target(check_config ALL DEPENDS "${CMAKE_SOURCE_DIR}/CMakeLists.conf")
 add_dependencies(app check_config)
 
-# Configuration file reading...
-parse_config("${CMAKE_SOURCE_DIR}/CMakeLists.conf")
+add_custom_target(
+	my_clean
+	COMMAND ${CMAKE_COMMAND} -E rm "${CMAKE_SOURCE_DIR}/main/firmware-esp32.c"
+)
 
-if(DEFINED FIRMWARETEST)
-	message(WARNING "[!] TEST mode has been enabled")
-	set(myexec ${FIRMWARETEST})
-else()
-	message(STATUS "Normal mode")
-	set(myexec prod.c)
-endif()
-
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/main/${myexec}")
-	if(NOT "${myexec}" STREQUAL "prod.c")
-		message(STATUS "Testing firmware: ${CMAKE_CURRENT_SOURCE_DIR}/main/${myexec}")
-	endif()
-
-	execute_process(
-		COMMAND ${CMAKE_COMMAND} -E chdir "${CMAKE_CURRENT_SOURCE_DIR}/main" ./clink.sh ${myexec}
-	)
-else()
-	message(FATAL_ERROR "Firmware file '[ERROR!] ${CMAKE_CURRENT_SOURCE_DIR}/main/${myexec}' does not exist.")
-endif()
-
+add_custom_target(
+	cleanall
+	COMMAND idf.py clean
+	DEPENDS my_clean
+)
