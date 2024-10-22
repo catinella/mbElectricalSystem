@@ -95,7 +95,7 @@
 #define o_NEUTRAL        GPIO_NUM_14
 #define i_DECOMPRESS     GPIO_NUM_15
 #define o_ENGINEON       GPIO_NUM_16
-// ==== available ====   GPIO_NUM_17
+#define o_UPLIGHT        GPIO_NUM_17
 #define o_LEFTARROW      GPIO_NUM_18
 // !!!!                  USB/GPIO_NUM_19
 // !!!!                  USB/GPIO_NUM_20
@@ -105,7 +105,7 @@
 #define o_ADDLIGHT       GPIO_NUM_34
 #define i_DOWNLIGHT      GPIO_NUM_35
 #define i_UPLIGHT        GPIO_NUM_36
-#define o_UPLIGHT        GPIO_NUM_37
+// ==== available ====   GPIO_NUM_37   Many problems met to use it as output, in the ESP32 it was just an input pin
 #define o_DOWNLIGHT      GPIO_NUM_38
 #define o_RIGHTARROW     GPIO_NUM_39
 #define o_STARTENGINE    GPIO_NUM_40
