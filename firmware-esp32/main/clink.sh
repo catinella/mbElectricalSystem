@@ -25,20 +25,23 @@ TFILE="firmware-esp32.c"
 SFILE="$1"
 err=0
 
-[ -e "$TFILE" ] && rm -f "$TFILE" && echo "Old symbolic link removed"
+cd "${0%/*}/" >/dev/null
 
-[ -z "$SFILE" ] && SFILE="firmware-esp32.c"
+[ -L "./$TFILE" ] && rm -f "./$TFILE" && echo "Old symbolic link removed"
 
-if [ -e $SFILE ]; then
-	if ln -s "$SFILE" "$TFILE" ; then
-		echo "Symbolic link created"
+[ -n "$SFILE" ] && {
+	if [ -e $SFILE ]; then
+		if ln -s "$SFILE" "$TFILE" ; then
+			echo "Symbolic link created"
+		else
+			echo "ERROR! I cannot create the \"$TFILE\" symbolic link" 2>&1
+			err=65
+		fi
 	else
-		echo "ERROR! I cannot create the \"$TFILE\" symbolic link" 2>&1
-		err=65
+		echo "ERROR! \"$SFILE\" not found"  2>&1
+		err=67
 	fi
-else
-	echo "ERROR! \"$SFILE\" not found"  2>&1
-	err=67
-fi
+}
 
+cd - >/dev/null
 exit $err
