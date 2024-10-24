@@ -66,3 +66,4 @@ else()
 	message(FATAL_ERROR "Firmware file '[ERROR!] ${CMAKE_CURRENT_SOURCE_DIR}/${myexec}' does not exist.")
 endif()
 
+target_compile_definitions(${COMPONENT_LIB} PRIVATE TARGET_ESP32)
