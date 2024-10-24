@@ -68,6 +68,7 @@ uint8_t keepTrack_getGPIO (pinIdType pin) {
 #elifdef TARGET_ESP32
 	value = gpio_get_level(pin);
 #endif
+
 #ifdef DBGCON_KEEPTRACK
 	_notify(pin, value);
 #endif
@@ -83,8 +84,9 @@ void keepTrack_setGPIO (const pinIdType pin, uint8_t value) {
 #error "ERROR! Not yet implemented"	
 
 #elifdef TARGET_ESP32
-	value = gpio_set_level(pin, value);
+	gpio_set_level(pin, value);
 #endif
+
 #ifdef DBGCON_KEEPTRACK
 	_notify(pin, value);
 #endif
