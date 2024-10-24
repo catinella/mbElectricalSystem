@@ -100,7 +100,7 @@
 // !!!!                  USB/GPIO_NUM_19
 // !!!!                  USB/GPIO_NUM_20
 #define i_ADDLIGHT       GPIO_NUM_21
-// ==== available ====   GPIO_NUM_26
+#define i_ENGINEON       GPIO_NUM_26
 #define i_RIGHTARROW     GPIO_NUM_33
 #define o_ADDLIGHT       GPIO_NUM_34
 #define i_DOWNLIGHT      GPIO_NUM_35
@@ -111,8 +111,8 @@
 #define o_STARTENGINE    GPIO_NUM_40
 #define i_CLUTCH         GPIO_NUM_41
 #define i_BYKESTAND      GPIO_NUM_42
-// !!! DON'T USE IT !!!  GPIO_NUM_43
-#define i_ENGINEON       GPIO_NUM_44
+// (TX) DON'T USE IT !!! GPIO_NUM_43   System freezing
+// (RX) DON'T USE IT !!! GPIO_NUM_44   Firmware uploading failure
 #define i_STARTBUTTON    GPIO_NUM_45
 #define i_LEFTARROW      GPIO_NUM_46
 
