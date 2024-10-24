@@ -86,7 +86,7 @@
 // ==== available ====   GPIO5/ADC1_CH4
 // ==== available ====   GPIO6/ADC1_CH5
 // ==== available ====   GPIO7/ADC1_CH6
-// ==== available ====   GPIO8/ADC1_CH7
+#define i_LEFTARROW      GPIO_NUM_8
 #define i_CONF1          GPIO_NUM_9
 #define i_CONF2          GPIO_NUM_10
 #define i_NEUTRAL        GPIO_NUM_11
@@ -114,6 +114,6 @@
 // (TX) DON'T USE IT !!! GPIO_NUM_43   System freezing
 // (RX) DON'T USE IT !!! GPIO_NUM_44   Firmware uploading failure
 #define i_STARTBUTTON    GPIO_NUM_45
-#define i_LEFTARROW      GPIO_NUM_46
+// ==== available ====   GPIO_NUM_46    Only as input push & pull 3V
 
 #endif
