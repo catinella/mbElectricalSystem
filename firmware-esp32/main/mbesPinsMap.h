@@ -78,7 +78,7 @@
 // PINs declaration
 //
 
-#define i_LIGHTONOFF     GPIO_NUM_0
+#define i_STARTBUTTON    GPIO_NUM_0
 #define i_VX1            ADC_CHANNEL_0
 #define i_VX2            ADC_CHANNEL_1
 #define i_VY1            ADC_CHANNEL_2
@@ -113,7 +113,7 @@
 #define i_BYKESTAND      GPIO_NUM_42
 // (TX) DON'T USE IT !!! GPIO_NUM_43   System freezing
 // (RX) DON'T USE IT !!! GPIO_NUM_44   Firmware uploading failure
-#define i_STARTBUTTON    GPIO_NUM_45
+#define i_LIGHTONOFF     GPIO_NUM_45
 // ==== available ====   GPIO_NUM_46    Only as input push & pull 3V
 
 #endif
