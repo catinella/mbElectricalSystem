@@ -44,13 +44,12 @@
 
 #include "mbesPinsMap.h"
 
-#define NUMOFPINS 6
 
 void app_main(void) {
 	bool          loop = true;
 	uint8_t       t = 0;
 	gpio_config_t templIoConf;
-	uint64_t ioPinsList[NUMOFPINS] = {
+	uint64_t ioPinsList[] = {
 		o_RIGHTARROW,
 		o_KEEPALIVE,
 		o_NEUTRAL,
@@ -58,7 +57,7 @@ void app_main(void) {
 		o_UPLIGHT,
 		o_ENGINEREADY,
 	};
-	char *ioNamesList[NUMOFPINS] = {
+	char *ioNamesList[] = {
 		"o_RIGHTARROW",
 		"o_KEEPALIVE",
 		"o_NEUTRAL",
@@ -67,13 +66,15 @@ void app_main(void) {
 		"o_ENGINEREADY",
 	};
 	
+	uint8_t numOfPins = sizeof(ioPinsList)/sizeof(uint64_t);
+	
 	// PIN configuration
 	templIoConf.intr_type    = GPIO_INTR_DISABLE;     // No interrupt
 	templIoConf.mode         = GPIO_MODE_OUTPUT;      // The pin is an output
 	templIoConf.pull_down_en = GPIO_PULLDOWN_DISABLE; // NO pull-down
 	templIoConf.pull_up_en   = GPIO_PULLDOWN_DISABLE; // NO pull-down
 
-	for (t=0; t<NUMOFPINS; t++) {
+	for (t=0; t<numOfPins; t++) {
 		templIoConf.pin_bit_mask = 1ULL << ioPinsList[t];
 		if (gpio_config(&templIoConf) != ESP_OK) {
 			ESP_LOGE(__FUNCTION__, "GPIO_NUM_%d configuration failed", (int)ioPinsList[t]);
@@ -86,7 +87,7 @@ void app_main(void) {
 	}
 
 	 while (loop) {
-		for (t=0; t<NUMOFPINS; t++) {
+		for (t=0; t<numOfPins; t++) {
 			// Turn ON the LED
 			gpio_set_level(ioPinsList[t], 1);
 			ESP_LOGI(__FUNCTION__, "%s: ON", ioNamesList[t]);
