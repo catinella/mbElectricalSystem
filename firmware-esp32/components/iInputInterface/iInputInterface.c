@@ -88,12 +88,6 @@
 #define LOGERR   fprintf(stderr, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
 #endif
 
-#ifdef DBGCON_KEEPTRACK
-#define KEEPTRACK(X, Y) keepTrack(X, Y);
-#else
-#define KEEPTRACK(X, Y) ;
-#endif
-
 //------------------------------------------------------------------------------------------------------------------------------
 //                                     P R I V A T E   F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
@@ -143,8 +137,7 @@ static void _iInputInterface_update(iInputItem_t *item) {
 		//
 		// Waiting for the button/switch... pressing event
 		//
-		if (gpio_get_level(item->pinID) == 0) {
-			KEEPTRACK_numID(item->pinID, 0);
+		if (keepTrack_getGPIO(item->pinID) == 0) {
 				
 			if (item->type == BUTTON || item->type == HOLDBUTTON) {
 				ESP_LOGW(__FUNCTION__, "button-%d has been PUSHED", item->pinID);
@@ -191,8 +184,7 @@ static void _iInputInterface_update(iInputItem_t *item) {
 		// The selector is ready to be released/switched-off
 		// New activities will be acknowledged
 		
-		if (gpio_get_level(item->pinID) == 1) {
-			KEEPTRACK_numID(item->pinID, 1);
+		if (keepTrack_getGPIO(item->pinID) == 1) {
 
 			//
 			// Selector releasing...
