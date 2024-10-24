@@ -6,7 +6,7 @@
 #   |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
 #                                                                                                   |___/
 #
-# File name: CMakeLists.txt
+# File name: main/CMakeLists.txt
 #
 # Author: Silvano Catinella <catinella@yahoo.com>
 #
@@ -38,13 +38,6 @@ add_dependencies(app clink)
 
 # Configuration file reading...
 parse_config("${CMAKE_SOURCE_DIR}/CMakeLists.conf" "main")
-
-if(DEFINED DBGCON_KEEPTRACK)
-	if(${DBGCON_KEEPTRACK} EQUAL 1)
-		message(WARNING "[WARNING!] Debug console support has been activated")
-		target_compile_definitions(${COMPONENT_LIB} PRIVATE DBGCON_KEEPTRACK)
-	endif()
-endif()
 
 if(DEFINED FIRMWARETEST)
 	message(WARNING "[!] TEST mode has been enabled")
