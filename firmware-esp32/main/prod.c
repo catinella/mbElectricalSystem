@@ -67,7 +67,7 @@
 
 #define V_TOLERANCE  100
 
-#define DEBUG 1
+#define DEBUG 0
 
 typedef enum {
 	RKEY_EVALUATION,
@@ -106,7 +106,6 @@ bool blinker (blinkerCmd_t cmd) {
 		if (cmd == BLINKER_TICK)
 			status = !status;
 		else {
-		//	ESP_LOGI(__FUNCTION__, "---------->%d", __LINE__);
 			out = status;
 		}
 		xSemaphoreGive(mtx);
@@ -256,6 +255,9 @@ int app_main(void) {
 
 		if (xBlinkTimer != NULL)
 			xTimerStart(xBlinkTimer, 0);
+		else
+			// WARNING!
+			ESP_LOGE("MAIN", "WARNING! I cannot create a timer for the arrow led blinking");
 	}
 
 	while (loop) {
@@ -370,6 +372,10 @@ int app_main(void) {
 				
 				// Decompressor sensor management
 				if (decomp_value) decompPushed = true;
+				
+				
+				// Independent leds
+				keepTrack_setGPIO(o_NEUTRAL, neutral_value ? 1: 0);
 				
 				
 				//
