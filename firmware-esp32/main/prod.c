@@ -65,7 +65,9 @@
 
 #define BLINK_PERIOD pdMS_TO_TICKS(200)
 
-#define V_TOLERANCE  10
+#define V_TOLERANCE  100
+
+#define DEBUG 1
 
 typedef enum {
 	RKEY_EVALUATION,
@@ -89,16 +91,6 @@ typedef enum {
 //------------------------------------------------------------------------------------------------------------------------------
 //                                                 F U N C T I O N S
 //------------------------------------------------------------------------------------------------------------------------------
-void setPinValue (gpio_num_t pin, uint32_t value) {
-	//
-	// Description:
-	//	It is just a wrapper to gpio_set_level()
-	//
-	gpio_set_level(pin, value);
-	KEEPTRACK_numID(pin, value);
-	return;
-}
-
 bool blinker (blinkerCmd_t cmd) {
 	bool                     out = true;
 	static volatile bool     status = false;
@@ -113,8 +105,10 @@ bool blinker (blinkerCmd_t cmd) {
 	if (xSemaphoreTake(mtx, (10/portTICK_PERIOD_MS) == pdTRUE)) {
 		if (cmd == BLINKER_TICK)
 			status = !status;
-		else
+		else {
+		//	ESP_LOGI(__FUNCTION__, "---------->%d", __LINE__);
 			out = status;
+		}
 		xSemaphoreGive(mtx);
 	}
 	return(out);
@@ -124,7 +118,7 @@ void tickerCB(TimerHandle_t xTimer) {
 	//
 	// Software-timer callback
 	//
-	//blinker(BLINKER_TICK);
+	blinker(BLINKER_TICK);
 }
 
 /*
@@ -195,7 +189,8 @@ int app_main(void) {
 	// Output pins configuration
 	//
 	if (FSM != HW_FAILURE) {
-		uint64_t outputBitMasksList[] = OUTPUTPINS_LIST ;
+		uint64_t outputPinsList[]  = OUTPUTPINS_LIST;
+		uint8_t  numberOfPins      = sizeof(outputPinsList)/sizeof(uint64_t);
 		gpio_config_t outputConfTemplate = {
 			.intr_type    = GPIO_INTR_DISABLE,
 			.mode         = GPIO_MODE_OUTPUT,
@@ -203,18 +198,20 @@ int app_main(void) {
 			.pull_up_en   = GPIO_PULLDOWN_DISABLE
 		};
 
-		for (uint8_t t=0; t<4; t++) {
-			outputConfTemplate.pin_bit_mask = (1ULL << outputBitMasksList[t]);
+		for (uint8_t t=0; t<numberOfPins; t++) {
+			outputConfTemplate.pin_bit_mask = (1ULL << outputPinsList[t]);
 			if (gpio_config(&outputConfTemplate) != ESP_OK) {
 				// ERROR!
-				ESP_LOGE("MAIN", "ERROR! Output %ld-pin configuration failed", (unsigned long int)outputBitMasksList[t]);
+				ESP_LOGE("MAIN", "ERROR! Output %ld-pin configuration failed", (unsigned long int)outputPinsList[t]);
 				FSM =  HW_FAILURE;
 				break;
+			} else {
+				//ESP_LOGI("MAIN", "%ld-pin configured (%d/%d)", (unsigned long int)outputPinsList[t], t, numberOfPins);
 			}
 		}
 	}
 
-	
+
 	//
 	// Input pin/controls initializations
 	//
@@ -250,10 +247,10 @@ int app_main(void) {
 		//
 		// Important output-pins initial values
 		//
-		setPinValue(o_KEEPALIVE,   0);
-		setPinValue(o_STARTENGINE, 0);
-		setPinValue(o_ENGINEON,    0);
-		setPinValue(o_ENGINEREADY, 0);
+		keepTrack_setGPIO(o_KEEPALIVE,   0);
+		keepTrack_setGPIO(o_STARTENGINE, 0);
+		keepTrack_setGPIO(o_ENGINEON,    0);
+		keepTrack_setGPIO(o_ENGINEREADY, 0);
 
 		xBlinkTimer = xTimerCreate("BlinkTimer", BLINK_PERIOD, pdTRUE, (void *)0, tickerCB);
 
@@ -268,14 +265,14 @@ int app_main(void) {
 			// [!] In order to go out from this state you can just turn-off and turn-on your motorbike
 			//
 			value = value ? false : true;
-			setPinValue(o_LEFTARROW,  value);
-			setPinValue(o_RIGHTARROW, value);
-			setPinValue(o_NEUTRAL,   value);
+			keepTrack_setGPIO(o_LEFTARROW,  value);
+			keepTrack_setGPIO(o_RIGHTARROW, value);
+			keepTrack_setGPIO(o_NEUTRAL,   value);
 			
 			// Are you paranoying??
-			setPinValue(o_STARTENGINE, 0);
-			setPinValue(o_ENGINEON,    0);
-			setPinValue(o_ENGINEREADY, 0);
+			keepTrack_setGPIO(o_STARTENGINE, 0);
+			keepTrack_setGPIO(o_ENGINEON,    0);
+			keepTrack_setGPIO(o_ENGINEREADY, 0);
 			
 			ESP_LOGE("MAIN", "ERROR! *** HARDWARE FAILURE ***");
 			vTaskDelay(200 / portTICK_PERIOD_MS);
@@ -294,17 +291,17 @@ int app_main(void) {
 				abs(adc_rawX2 - adc_rawY2) < V_TOLERANCE
 			) {
 				// The keyword has been authenicated, you can unplug it
-				setPinValue(o_KEEPALIVE, 1);
+				keepTrack_setGPIO(o_KEEPALIVE, 1);
 				FSM = MAIN_LOOP;
 				ESP_LOGI("MAIN", "[ OK ] key has been accepted");
 			
 			} else {
 				// I keep everything OFF!!
-				setPinValue(o_RIGHTARROW,  0);
-				setPinValue(o_LEFTARROW,   0);
-				setPinValue(o_DOWNLIGHT,   0);
-				setPinValue(o_UPLIGHT,     0);
-				setPinValue(o_ADDLIGHT,    0);
+				keepTrack_setGPIO(o_RIGHTARROW,  0);
+				keepTrack_setGPIO(o_LEFTARROW,   0);
+				keepTrack_setGPIO(o_DOWNLIGHT,   0);
+				keepTrack_setGPIO(o_UPLIGHT,     0);
+				keepTrack_setGPIO(o_ADDLIGHT,    0);
 				
 				ESP_LOGI("MAIN", "Authentication: (%d/%d) (%d/%d)", adc_rawX1, adc_rawY1, adc_rawX2, adc_rawY2);
 			}
@@ -315,9 +312,9 @@ int app_main(void) {
 		
 			
 		} else if (FSM == MAIN_LOOP) {
-
 			// 
-
+			// Input reading
+			//
 			if (
 				wErrCode_isError(iInputInterface_get(leftArr_sel,  &leftArr_value))   ||
 				wErrCode_isError(iInputInterface_get(rightArr_sel, &rightArr_value))  ||
@@ -337,19 +334,18 @@ int app_main(void) {
 				FSM =  HW_FAILURE;
 				
 			} else {
-
 				//
 				// Lights
 				//
 				if (light_value == true) {
-					setPinValue(o_DOWNLIGHT, 1);
-					setPinValue(o_UPLIGHT,  uLight_value   ? 1 : 0);
-					setPinValue(o_ADDLIGHT, addLight_value ? 1 : 0);
+					keepTrack_setGPIO(o_DOWNLIGHT, 1);
+					keepTrack_setGPIO(o_UPLIGHT,  uLight_value   ? 1 : 0);
+					keepTrack_setGPIO(o_ADDLIGHT, addLight_value ? 1 : 0);
 						
 				} else {
-					setPinValue(o_DOWNLIGHT, 0);
-					setPinValue(o_UPLIGHT,   0);
-					setPinValue(o_ADDLIGHT,  0);
+					keepTrack_setGPIO(o_DOWNLIGHT, 0);
+					keepTrack_setGPIO(o_UPLIGHT,   0);
+					keepTrack_setGPIO(o_ADDLIGHT,  0);
 				}
 
 
@@ -357,18 +353,18 @@ int app_main(void) {
 				// Blinking lights
 				//
 				if (leftArr_value) {
-					setPinValue(o_LEFTARROW, blinker(BLINKER_GET));
-					setPinValue(o_RIGHTARROW, 0);
+					keepTrack_setGPIO(o_LEFTARROW, blinker(BLINKER_GET));
+					keepTrack_setGPIO(o_RIGHTARROW, 0);
 	
 				} else if (rightArr_value) {
 					// TODO: timer enabling
-					setPinValue(o_RIGHTARROW, blinker(BLINKER_GET));
-					setPinValue(o_LEFTARROW,  0);
+					keepTrack_setGPIO(o_RIGHTARROW, blinker(BLINKER_GET));
+					keepTrack_setGPIO(o_LEFTARROW,  0);
 	
 				} else {
 					// TODO: timer disabling
-					setPinValue(o_RIGHTARROW, 0);
-					setPinValue(o_LEFTARROW,  0);
+					keepTrack_setGPIO(o_RIGHTARROW, 0);
+					keepTrack_setGPIO(o_LEFTARROW,  0);
 				}
 				
 				
@@ -383,7 +379,8 @@ int app_main(void) {
 				if (neutral_value == false && bykestand_value == false && mtbState != MTB_STOPPED_ST) {
 					ESP_LOGW("MAIN", "WARNING! bike stand is down!!");
 					mtbState = MTB_STOPPED_ST;
-					setPinValue(o_ENGINEON, 0);            // Engine locked by CDI
+					keepTrack_setGPIO(o_ENGINEON, 0);            // Engine locked by CDI
+					ESP_LOGI("MAIN", "MTB_STOPPED_ST");
 				}
 				
 				
@@ -393,7 +390,8 @@ int app_main(void) {
 				//
 				if (engOn_value == false) {
 					mtbState = MTB_STOPPED_ST;
-					setPinValue(o_ENGINEON, 0);            // Engine locked by CDI
+					keepTrack_setGPIO(o_ENGINEON, 0);            // Engine locked by CDI
+					ESP_LOGI("MAIN", "MTB_STOPPED_ST");
 				}
 	
 				
@@ -402,7 +400,7 @@ int app_main(void) {
 				//	If the start button is not pressed the electric eng must be stopped, in any situation
 				//
 				if (engStart_value == false)  // i_STARTBUTTON 
-					setPinValue(o_STARTENGINE, 0);
+					keepTrack_setGPIO(o_STARTENGINE, 0);
 
 
 				switch (mtbState) {
@@ -411,18 +409,20 @@ int app_main(void) {
 						// In this state the mtb is stopped and it CANNOT be started by the electric engine and
 						// manually too
 						//
-						ESP_LOGI("MAIN", "MTB_STOPPED_ST");
-						setPinValue(o_ENGINEON,    0);   // Engine locked by CDI
-						setPinValue(o_ENGINEREADY, 0);   // LED: mtb is not yet ready to start
-						setPinValue(o_STARTENGINE, 0);
+						keepTrack_setGPIO(o_ENGINEON,    0);   // Engine locked by CDI
+						keepTrack_setGPIO(o_ENGINEREADY, 0);   // LED: mtb is not yet ready to start
+						keepTrack_setGPIO(o_STARTENGINE, 0);
 						
 						// Parcking mode
-						if (engOn_value == false && uLight_value == true && bykestand_value == false)
+						if (engOn_value == false && uLight_value == true && bykestand_value == false) {
 							FSM = PARCKING_STATUS;
+							ESP_LOGI("MAIN", "PARCKING_STATUS");
 			
-						else if ((neutral_value || clutch_value) && decompPushed && engOn_value)
+						} else if ((neutral_value || clutch_value) && decompPushed && engOn_value) {
 							mtbState = MTB_WFR_ST;
-			
+							ESP_LOGI("MAIN", "MTB_WFR_ST");
+						}
+						
 					} break;
 	
 	
@@ -430,21 +430,22 @@ int app_main(void) {
 						//
 						// In tis state driver can choise to start the mtb using the electric eng or manually
 						//
-						ESP_LOGI("MAIN", "MTB_WFRST");
-						setPinValue(o_ENGINEON,    1);                 // Engine no more locked by CDI
-						setPinValue(o_ENGINEREADY, 1);                 // LED: mtb is ready to start
+						keepTrack_setGPIO(o_ENGINEON,    1);                 // Engine no more locked by CDI
+						keepTrack_setGPIO(o_ENGINEREADY, 1);                 // LED: mtb is ready to start
 						
 						if (neutral_value == false && clutch_value == false) {
 							decompPushed = false;                    // The mtb has been started manually
 							mtbState = MTB_RUNNIG_ST;
-							setPinValue(o_ENGINEREADY, 0);
+							keepTrack_setGPIO(o_ENGINEREADY, 0);
 							ESP_LOGI("MAIN", "MTB started manually");
+							ESP_LOGI("MAIN", "MTB_RUNNIG_ST");
 						
 						} else if (engStart_value) {                  // i_STARTBUTTON
-							setPinValue(o_ENGINEREADY, 0);
+							keepTrack_setGPIO(o_ENGINEREADY, 0);
 							ESP_LOGI("MAIN", "OK electric starter is running");
 							decompPushed = false;
 							mtbState = MTB_ELSTARTING_ST;
+							ESP_LOGI("MAIN", "MTB_ELSTARTING_ST");
 						}
 					} break;
 				
@@ -454,9 +455,11 @@ int app_main(void) {
 						// The electric start engine is running
 						//
 						ESP_LOGI("MAIN", "MTB_ELSTARTING_ST");
-						setPinValue(o_STARTENGINE, engStart_value);  // i_STARTBUTTON
-						if (engStart_value == false) 
+						keepTrack_setGPIO(o_STARTENGINE, engStart_value);  // i_STARTBUTTON
+						if (engStart_value == false) {
 							mtbState = MTB_RUNNIG_ST;
+							ESP_LOGI("MAIN", "MTB_RUNNIG_ST");
+						}
 					} break;
 	
 	
@@ -470,14 +473,14 @@ int app_main(void) {
 						// control, then the engine will be immediately ready to be started again. Also if the
 						// driver want to stop the engine using the decompressor (but he should not do this!)
 						//
-						setPinValue(o_ENGINEREADY, 0);
-						ESP_LOGI("MAIN", "MTB_RUNNIG_ST");
+						keepTrack_setGPIO(o_ENGINEREADY, 0);
 	
 						if (decomp_value) {
 							mtbState = MTB_STOPPED_ST;
-							setPinValue(o_ENGINEON, 0);           // Engine locking request to CDI
+							keepTrack_setGPIO(o_ENGINEON, 0);           // Engine locking request to CDI
 							decompPushed = false;
 							vTaskDelay(1000 / portTICK_PERIOD_MS); // I wait (1s) for the engine stop
+							ESP_LOGI("MAIN", "MTB_STOPPED_ST");
 						}
 					} break;
 				} // === mtbstate switch ===
@@ -490,9 +493,9 @@ int app_main(void) {
 			//
 			ESP_LOGI("MAIN", "Parking mode");
 			value = blinker(BLINKER_GET);
-			setPinValue(o_LEFTARROW,  value);
-			setPinValue(o_RIGHTARROW, value);
-			setPinValue(o_DOWNLIGHT,  1);
+			keepTrack_setGPIO(o_LEFTARROW,  value);
+			keepTrack_setGPIO(o_RIGHTARROW, value);
+			keepTrack_setGPIO(o_DOWNLIGHT,  1);
 
 			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
 		}
