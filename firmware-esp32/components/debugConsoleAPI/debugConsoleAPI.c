@@ -13,10 +13,6 @@
 //
 // Description:
 //	This library is used to keep track of the I/O pins status.
-//	When the degìbug session become a too much chaotic one, it is useful to monitor the PINs status. This small lib allows
-//	you to achieve the result. The function keepTrack() must be called in all low-level functions where they set or get
-//	a value to/from a pin. The function will send an ascii log with the following llayout ""<PIN-name>:<value>", to an
-//	external (Perl) process, that will show all pins status.
 //
 //
 // License:
@@ -36,31 +32,61 @@
 #include <stdio.h>
 #include <debugConsoleAPI.h>
 
+#ifdef TARGET_AVR8
+#include <avr/io.h>
 
-void keepTrack_strID(const char *code, uint8_t value) {
+#elifdef TARGET_ESP32
+#include "driver/gpio.h"
+#endif
+
+static void _notify(const pinIdType pin, uint8_t value) {
 	//
 	// Description:
-	//	This function is a platform independent one, mainly. You can always specity the pin's symbol as a string. But
-	//	the name must be equal to the specidied in the map-file one
+	//	This function sent the pin's information notification to the debug-console
 	//
-	printf("%s:%d\n\r", code, value); 
+#ifdef TARGET_AVR8
+	printf("%s:%d\n\r", pin, value); 
+#elifdef TARGET_ESP32
+	printf("GPIO_NUM_%d:%d\n\r", pin, value); 
+#endif
 	return;
 }
 
-void keepTrack_numID(uint8_t pin, uint8_t value) {
+//------------------------------------------------------------------------------------------------------------------------------
+//                                         P U B L I C   F U N C T I O N S 
+//------------------------------------------------------------------------------------------------------------------------------
+uint8_t keepTrack_getGPIO (pinIdType pin) {
 	//
 	// Description:
-	//	This API has been created for all MCU that use just numeric ID to indicate a pin, it is usual in 32bit
-	//	architectures (eg. ESP32). But using this you can only keep track of (GPIO) digital pins.
+	//	Pin's value reading
+	//
+	uint8_t value = 0;
+	
+#ifdef TARGET_AVR8
+#error "ERROR! Not yet implemented"	
+
+#elifdef TARGET_ESP32
+	value = gpio_get_level(pin);
+#endif
+#ifdef DBGCON_KEEPTRACK
+	_notify(pin, value);
+#endif
+	return(value);
+}
+
+void keepTrack_setGPIO (const pinIdType pin, uint8_t value) {
+	//
+	// Description:
+	//	Pin's value setting
 	//
 #ifdef TARGET_AVR8
-	; // It should be not used for AVR8 architecture. Use keepTrack_strID() instead.
-	
+#error "ERROR! Not yet implemented"	
+
 #elifdef TARGET_ESP32
-	printf("GPIO_NUM_%d:%d\n\r", pin, value); 
-	
-#else
-#error "ERROR! TARGET_<ARCH> has not been defined or it is an unknown one"
+	value = gpio_set_level(pin, value);
+#endif
+#ifdef DBGCON_KEEPTRACK
+	_notify(pin, value);
 #endif
 	return;
 }

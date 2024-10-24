@@ -13,6 +13,15 @@
 //
 // Description:
 //	This library is used to keep track of the I/O pins status.
+//	When the degbug session become a too much chaotic one, it is useful to monitor the PINs status in permanent way.
+//	This small lib and the debug-console app allo you to achieve the result.
+//
+//	To show the pin's status on the debug-confole, you have to replace the I/O functions with the ones provided by this lib.
+//	They will call internally the I/O functions and they will also send all needed information to the debug-console you
+//	are running.
+//
+//	If you want enable/disable the monitoring without to change your code, define/remove the following symbol:
+//		DBGCON_KEEPTRACK
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -31,17 +40,22 @@
 #ifndef MBES_DEBUGCONSOLE
 #define MBES_DEBUGCONSOLE
 #include <stdint.h>
+#include <stdint.h>
 
+#ifdef TARGET_AVR8
+#include <>
+typedef const char* pinIdType;
 
-#ifdef DBGCON_KEEPTRACK
-#define KEEPTRACK_strID(PIN,VALUE) keepTrack_strID (PIN, VALUE);
-#define KEEPTRACK_numID(PIN,VALUE) keepTrack_numID (PIN, VALUE);
+#elifdef TARGET_ESP32
+typedef uint8_t pinIdType;
+
 #else
-#define KEEPTRACK_strID(X,Y) ;
-#define KEEPTRACK_numID(X,Y) ;
+#error "ERROR! TARGET_<ARCH> is an unknown one"
 #endif
+	
 
-void keepTrack_strID (const char *code, uint8_t value);
-void keepTrack_numID (uint8_t pin,      uint8_t value);
+uint8_t keepTrack_getGPIO (pinIdType pin);
+void    keepTrack_setGPIO (pinIdType pin, uint8_t value);
+
 
 #endif
