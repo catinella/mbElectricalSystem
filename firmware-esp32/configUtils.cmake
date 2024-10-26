@@ -18,29 +18,37 @@
 #	parse_config("<configuration file>" "<label>")   # It calls the parser and creates the variables
 #	                                                 # Project's config file: "${CMAKE_SOURCE_DIR}/CMakeLists.conf"
 #
+#	[!] Because the config-file is defined as a dependence one, too. If this function will not found the argument defined one,
+#	    then a new empty one will be created
+#
 #-----------------------------------------------------------------------------------------------------------------------------------
 
 function(parse_config CONFIG_FILE TAG)
-	set(filecontent "")
 	message(STATUS "\n")
-	message(STATUS "------------------------------------------------------------------------------")
-	message(STATUS " ${TAG} module building configuration")
-	message(STATUS "------------------------------------------------------------------------------")
-	file(STRINGS "${CONFIG_FILE}" filecontent REGEX "^[ \t]*([A-Za-z_][^=]+)=([^\n]+)")
-	string(STRIP filecontent "${filecontent}")
-	string(CONCAT filecontent "${filecontent}" ";")
-	#message(WARNING "===>${filecontent}")
+	if(EXISTS "${CONFIG_FILE}")
+		set(filecontent "")
+		message(STATUS "------------------------------------------------------------------------------")
+		message(STATUS " ${TAG} module building configuration")
+		message(STATUS "------------------------------------------------------------------------------")
+		file(STRINGS "${CONFIG_FILE}" filecontent REGEX "^[ \t]*([A-Za-z_][^=]+)=([^\n]+)")
+		string(STRIP filecontent "${filecontent}")
+		string(CONCAT filecontent "${filecontent}" ";")
+		#message(WARNING "===>${filecontent}")
 	
-	foreach(row ${filecontent})
-		string(REGEX REPLACE "\n" "" match  "${row}")
-		string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\1" varname  "${row}")
-		string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\2" varvalue "${row}")
+		foreach(row ${filecontent})
+			string(REGEX REPLACE "\n" "" match  "${row}")
+			string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\1" varname  "${row}")
+			string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\2" varvalue "${row}")
 		
-		# Global vars creation....
-		set(${varname} "${varvalue}" PARENT_SCOPE)
+			# Global vars creation....
+			set(${varname} "${varvalue}" PARENT_SCOPE)
 		
-		message(STATUS "Configuration data: ${varname}=${varvalue}")
-	endforeach()
+			message(STATUS "Configuration data: ${varname}=${varvalue}")
+		endforeach()
+	else()
+		message(WARNING "Configuration file not found I will create an empty one")
+		file(TOUCH "${CONFIG_FILE}")
+	endif()
 	message(STATUS "\n")
 endfunction()
 
