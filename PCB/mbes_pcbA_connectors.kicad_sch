@@ -4323,7 +4323,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "to_pcbB3")
 					(unit 1)
 				)
@@ -4400,7 +4400,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "to_pcbB1")
 					(unit 1)
 				)
@@ -4470,7 +4470,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "LightOnOff_sw1")
 					(unit 1)
 				)
@@ -4536,7 +4536,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "#PWR0108")
 					(unit 1)
 				)
@@ -4616,7 +4616,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "leftCtrls_conn1")
 					(unit 1)
 				)
@@ -4686,7 +4686,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "addLights1")
 					(unit 1)
 				)
@@ -4756,7 +4756,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "Decomp_1")
 					(unit 1)
 				)
@@ -4821,7 +4821,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "leftCtrls-faston1")
 					(unit 1)
 				)
@@ -4887,7 +4887,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "#PWR05")
 					(unit 1)
 				)
@@ -4961,7 +4961,7 @@
 		)
 		(instances
 			(project ""
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "U3")
 					(unit 1)
 				)
@@ -5048,7 +5048,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "RearDevs1")
 					(unit 1)
 				)
@@ -5118,7 +5118,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "parking1")
 					(unit 1)
 				)
@@ -5194,7 +5194,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "to_pcbB2")
 					(unit 1)
 				)
@@ -5262,7 +5262,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "R1")
 					(unit 1)
 				)
@@ -5332,7 +5332,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "extpwr1")
 					(unit 1)
 				)
@@ -5415,7 +5415,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "to_pcbB4")
 					(unit 1)
 				)
@@ -5495,7 +5495,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "rightCtrls_conn1")
 					(unit 1)
 				)
@@ -5569,7 +5569,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "Key-locker-1")
 					(unit 1)
 				)
@@ -5639,7 +5639,7 @@
 		)
 		(instances
 			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/0b22d592-b723-42a2-89dd-bec665c2bd26"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "powerOFF1")
 					(unit 1)
 				)
