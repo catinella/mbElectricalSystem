@@ -1,29 +1,29 @@
-#-----------------------------------------------------------------------------------------------------------------------------------
-     __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
-    |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
-    | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
-    | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
-    |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
-                                                                                                    |___/                       
-#-----------------------------------------------------------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------
+   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+  |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+  | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+  | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+  |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+                                                                                                  |___/                       
+#-------------------------------------------------------------------------------------------------------------------------------
 
 Description:
 	This folder contains all files you need to get you own PCB.
 
 
 Files:
-	LICENSE.txt                             This project is covered by the GPL-3. Please, read that file for further information
-	Makefile                                It allow you to create the files (es. Gebber) needed to produce the PCB (KiCAD-7)
-	kicad_symbols                           This folder contains all components definitions not provided by KiCAD by default
-	conn_to_pcbb.kicad_sch                  A part of PCB-a electric scheme
-	mbes_front_outputs.kicad_sch            A part of PCB-b electric scheme
-	mbes_inputs.kicad_sch                   A part of PCB-a electric scheme
-	mbes_rear_connector.kicad_sch           A part of PCB-a electric scheme
-	mbes_start_stop.kicad_sch               A part of PCB-b electric scheme
-	pcb-a.kicad_sch                         PCB-a electric scheme
-	pcb-b.kicad_sch                         PCB-b electric scheme
-	pcb-a.kicad_pcb                         PCB-a
-	pcb-b.kicad_pcb                         PCB-b
+	LICENSE.txt                           This project is covered by the GPL-3. Please, read that file for further information
+	Makefile                              It allow you to create the files (es. Gebber) needed to produce the PCB (KiCAD-7)
+	kicad_symbols                         This folder contains all components definitions not provided by KiCAD by default
+	conn_to_pcbb.kicad_sch                A part of PCB-a electric scheme
+	mbes_front_outputs.kicad_sch          A part of PCB-b electric scheme
+	mbes_inputs.kicad_sch                 A part of PCB-a electric scheme
+	mbes_rear_connector.kicad_sch         A part of PCB-a electric scheme
+	mbes_start_stop.kicad_sch             A part of PCB-b electric scheme
+	pcb-a.kicad_sch                       PCB-a electric scheme
+	pcb-b.kicad_sch                       PCB-b electric scheme
+	pcb-a.kicad_pcb                       PCB-a
+	pcb-b.kicad_pcb                       PCB-b
 
 
 Internals:
@@ -35,24 +35,6 @@ Internals:
 	| IRF4905 | RDS=20mOhm ID=50A VGS=[-2..-4] | P-Channel MOSfet enhancement   |
 	+---------+--------------------------------+--------------------------------+
 	
-	Resistors voltage divider values:
-	=================================
-	I = V/R = (12-0.3)/RA+RB
-	VGS = -3 --> x-12V = -3 --> x=9V
-	(I*RB) = 11.7*RB/(RA+RB) --> I*RB = 9 --> 11.7*RB/(RA+RB) = 9 --> 11.7RB = 9RA + 9RB --> 2.7RB = 9RA -->
-	(RA=10K Ohm) --> BR = 90k/2.7 = 33K Ohm
-
-	In System Programming (ISP-10pin) port:
-	=======================================
-		     +-------+
-		MOSI | 1   2 | VTG
-		NC   | 3   4 | GND
-		     +-+     |
-		Reset  | 5 6 | NC
-		     +-+     |
-		SCK  | 7   8 | GND
-		MISO | 9  10 | GND
-		     +-------+
 
 Devices building:
 	About the PCBs creation I have used the MD srl company service. So, in order to create a copy, you can contact the company
@@ -69,6 +51,34 @@ Devices building:
 	=====================
 	In order to get a more vibrations resistant circuit,  I suggest you to print it on a 3.2mm high plate
 	
-	[!] It you are using Linux, you too, you have to remember that the PCB building company will ask you a ZIP file (not GZIP).
+	[!] It you are using Linux, you too, remember that the PCB building company will require you a ZIP file (not GZIP).
 	    So, after the fabric-files generation use the following command to create the zip file:
 	    	zip -r <archive name> <data folder name>
+
+
+Motorbike controls connectors:
+	To connect the handlebars electric (buttons/switches) conrols, I selected connectors based on 2.8mm faston. These
+	connectors are widely used in automotive applications, but unfortunately I did not found a link to their documentation.
+
+	Left connector pins-map:
+	========================
+	                                    +---+
+	1 GND                         +-----+---+-----+
+	2 Left turn indicator         | +-+  +-+  +-+ |
+	3 Down-light                  | |4|  |5|  |6| |
+	4 Dazzling light              | +-+  +-+  +-+ |
+	5 Right turn indicator        | +-+  +-+  +-+ |
+	6 Horn                        | |1|  |2|  |3| |
+	                              | +-+  +-+  +-+ |
+	                              +---------------+
+
+	Right connector pins-map:
+	=========================
+
+	1) GND
+	2) GND
+	3) Brake control switch
+	4) Engine START button
+	5) Engine OFF
+	6) Engine ON
+
