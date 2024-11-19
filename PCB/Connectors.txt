@@ -1,0 +1,63 @@
+#-------------------------------------------------------------------------------------------------------------------------------
+   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+  |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+  | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+  | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+  |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+                                                                                                  |___/                       
+#-------------------------------------------------------------------------------------------------------------------------------
+
+Motorbike controls connectors:
+	In ordet to connect the handlebars electric (buttons/switches) conrols, I selected connectors based on 2.8mm faston.
+	These connectors are widely used in automotive applications, but unfortunately I did not found a link to their
+	documentation.
+
+	Left connector pins-map:
+	========================            +---+
+	1 GND                         +-----+---+-----+
+	2 Left turn indicator         | +-+  +-+  +-+ |
+	3 Down-light                  | |4|  |5|  |6| |
+	4 Dazzling light              | +-+  +-+  +-+ |
+	5 Right turn indicator        | +-+  +-+  +-+ |
+	6 Horn                        | |1|  |2|  |3| |
+	                              | +-+  +-+  +-+ |
+	                              +---------------+
+
+	Right connector pins-map:
+	=========================
+	1) GND
+	2) GND
+	3) Brake control switch
+	4) Engine START button
+	5) Engine OFF
+	6) Engine ON
+
+
+PCB to PCB connectors:
+	Because the space to allocate the device is a big problem, I tried to get a more flexible solution. For this reason I
+	created two PCB that you can allocate together or in two different boxes. The following tables reports every connector
+	pin's description
+
+	10-PINs connector:
+	==================
+	01) i_powerOFF
+	02) o_addLight
+	03) o_rightArrow
+	04) --- NC ---
+	05) o_LeftArrow 
+	06) c_horn
+	07) GND
+	08) temp_power
+	09) o_upLight
+	10) o_downLight
+
+	8-PINs connector:
+	=================
+	1) --- NC ---
+	2) c_rightArrow
+	3) c_leftArrow
+	4) o_engineON
+	5) c_engineOFF
+	6) o_engineReady
+	7) o_keepAlive
+	8) o_neutral
