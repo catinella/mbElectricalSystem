@@ -20,23 +20,31 @@ Description:
 		- Motorbike (and engine) OFF switch
 		- Decompressor
 		- External cockpit power-connector
+		- Cockpit's leds
 
-	The system provides the following services:
-		- 5V generator for USB devices
-		- Square electric wave for blinking light
-		- Resistors key locker
+	The system provides the following features
+		- Checking for decompressor command
+		  The system does not allow the engine to run, before the decompressor command has been activated
 
-	This release is based on MCU ATmega16L chip. It allowed me to add the resistors key management and keep the PCB size small
-	enough. Also about the total price, it looks like a good solution. In fact the MCU costs 20$ (more or less) but the resistors
-	key locker (git@github.com:catinella/rKey.git) device costs 30$-40$.
+		- Direction indicator blinking
+		  Common blinking for the yellow indicator
 
-	Fuses and electric protections:
-		The old motorbikes (like my DR-Big) have just one single fuse to protect the battery by short-circuits. It can be a
-		disturbing trouble when you have multiple electric problems and/or you can continue without that particular service
-		(eg. turn signals). It can happen in critical situation when you fording a river, or after you fall down in the middle
-		of nowhere.
-		MBES allows you to use upo to 5 fuses, almost one for service. It means, if you get falldown and you get horn damage
-		and it make a short-circuit event, then you can continue without stop your motorbike.
-		The resistors-key is protected by "unintentional" short-circuits
+		- Resistor key
+		  In order to turn-on the motorbike, the driver must insert a valid resistor key. After the autentication the key
+		  can be also removed. It is very usefull for off-road using. 
 
+		- Parking mode
+		  To set the motorbike turned-off but with the normal-light-on and the indicators blinking, you have to put the
+		  motorbile stopped on its lateral stand, set the engine swith to off, and turn the normal-light on
+	
+	Security rules:
+		- Byke stand
+		  if the motorcycle stand is downn when the engine is connected to the wheels, the the engine will be stopped
+
+		- Decompressor command
+		  If the motorcycle is running and the driver will push the decompressor command, then the engine will be stopped
+
+Info about this version:
+	This branch is based on ESP32 MCU. This chip is a powerful and very low-price device and it allowed me to reduce the PCB
+	size. At the moment, I am using the ESP32 devkit device because welder this chip is a bit difficult operation.
 
