@@ -2140,12 +2140,6 @@
 		(uuid "b96db35d-aee0-4146-810e-bf84e6ac42ec")
 	)
 	(junction
-		(at 65.786 157.988)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "c144c1cc-631a-4c00-b606-32a84598c873")
-	)
-	(junction
 		(at 63.7032 135.89)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2171,16 +2165,6 @@
 	)
 	(wire
 		(pts
-			(xy 61.722 155.448) (xy 95.504 155.448)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "06fd6c13-4688-42a2-862d-d9b58283cf70")
-	)
-	(wire
-		(pts
 			(xy 208.1276 62.5856) (xy 196.2404 62.5856)
 		)
 		(stroke
@@ -2198,16 +2182,6 @@
 			(type default)
 		)
 		(uuid "09693d2d-b87f-4553-ab10-2253709e37f2")
-	)
-	(wire
-		(pts
-			(xy 61.722 157.988) (xy 65.786 157.988)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "0a8d4968-88b0-49b0-a9c1-27cfdde3ec47")
 	)
 	(wire
 		(pts
@@ -2801,16 +2775,6 @@
 	)
 	(wire
 		(pts
-			(xy 65.786 157.988) (xy 65.786 148.9456)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6d589258-7dd6-45d1-a328-08b8d1bd7685")
-	)
-	(wire
-		(pts
 			(xy 201.549 53.848) (xy 201.549 55.88)
 		)
 		(stroke
@@ -3121,7 +3085,7 @@
 	)
 	(wire
 		(pts
-			(xy 65.786 167.132) (xy 65.786 157.988)
+			(xy 65.786 148.9456) (xy 65.786 167.132)
 		)
 		(stroke
 			(width 0)
@@ -4611,38 +4575,6 @@
 			)
 		)
 	)
-	(global_label "i_parking"
-		(shape input)
-		(at 95.504 155.448 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "968196d5-9866-4bfd-a987-76a229e6f29a")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 107.0767 155.448 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 95.504 157.6388 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "c_rearLight"
 		(shape input)
 		(at 95.3008 117.7544 0)
@@ -5118,7 +5050,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical"
 			(at 175.006 104.14 0)
 			(effects
 				(font
@@ -5689,76 +5621,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x02")
-		(at 56.642 157.988 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "a61cf4a0-1ea2-4137-a6e2-dec53d9c185e")
-		(property "Reference" "parking1"
-			(at 62.484 152.146 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "Conn_01x02"
-			(at 55.3721 160.528 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.15sqmm_1x02_P4mm_D0.5mm_OD1.5mm"
-			(at 56.642 157.988 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 56.642 157.988 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 56.642 157.988 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "2de1997e-6bd0-498a-8e67-2c021162a620")
-		)
-		(pin "2"
-			(uuid "bdeca06e-f671-4399-82fc-821aa2036e9b")
-		)
-		(instances
-			(project "pcb-a"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
-					(reference "parking1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 72.136 135.89 270)
 		(unit 1)
@@ -6002,7 +5864,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical"
 			(at 175.006 89.916 0)
 			(effects
 				(font
