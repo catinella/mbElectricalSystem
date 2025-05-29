@@ -17,7 +17,7 @@
 #	
 #	Configuration process:
 #	======================
-#	To configure the cource code, set the following values in the configuration file (CMakeLists.txt).
+#	To configure the cource code, set the following values in the configuration file (CMakeLists.conf).
 #		FIRMWARETEST=<source file> It allows you to build a test instead the prod-firmware.
 #		DBGCON_KEEPTRACK={0|1}     If it is set to 1, then It enable the support for the debug console tool
 #
