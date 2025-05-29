@@ -110,7 +110,7 @@
 #define o_RIGHTARROW     GPIO_NUM_39
 #define o_STARTENGINE    GPIO_NUM_40
 #define i_CLUTCH         GPIO_NUM_41
-#define i_BYKESTAND      GPIO_NUM_42
+#define i_BIKESTAND      GPIO_NUM_42
 // (TX) DON'T USE IT !!! GPIO_NUM_43   System freezing
 // (RX) DON'T USE IT !!! GPIO_NUM_44   Firmware uploading failure
 #define i_LIGHTONOFF     GPIO_NUM_45
