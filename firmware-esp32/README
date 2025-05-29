@@ -16,22 +16,31 @@
 1. Description:
 	This folder contains all needed files to build the project firmware
 
-	Configuration
-	=============
-	This firmware is based on Espressif's MCU ESP32-S2 and in order to built it, you have to get and configure the esp-idf
+	Environment Configuration:
+	==========================
+	This firmware is based on Espressif's MCU ESP32-S2 and, in order to built it, you have to get and configure the esp-idf
 	building environment. To complete the task, please, read the follow official documentation:
 		https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/get-started/index.html
-
-	In order to use the JTAG's pins as normal GPIOs you need to disable the JTAG support on your ESP32-S2 MCU with the following
-	command:
+	
+	Device Configuration:
+	=====================
+	In order to use the JTAG's pins as normal GPIOs you need to disable the JTAG support on your ESP32-S2 MCU with the
+	following command:
 		espefuse.py --port /dev/ttyUSB0 burn_efuse SOFT_DIS_JTAG
 
-
-	Firmware building:
-	==================
+	Firmware Configuration:
+	=======================
 	From the 5.3 release esp-idf uses CMAKE as software building infrastructure (project.mk is no more available).
-	So, also for this project, all building rules are defined kin the CmakeLists,txt file.
-	
-	If you want to build a test, then you have to respect the following syntax,  when you create the Makefile. 
-		FIRMWARETEST=<source file> cmake <CMakeLists.txt path>
+	For this rerason all configuration has been set in the CmakeLists.conf file. This file is parsed by the CmakeLists.txt
+	file using the configUtils.cmake library. In order to get the options list, please, read the documentation lines in
+	the CmakeLists.txt file's head.
 
+	Building process:
+	=================
+	To build the firmware use the following idf standard command:
+		idf.py build
+
+	Debug console:
+	==============
+	In order to monitor the pin's status in real-time, you can use the debugConsole software in the <PROJECT HOME>/tool
+	folder
