@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <screenUtils.h>
-
+#include <curses.h>
 	
 void linePrinting (char pattern, uint16_t colums) {
 	//
