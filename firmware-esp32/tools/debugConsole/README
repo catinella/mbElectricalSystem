@@ -17,18 +17,13 @@
 	log-messages, in ordered and clean way
 
 2. Dependences:
-	The debugConsole executable file has been written in Perl-5. So, you need to install the following perl-libraries. It can be
-	a very easy procedure if you use cpan tool: use "cpan install <perl library>"
-		Term::Size
-		Time::HiRes
-		Term::ANSIScreen
-		IO::Select
-	The process also need the "stty" system-tool to configure the serial port. But this tool should be already installed by default
+	The process also need the "stty" system-tool to configure the serial port. But this tool should be already installed by
+	default
 
 3. Testing procedure
-	Because this console receives data from serial port, to test it you need a virtual serial port. In order to get it, you can
-	use the following command:
+	Because this console receives data from serial port, to test it you need a virtual serial port. In order to get it, you
+	can use the following command:
 		socat -d -d pty,raw,echo=0 pty,raw,echo=0
 
-	This command will generate a serial ports couple in /dev/pts folder. The two ports are linked like the head and the tail of a
-	queue, it means when you send data to a port you can read the data from the other one.
+	This command will generate a serial ports couple in /dev/pts folder. The two ports are linked like the head and the tail
+	of a queue, it means when you send data to a port you can read the data from the other one.
