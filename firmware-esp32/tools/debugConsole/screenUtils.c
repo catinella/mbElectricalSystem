@@ -39,8 +39,8 @@ void linePrinting (char pattern, uint16_t colums) {
 	// Description:
 	//	It prints a line on the screen
 	//
-	for (uint16_t t=0; t<colums; t++) printf("%c", pattern);
-	printf("\n");
+	for (uint16_t t=0; t<colums; t++) printw("%c", pattern);
+	printw("\n");
 	return;
 }
 	
@@ -51,7 +51,7 @@ void titlePrinting (const char *title, uint16_t colums) {
 	//	It prints a central justified text
 	//
 	uint16_t padSize = (colums - strlen(title))/2;
-	for (uint16_t t=0; t<padSize; t++) printf(" ");
-	printf("%s\n", title);
+	for (uint16_t t=0; t<padSize; t++) printw(" ");
+	printw("%s\n", title);
 	return;
 }

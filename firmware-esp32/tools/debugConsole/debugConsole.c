@@ -24,6 +24,9 @@
 //		TTY_MAXLOGSIZE    Max length of the log-message to display
 //		TTY_MAXLOGLINES   Max number of lines to show in the console before to drop the oldest logs
 //
+//	[!] Remembe to link the ncurses lib (-lncurses)
+//
+//
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
 //
@@ -55,6 +58,9 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <math.h>
+
+#include <curses.h>
+#include <ncurses.h>
 
 #include <stringBuilder.h>
 #include <pinToSymbol.h>
@@ -239,7 +245,10 @@ int main (int argc, char *argv[]) {
 		char     pin[PTS_PINLABSIZE];
 		struct winsize ts;
 		
-
+		// NCurses initialization
+		initscr();
+		
+		// Syslog initiaklization
 		openlog(argv[0], LOG_NDELAY|LOG_PID, CONS_FACILITY);
 		//syslog(LOG_INFO, "------------------------- [DEBUG CONSOLE START] -------------------------");
 		
@@ -301,8 +310,8 @@ int main (int argc, char *argv[]) {
 			//------------------------------------------
 			// Debug console displaying
 			//------------------------------------------
-			{
-				system("clear");
+			// NCurses display cleaning...
+			if (clear() == OK) {
 				
 				ioctl(0, TIOCGWINSZ, &ts);
 				//printf ("columns %d\n", ts.ws_col);
@@ -319,9 +328,19 @@ int main (int argc, char *argv[]) {
 				logsStorage_print(ts.ws_col);
 				
 				linePrinting('=', ts.ws_col);
+				
+				// Display refreshing
+				refresh();
+			
+			} else {
+				// ERROR!
+				syslog(LOG_ERR, "ERROR(%d)! NCurses library operation failed\n", __LINE__);
+				err = WERRCODE_ERROR_FROMEXTLIB;
 			}
 		}
 		
+		usleep(500);
+		endwin();
 		stringBuilder_close();
 		pinDef_free();
 		logsStorage_free();

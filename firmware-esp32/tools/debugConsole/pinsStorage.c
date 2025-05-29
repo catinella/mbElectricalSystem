@@ -51,7 +51,7 @@
 #include <string.h>
 #include <pinsStorage.h>
 #include <pinToSymbol.h>
-
+#include <ncurses.h>
 
 // Pins status DB item
 typedef struct {
@@ -104,18 +104,18 @@ void pinsStorage_print (uint16_t screenCols) {
 				
 		sprintf((buff + strlen(buff)), ":%d", pinsDb[x].value);
 		fillUp(buff, PTS_MAXSYMSIZE);
-		printf("%s", buff);
+		printw("%s", buff);
 			
 		if (t == cols) {
-			printf("\n");
+			printw("\n");
 			t = 0;
 		} else {
-			printf("      ");
+			printw("      ");
 			t++;
 		}
 	}
 	free(buff);
-	if (t != 0) printf("\n");
+	if (t != 0) printw("\n");
 	
 }
 

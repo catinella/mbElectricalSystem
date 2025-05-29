@@ -79,7 +79,7 @@ all:			debugConsole
 
 debugConsole:	$(OBJs)
 			@echo "[ LD ] $@"
-			@gcc -Wall $^ -o $@
+			@gcc -Wall $^ -lncurses -o $@
 
 clean:
 			@echo "[ CLEAN ]"
