@@ -60,3 +60,18 @@ else()
 endif()
 
 target_compile_definitions(${COMPONENT_LIB} PRIVATE TARGET_ESP32)
+
+if(DEFINED DEBUG)
+	if(${DEBUG} GREATER 0)
+		message(WARNING "[WARNING!] Debug support has been enabled")
+		target_compile_definitions(${COMPONENT_LIB} PRIVATE DEBUG=${DEBUG})
+	endif()
+endif()
+
+if(DEFINED NOAUTH)
+	if(${NOAUTH} GREATER 0)
+		message(WARNING "[WARNING!] Authentication procedure has been disabled")
+		target_compile_definitions(${COMPONENT_LIB} PRIVATE NOAUTH)
+		#target_compile_definitions(${COMPONENT_LIB} PRIVATE NOAUTH=${NOAUTH})
+	endif()
+endif()
