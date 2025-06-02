@@ -14,6 +14,10 @@
 // Description:
 //	This file contains all software needed by the ESP32 to manage your motorbike's services (eg. start, stop, lights...)
 //
+//	Configurable parameters:
+//		V_TOLERANCE  <n> // Tollerance in key authentication
+//		DEBUG        <n> // Debug level (0 = no-messages)
+//		NOAUTH           // Define this symbol to skip the key authentication step
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -65,9 +69,26 @@
 
 #define BLINK_PERIOD pdMS_TO_TICKS(200)
 
-#define V_TOLERANCE  100
+//
+// Configurable parameters
+//
 
+#ifndef V_TOLERANCE
+#define V_TOLERANCE 100
+#endif
+
+#ifndef DEBUG
 #define DEBUG 0
+#endif
+
+#ifndef NOAUTH
+#define NOAUTH 0
+#endif
+
+
+//
+// Custom datatypes
+//
 
 typedef enum {
 	RKEY_EVALUATION,
@@ -136,7 +157,11 @@ uint16_t normalizz (uint16_t raw) {
 
 int app_main(void) {
 	bool          loop         = true;              // It enables the main loop (Just for future applications)
+#ifdef NOAUTH
+	fsmStates_t   FSM          = MAIN_LOOP;
+#else
 	fsmStates_t   FSM          = RKEY_EVALUATION;
+#endif
 	bool          decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
 	mtbStates_t   mtbState     = MTB_STOPPED_ST;
 	uint8_t       leftArr_sel, rightArr_sel, uLight_sel, addLight_sel, light_sel;           // Lights
@@ -235,7 +260,7 @@ int app_main(void) {
 		iInputInterface_new(&light_sel,    SWITCH, i_LIGHTONOFF)  != WERRCODE_SUCCESS ||
 	
 		iInputInterface_new(&neutral_sw,   SWITCH, i_NEUTRAL)     != WERRCODE_SUCCESS ||
-		iInputInterface_new(&bykestand_sw, SWITCH, i_BYKESTAND)   != WERRCODE_SUCCESS ||
+		iInputInterface_new(&bykestand_sw, SWITCH, i_BIKESTAND)   != WERRCODE_SUCCESS ||
 		iInputInterface_new(&clutch_sw,    SWITCH, i_CLUTCH)      != WERRCODE_SUCCESS 
 	) {
 		// ERROR!
