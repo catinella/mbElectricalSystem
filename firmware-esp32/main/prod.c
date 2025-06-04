@@ -85,6 +85,10 @@
 #define NOAUTH 0
 #endif
 
+#ifndef NODLSWITCH
+#define NODLSWITCH 0
+#endif
+
 
 //
 // Custom datatypes
@@ -157,22 +161,34 @@ uint16_t normalizz (uint16_t raw) {
 
 int app_main(void) {
 	bool          loop         = true;              // It enables the main loop (Just for future applications)
-#ifdef NOAUTH
+#if NOAUTH == 0
 	fsmStates_t   FSM          = MAIN_LOOP;
 #else
 	fsmStates_t   FSM          = RKEY_EVALUATION;
 #endif
 	bool          decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
 	mtbStates_t   mtbState     = MTB_STOPPED_ST;
-	uint8_t       leftArr_sel, rightArr_sel, uLight_sel, addLight_sel, light_sel;           // Lights
-	bool	        leftArr_value, rightArr_value, uLight_value, addLight_value, light_value;
-	uint8_t       engStart_sel, decomp_sel, engOn_sel;                                      // Engine controls
+
+	// --- Direction indicators ---
+	uint8_t       leftArr_sel,   rightArr_sel;
+	bool	        leftArr_value, rightArr_value;
+
+	// --- Lights ---
+	uint8_t       uLight_sel,   dLight_sel,   addLight_sel,   light_sel;
+	bool          uLight_value, dLight_value, addLight_value, light_value;
+
+	 // --- Engine controls ---
+	uint8_t       engStart_sel,   decomp_sel,   engOn_sel;
 	bool          engStart_value, decomp_value, engOn_value;
-	uint8_t       neutral_sw, bykestand_sw, clutch_sw;                                      // Motorbyke int switches
+
+	// --- Motorbyke's controls ---
+	uint8_t       neutral_sw,    bykestand_sw,    clutch_sw;                                      // Motorbyke int switches
 	bool          neutral_value, bykestand_value, clutch_value;
+
 	uint8_t       value = 0;
 	TimerHandle_t xBlinkTimer;
-	
+
+	// --- Resistive key controls ---
 	adc_oneshot_unit_handle_t adc_handle;
 	int                       adc_rawX1, adc_rawX2, adc_rawY1, adc_rawY2;
 
@@ -256,6 +272,7 @@ int app_main(void) {
 		iInputInterface_new(&leftArr_sel,  SWITCH, i_LEFTARROW)   != WERRCODE_SUCCESS ||
 		iInputInterface_new(&rightArr_sel, SWITCH, i_RIGHTARROW)  != WERRCODE_SUCCESS ||
 		iInputInterface_new(&uLight_sel,   SWITCH, i_UPLIGHT)     != WERRCODE_SUCCESS ||
+		iInputInterface_new(&dLight_sel,   SWITCH, i_DOWNLIGHT)   != WERRCODE_SUCCESS ||
 		iInputInterface_new(&addLight_sel, SWITCH, i_ADDLIGHT)    != WERRCODE_SUCCESS ||
 		iInputInterface_new(&light_sel,    SWITCH, i_LIGHTONOFF)  != WERRCODE_SUCCESS ||
 	
@@ -346,6 +363,7 @@ int app_main(void) {
 				wErrCode_isError(iInputInterface_get(leftArr_sel,  &leftArr_value))   ||
 				wErrCode_isError(iInputInterface_get(rightArr_sel, &rightArr_value))  ||
 				wErrCode_isError(iInputInterface_get(uLight_sel,   &uLight_value))    ||
+				wErrCode_isError(iInputInterface_get(dLight_sel,   &dLight_value))    ||
 				wErrCode_isError(iInputInterface_get(addLight_sel, &addLight_value))  ||
 				wErrCode_isError(iInputInterface_get(light_sel,    &light_value))     ||
 				wErrCode_isError(iInputInterface_get(engStart_sel, &engStart_value))  ||
@@ -365,7 +383,11 @@ int app_main(void) {
 				// Lights
 				//
 				if (light_value == true) {
+#if NODLSWITCH == 0
+					keepTrack_setGPIO(o_DOWNLIGHT, dLight_value   ? 1 : 0);
+#else
 					keepTrack_setGPIO(o_DOWNLIGHT, 1);
+#endif
 					keepTrack_setGPIO(o_UPLIGHT,  uLight_value   ? 1 : 0);
 					keepTrack_setGPIO(o_ADDLIGHT, addLight_value ? 1 : 0);
 						
