@@ -75,3 +75,12 @@ if(DEFINED NOAUTH)
 		#target_compile_definitions(${COMPONENT_LIB} PRIVATE NOAUTH=${NOAUTH})
 	endif()
 endif()
+
+if(DEFINED NODLSWITCH)
+	if(${NODLSWITCH} GREATER 0)
+		message(WARNING "[WARNING!] Firmware for a device without the low beam lights control")
+		target_compile_definitions(${COMPONENT_LIB} PRIVATE NODLSWITCH)
+	endif()
+endif()
+
+
