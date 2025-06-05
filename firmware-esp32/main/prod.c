@@ -53,7 +53,6 @@
 #include <iInputInterface.h>
 #include <debugConsoleAPI.h>
 
-
 #define OUTPUTPINS_LIST { \
 	o_KEEPALIVE,        \
 	o_STARTENGINE,      \
@@ -82,7 +81,7 @@
 #endif
 
 #ifndef NOAUTH
-#define NOAUTH 0
+#define NOAUTH 0 
 #endif
 
 #ifndef NODLSWITCH
@@ -162,9 +161,9 @@ uint16_t normalizz (uint16_t raw) {
 int app_main(void) {
 	bool          loop         = true;              // It enables the main loop (Just for future applications)
 #if NOAUTH == 0
-	fsmStates_t   FSM          = MAIN_LOOP;
-#else
 	fsmStates_t   FSM          = RKEY_EVALUATION;
+#else
+	fsmStates_t   FSM          = MAIN_LOOP;
 #endif
 	bool          decompPushed = false;             // Flag true, means motorbike is ready to accept start commands
 	mtbStates_t   mtbState     = MTB_STOPPED_ST;
@@ -387,6 +386,7 @@ int app_main(void) {
 					keepTrack_setGPIO(o_DOWNLIGHT, dLight_value   ? 1 : 0);
 #else
 					keepTrack_setGPIO(o_DOWNLIGHT, 1);
+					//ESP_LOGI("MAIN", "Low beam lighn is ON");
 #endif
 					keepTrack_setGPIO(o_UPLIGHT,  uLight_value   ? 1 : 0);
 					keepTrack_setGPIO(o_ADDLIGHT, addLight_value ? 1 : 0);
