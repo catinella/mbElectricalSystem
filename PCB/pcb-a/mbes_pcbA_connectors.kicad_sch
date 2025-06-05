@@ -1800,9 +1800,9 @@
 		)
 		(uuid "51469f88-9b18-4099-9059-5977fe81069a")
 	)
-	(text "1) Rear light\n2) Left arrow\n3) Right arrow\n4) NC\n5) Rear brake\n6) START relay\n7) Neutral gear\n8) Eng-off CDI"
+	(text "1) Rear light\n2) Left arrow light\n3) Right arrow light\n4) Byke stand switch\n5) Rear brake switch\n6) START relay\n7) Neutral gear switch\n8) Eng-off CDI"
 		(exclude_from_sim no)
-		(at 157.226 67.31 0)
+		(at 151.638 65.024 0)
 		(effects
 			(font
 				(size 1.27 1.27)
