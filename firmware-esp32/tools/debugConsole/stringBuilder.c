@@ -61,8 +61,8 @@ static void partPrint (const char *string, uint16_t size) {
 	// Description:
 	//	It prints the argument defined part of the string. (IT IS JUST A DEBUG TOOL)
 	//
-	for (uint16_t t=0; t<size; t++) printf("%c", string[t]);
-	printf("\n");
+	for (uint16_t t=0; t<size; t++) printw("%c", string[t]);
+	printw("\n");
 	return;
 }
 */

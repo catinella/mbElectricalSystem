@@ -37,7 +37,7 @@
 #include <string.h>
 #include <errno.h>
 #include <logsStorage.h>
-
+#include <curses.h>
 
 static logRow *newest = NULL;
 static logRow *oldest = NULL;
@@ -77,12 +77,12 @@ void printSingleMsg (const logRow *item, uint16_t cols) {
 	//	It prints a log message in the console's log-section. But if the message is too much long, then the function
 	//	will trunc the message is a nice way
 	//
-	printf("%5d: ", item->tstamp);
+	printw("%5d: ", item->tstamp);
 	if (strlen(item->message) > (cols - 16)) {
-		for (uint16_t x=0; x<(cols - 16); x++) printf("%c", item->message[x]);
-		printf("...\n");
+		for (uint16_t x=0; x<(cols - 16); x++) printw("%c", item->message[x]);
+		printw("...\n");
 	} else 
-		printf("%s\n", item->message);
+		printw("%s\n", item->message);
 		
 	return;
 }
@@ -191,7 +191,7 @@ void logsStorage_print (uint16_t cols) {
 		printSingleMsg(newest, cols);
 		
 	} else
-		printf("\n\n\n       EMPTY!!\n\n\n");
+		printw("\n\n\n       EMPTY!!\n\n\n");
 	
 	return;
 }

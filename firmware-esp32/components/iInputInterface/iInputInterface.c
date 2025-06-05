@@ -78,12 +78,23 @@
 #define MOCK 0
 #endif
 
+#ifndef MBES_DEBUG
+#define MBES_DEBUG 0
+#endif
 
-//
-// ERROR messages in not-MOCKed mode
-//
+#if MBES_DEBUG > 1
+#define wESPLOGE(...) ESP_LOGE(__VA_ARGS__)
+#define wESPLOGW(...) ESP_LOGW(__VA_ARGS__)
+#define wESPLOGI(...) ESP_LOGI(__VA_ARGS__)
+#else
+#define wESPLOGE(...) 
+#define wESPLOGW(...) 
+#define wESPLOGI(...) 
+#endif
+
 #if MOCK == 0
-#define LOGERR   ESP_LOGE(__FILE__, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
+// ERROR messages in not-MOCKed mode
+#define LOGERR   wESPLOGE(__FILE__, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
 #else
 #define LOGERR   fprintf(stderr, "ERROR(%d)! in %s()", __LINE__, __FUNCTION__);
 #endif
@@ -96,7 +107,7 @@ static void _iInputItem_print (iInputItem_t obj) {
 	//
 	// JUST FOR DEBUG
 	//
-	ESP_LOGI(
+	wESPLOGI(
 		__FUNCTION__, "pinID:%d, type:%d, timerOffset:%ld, status:%s, FSM:%d",
 		obj.pinID, obj.type, (long unsigned int)obj.timerOffset, obj.status ? "TRUE" : "FALSE", obj.FSM
 	);
@@ -140,7 +151,7 @@ static void _iInputInterface_update(iInputItem_t *item) {
 		if (keepTrack_getGPIO(item->pinID) == 0) {
 				
 			if (item->type == BUTTON || item->type == HOLDBUTTON) {
-				ESP_LOGW(__FUNCTION__, "button-%d has been PUSHED", item->pinID);
+				wESPLOGW(__FUNCTION__, "button-%d has been PUSHED", item->pinID);
 				item->timerOffset = myTimer;
 				item->FSM = 2;
 
@@ -153,7 +164,7 @@ static void _iInputInterface_update(iInputItem_t *item) {
 				
 			} else if (item->type == SWITCH) {
 				// [!] The switch device does not need debouncing service
-				ESP_LOGW(__FUNCTION__, "switch-%d has moved to ON", item->pinID);
+				wESPLOGW(__FUNCTION__, "switch-%d has moved to ON", item->pinID);
 				item->FSM     = 3;
 				item->status  = true;
 
@@ -169,12 +180,12 @@ static void _iInputInterface_update(iInputItem_t *item) {
 		// The button/switch... is ready to be released/deactivated
 		//
 		if (item->timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
-			ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", item->pinID);
+			wESPLOGI(__FUNCTION__, "inputInterface-%d is available now!", item->pinID);
 			item->FSM = 3;
 			item->timerOffset = 0;
 			
 		} else {
-			ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", item->pinID,
+			wESPLOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", item->pinID,
 				(long unsigned int)(myTimer - item->timerOffset), (long unsigned int)IINPUTIF_DEBOUNCETIME
 			);
 		}
@@ -190,7 +201,7 @@ static void _iInputInterface_update(iInputItem_t *item) {
 			// Selector releasing...
 			//
 			if (item->type == BUTTON || item->type == HOLDBUTTON) {
-				ESP_LOGI(__FUNCTION__, "button-%d released", item->pinID);
+				wESPLOGI(__FUNCTION__, "button-%d released", item->pinID);
 				item->timerOffset = myTimer;
 				
 				item->FSM = 14;
@@ -199,7 +210,7 @@ static void _iInputInterface_update(iInputItem_t *item) {
 					item->status = false;
 
 			} else if (item->type == SWITCH) {
-				ESP_LOGI(__FUNCTION__, "switch-%d move to OFF", item->pinID);
+				wESPLOGI(__FUNCTION__, "switch-%d move to OFF", item->pinID);
 				item->status = false;
 				item->FSM = 1;
 			}
@@ -215,12 +226,12 @@ static void _iInputInterface_update(iInputItem_t *item) {
 		// The button/switch... is ready to be pressed/activated, again
 		//
 		if (item->timerOffset + IINPUTIF_DEBOUNCETIME < myTimer) {
-			ESP_LOGI(__FUNCTION__, "inputInterface-%d is available now!", item->pinID);
+			wESPLOGI(__FUNCTION__, "inputInterface-%d is available now!", item->pinID);
 			item->FSM = 1;
 			item->timerOffset = 0;
 			
 		} else 
-			ESP_LOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", item->pinID,
+			wESPLOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", item->pinID,
 				(long unsigned int)(myTimer - item->timerOffset), (long unsigned int)IINPUTIF_DEBOUNCETIME
 			);
 	}
@@ -257,7 +268,7 @@ static void _iInputInterface_updateAll() {
 			//
 			// WARNING!
 			//
-			ESP_LOGW(__FUNCTION__, "WARNING! internal db resource was busy");
+			wESPLOGW(__FUNCTION__, "WARNING! internal db resource was busy");
 			
 			vTaskDelay(1 / portTICK_PERIOD_MS);
 			if (retryCounter > 0)
@@ -270,14 +281,14 @@ static void _iInputInterface_updateAll() {
 			//
 			// ERROR!
 			//
-			ESP_LOGE(__FUNCTION__, "ERROR! moduleDB_iter() returned %d", ec);
+			wESPLOGE(__FUNCTION__, "ERROR! moduleDB_iter() returned %d", ec);
 		
 		
 		} else if (wErrCode_isSuccess(ec)) {
 			//
 			// SUCCESS
 			//
-			// ESP_LOGI(__FUNCTION__, "item-%d updating...", inputID);
+			// wESPLOGI(__FUNCTION__, "item-%d updating...", inputID);
 			_iInputInterface_update(&item);
 			
 			// DB updating with the updated item data
@@ -318,7 +329,7 @@ werror iInputInterface_init () {
 		esp_timer_start_periodic(timerHandle, 100000) != ESP_OK
 	) {
             // ERROR!
-            ESP_LOGE(__FUNCTION__, "ERROR! I cannot crate the timer");
+            wESPLOGE(__FUNCTION__, "ERROR! I cannot crate the timer");
 		ec = WERRCODE_ERROR_INITFAILED;
 	}
 	return(ec);
