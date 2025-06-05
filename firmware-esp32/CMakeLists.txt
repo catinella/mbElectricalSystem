@@ -19,9 +19,10 @@
 #	======================
 #	To configure the cource code, set the following values in the configuration file (CMakeLists.conf).
 #		FIRMWARETEST=<source file> It allows you to build a test instead the prod-firmware.
-#		DBGCON_KEEPTRACK={0|1}     If it is set to 1, then It enable the support for the debug console tool
+#		DBGCON_KEEPTRACK={0|1}     Set to 1 to enable the support for the debug console tool (<prj-home>/tools/debugConsole)
 #		DEBUG=<n>                  It sets the debug level (1 = main-loop delay and info messages; 2 = messages from libs)
 #		NOAUTH={0|1}               It allows you to disable the authebtication proicess (just for debug purpose)
+#		NODLSWITCH={0|1}           Set to 1 to get a firmware for a device without low beam lights control
 #
 #	Configuration data propagation:
 #	===============================
