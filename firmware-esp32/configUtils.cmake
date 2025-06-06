@@ -36,14 +36,16 @@ function(parse_config CONFIG_FILE TAG)
 		#message(WARNING "===>${filecontent}")
 	
 		foreach(row ${filecontent})
-			string(REGEX REPLACE "\n" "" match  "${row}")
-			string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\1" varname  "${row}")
-			string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\2" varvalue "${row}")
+			if(NOT ${row} MATCHES "^[ \t]*#")
+				string(REGEX REPLACE "\n" "" match  "${row}")
+				string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\1" varname  "${row}")
+				string(REGEX REPLACE "^[ \t]*([^=]+)[\t ]*=[\t ]*(.+)$" "\\2" varvalue "${row}")
 		
-			# Global vars creation....
-			set(${varname} "${varvalue}" PARENT_SCOPE)
-		
-			message(STATUS "Configuration data: ${varname}=${varvalue}")
+				# Global vars creation....
+				set(${varname} "${varvalue}" PARENT_SCOPE)
+			
+				message(STATUS "Configuration data: ${varname}=${varvalue}")
+			endif()
 		endforeach()
 	else()
 		message(WARNING "Configuration file not found I will create an empty one")
