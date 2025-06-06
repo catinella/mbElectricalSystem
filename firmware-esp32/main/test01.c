@@ -13,8 +13,11 @@
 //
 // Description:
 //	It is the simplest provided test. It implements a simple counter and it has been written to check for the building
-//	system, mainly. If you can see a conter in your device's console, then your building chain has been prperly configured.
+//	system, mainly. If you can see a conter in the serial console (idf.py monitoring), then your building chain has been
+//	prperly configured.
 //
+//	[!] If you enable DEBUG symbol, the process will print also the configuration symbols' values. It can be useful to
+//	    test the configUtils.cmake library. CMake language is not very stable and its scripts need to be tested, always!!!
 //
 // License:
 //	Copyright (C) 2023 Silvano Catinella <catinella@yahoo.com>
@@ -37,6 +40,10 @@
 #include <freertos/portmacro.h>
 #include <freertos/task.h>
 
+#ifndef DEBUG
+#define DEBUG 0
+#endif
+
 void app_main(void) {
 	uint8_t t = 0;
 	while (1) {
@@ -47,6 +54,12 @@ void app_main(void) {
 			vTaskDelay(500 / portTICK_PERIOD_MS);
 			ESP_LOGW(__FUNCTION__, "---------------------");
 			t = 0;
+#if DEBUG > 0
+			ESP_LOGW("DEBUG", "%s = %d", "DEBUG",      DEBUG);
+			ESP_LOGW("DEBUG", "%s = %d", "NOAUTH",     NOAUTH);
+			ESP_LOGW("DEBUG", "%s = %d", "NODLSWITCH", NODLSWITCH);
+			ESP_LOGW(__FUNCTION__, "---------------------");
+#endif
 		}
 	}
 }
