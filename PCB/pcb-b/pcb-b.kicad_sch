@@ -5290,7 +5290,7 @@
 				)
 			)
 		)
-		(property "Footprint" "TPCA8120:TPH4R003NLL1Q"
+		(property "Footprint" "TPCA80120:TPH4R003NLL1Q"
 			(at 92.202 195.25 0)
 			(effects
 				(font
