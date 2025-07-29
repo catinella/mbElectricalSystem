@@ -287,7 +287,13 @@ int app_main(void) {
 		//
 		// Important output-pins initial values
 		//
+#if NOAUTH == 0
+		// Until the user's authentication, key must be plugged to get electric energy
 		keepTrack_setGPIO(o_KEEPALIVE,   0);
+#else
+		// When you have no authentication o_KEEPALIVE must be up. It is used for debug purpose only
+		keepTrack_setGPIO(o_KEEPALIVE,   1);
+#endif
 		keepTrack_setGPIO(o_STARTENGINE, 0);
 		keepTrack_setGPIO(o_ENGINEON,    0);
 		keepTrack_setGPIO(o_ENGINEREADY, 0);
