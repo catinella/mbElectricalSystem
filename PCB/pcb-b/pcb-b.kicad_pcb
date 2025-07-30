@@ -19995,8 +19995,8 @@
 		(uuid "91781379-f368-4ae7-ad9c-d8af31ca4e26")
 	)
 	(gr_circle
-		(center 191.346112 75.6054)
-		(end 196.389797 75.6054)
+		(center 191.346112 75.199)
+		(end 196.389797 75.199)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -20028,8 +20028,8 @@
 		(uuid "fa8bab0e-9464-45e5-8f4c-4e3ad4ba2eb4")
 	)
 	(gr_circle
-		(center 191.346179 75.6054)
-		(end 193.886179 75.594835)
+		(center 191.346179 75.199)
+		(end 193.886179 75.188435)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -20039,8 +20039,8 @@
 		(uuid "46d14d22-40a7-48c5-b5da-7040bb03393b")
 	)
 	(gr_circle
-		(center 107.551621 106.2886)
-		(end 110.091621 106.278035)
+		(center 107.551621 106.731315)
+		(end 110.091621 106.72075)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -20050,8 +20050,8 @@
 		(uuid "7739a015-b70e-4f12-b640-16c684e4fbc0")
 	)
 	(gr_circle
-		(center 107.606382 75.806315)
-		(end 110.146382 75.79575)
+		(center 107.577 75.199022)
+		(end 110.117 75.188457)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -20061,8 +20061,8 @@
 		(uuid "84943fa2-5700-4e20-8046-5079c46f1b4e")
 	)
 	(gr_circle
-		(center 191.357182 106.2124)
-		(end 193.897182 106.201835)
+		(center 191.357182 106.695)
+		(end 193.897182 106.684435)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -20072,8 +20072,8 @@
 		(uuid "de7bfe1a-284c-4c21-9473-049cb2f42967")
 	)
 	(gr_rect
-		(start 102.3792 70.255)
-		(end 196.4326 111.3662)
+		(start 102.3792 69.874)
+		(end 197.0676 111.8742)
 		(stroke
 			(width 0.05)
 			(type solid)
@@ -20083,8 +20083,8 @@
 		(uuid "e94d3357-9856-4af3-ad28-5f0651d39b23")
 	)
 	(gr_circle
-		(center 107.551554 106.2886)
-		(end 112.181755 108.2886)
+		(center 107.551554 106.731315)
+		(end 112.181755 108.731315)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -20094,8 +20094,8 @@
 		(uuid "2e7a697e-e91a-4247-a12e-e09b403b2aaf")
 	)
 	(gr_circle
-		(center 107.606315 75.806315)
-		(end 112.236516 77.806315)
+		(center 107.576933 75.199022)
+		(end 112.207134 77.199022)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -20105,8 +20105,8 @@
 		(uuid "6c0c58fd-d82a-4235-a6ee-1aea3a05ca05")
 	)
 	(gr_circle
-		(center 191.357115 106.2124)
-		(end 195.987316 108.2124)
+		(center 191.357115 106.695)
+		(end 195.987316 108.695)
 		(stroke
 			(width 0.1)
 			(type default)
@@ -20120,7 +20120,7 @@
 		(layer "B.Mask")
 		(uuid "30a16533-4348-43ac-b284-2857f3bbc87c")
 		(pts
-			(xy 107.606382 75.806315) (xy 107.551621 106.2886)
+			(xy 107.577 75.199022) (xy 107.551621 106.731315)
 		)
 		(height 10.667932)
 		(format
@@ -20139,8 +20139,8 @@
 			(extension_offset 0.5)
 			(keep_text_aligned yes)
 		)
-		(gr_text "30,4823 mm"
-			(at 95.761088 91.026227 89.89706717)
+		(gr_text "31,5323 mm"
+			(at 95.746381 90.955657 89.95388326)
 			(layer "B.Mask")
 			(uuid "30a16533-4348-43ac-b284-2857f3bbc87c")
 			(effects
@@ -20156,7 +20156,7 @@
 		(layer "B.Mask")
 		(uuid "6fe0a5fc-d94b-4bd9-b516-2bae00f227bb")
 		(pts
-			(xy 102.3792 70.255) (xy 196.4326 70.255)
+			(xy 102.3792 69.874) (xy 197.0676 69.874)
 		)
 		(height -4.738)
 		(format
@@ -20175,8 +20175,8 @@
 			(extension_offset 0.5)
 			(keep_text_aligned yes)
 		)
-		(gr_text "94,0534 mm"
-			(at 149.4059 64.367 0)
+		(gr_text "94,6884 mm"
+			(at 149.7234 63.986 0)
 			(layer "B.Mask")
 			(uuid "6fe0a5fc-d94b-4bd9-b516-2bae00f227bb")
 			(effects
@@ -20228,7 +20228,7 @@
 		(layer "B.Mask")
 		(uuid "d6980dac-6e46-4d47-be06-cb97dfb1c10f")
 		(pts
-			(xy 196.4326 111.3662) (xy 196.4326 70.255)
+			(xy 197.0676 111.8742) (xy 197.0676 69.874)
 		)
 		(height 6.593)
 		(format
@@ -20247,8 +20247,8 @@
 			(extension_offset 0.5)
 			(keep_text_aligned yes)
 		)
-		(gr_text "41,1112 mm"
-			(at 201.8756 90.8106 90)
+		(gr_text "42,0002 mm"
+			(at 202.5106 90.8741 90)
 			(layer "B.Mask")
 			(uuid "d6980dac-6e46-4d47-be06-cb97dfb1c10f")
 			(effects
