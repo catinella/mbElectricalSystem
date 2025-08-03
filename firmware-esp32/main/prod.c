@@ -186,10 +186,18 @@ int app_main(void) {
 
 	uint8_t       value = 0;
 	TimerHandle_t xBlinkTimer;
+	unsigned int  pkCounter = 0;
 
 	// --- Resistive key controls ---
 	adc_oneshot_unit_handle_t adc_handle;
 	int                       adc_rawX1, adc_rawX2, adc_rawY1, adc_rawY2;
+
+
+#if DEBUG > 0
+	pkCounter = 10;
+#else
+	pkCounter = 50;
+#endif
 
 
 	//
@@ -474,13 +482,21 @@ int app_main(void) {
 						
 						// Parcking mode
 						if (engOn_value == false && uLight_value == true && bykestand_value == false) {
-							FSM = PARCKING_STATUS;
-							ESP_LOGI("MAIN", "PARCKING_STATUS");
-			
+							if (pkCounter > 10) {
+								FSM = PARCKING_STATUS;
+								ESP_LOGI("MAIN", "PARCKING_STATUS");
+							} else {
+								pkCounter++;
+								ESP_LOGI("MAIN", "--->%d", pkCounter);
+							}
+
 						} else if ((neutral_value || clutch_value) && decompPushed && engOn_value) {
 							mtbState = MTB_WFR_ST;
 							ESP_LOGI("MAIN", "MTB_WFR_ST");
-						}
+							pkCounter = 0;
+						
+						} else
+							pkCounter = 0;
 						
 					} break;
 	
@@ -554,7 +570,9 @@ int app_main(void) {
 			value = blinker(BLINKER_GET);
 			keepTrack_setGPIO(o_LEFTARROW,  value);
 			keepTrack_setGPIO(o_RIGHTARROW, value);
+			keepTrack_setGPIO( o_NEUTRAL,   value);
 			keepTrack_setGPIO(o_DOWNLIGHT,  1);
+			keepTrack_setGPIO(o_UPLIGHT,    0);
 
 			// [!] The lonely way to exit by the parcking state, is to turning off the motorbike
 		}
