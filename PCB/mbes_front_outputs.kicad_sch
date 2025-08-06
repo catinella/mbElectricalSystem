@@ -7609,7 +7609,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "MSMF050-2:FUSE_F050-2"
+		(property "Footprint" "MF-MSMF050-2:FUSE_F050-2"
 			(at 174.752 157.226 0)
 			(effects
 				(font
