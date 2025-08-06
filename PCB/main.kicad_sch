@@ -4413,7 +4413,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "54621511-041d-4a0e-b911-a119e341fa31")
-		(property "Reference" "#PWR01"
+		(property "Reference" "#PWR02"
 			(at 173.99 42.926 0)
 			(effects
 				(font
@@ -4463,7 +4463,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "#PWR01")
+					(reference "#PWR02")
 					(unit 1)
 				)
 			)
@@ -4478,7 +4478,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "56e589ea-d474-41d4-a6f2-2869184cb716")
-		(property "Reference" "R7"
+		(property "Reference" "R2"
 			(at 180.594 50.0888 90)
 			(effects
 				(font
@@ -4531,7 +4531,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "R7")
+					(reference "R2")
 					(unit 1)
 				)
 			)
@@ -4567,7 +4567,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "PCM_Espressif:ESP32-S2-DevKitM"
+		(property "Footprint" "esp32_dk:ESP32-S2-DevKitM"
 			(at 135.128 147.32 0)
 			(effects
 				(font
@@ -4738,7 +4738,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "705ed6af-31be-45b3-bda5-3d702cb562af")
-		(property "Reference" "#PWR0104"
+		(property "Reference" "#PWR04"
 			(at 233.172 109.22 0)
 			(effects
 				(font
@@ -4788,7 +4788,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "#PWR0104")
+					(reference "#PWR04")
 					(unit 1)
 				)
 			)
@@ -4803,7 +4803,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "720930cf-ec82-4dc2-994a-09298296c03d")
-		(property "Reference" "R2"
+		(property "Reference" "R1"
 			(at 117.602 45.1612 90)
 			(effects
 				(font
@@ -4856,7 +4856,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "R2")
+					(reference "R1")
 					(unit 1)
 				)
 			)
@@ -4945,7 +4945,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b1e0026b-e442-4e9d-9275-b07005f83053")
-		(property "Reference" "R6"
+		(property "Reference" "R5"
 			(at 209.296 27.6352 90)
 			(effects
 				(font
@@ -4998,7 +4998,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "R6")
+					(reference "R5")
 					(unit 1)
 				)
 			)
@@ -5013,7 +5013,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "b32650d9-b430-4c4d-8b2c-3639c25f7ce9")
-		(property "Reference" "#PWR02"
+		(property "Reference" "#PWR03"
 			(at 188.976 62.23 0)
 			(effects
 				(font
@@ -5063,7 +5063,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "#PWR02")
+					(reference "#PWR03")
 					(unit 1)
 				)
 			)
@@ -5079,7 +5079,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "c3cb2322-aa66-47dd-a663-cd051532348c")
-		(property "Reference" "Q3"
+		(property "Reference" "Q1"
 			(at 189.2301 30.8864 0)
 			(effects
 				(font
@@ -5140,7 +5140,7 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "Q3")
+					(reference "Q1")
 					(unit 1)
 				)
 			)
@@ -5229,7 +5229,7 @@
 		(on_board yes)
 		(dnp no)
 		(uuid "fe9c4d6f-a401-47c8-8043-708ba9ad1e73")
-		(property "Reference" "#PWR0103"
+		(property "Reference" "#PWR01"
 			(at 132.588 150.114 0)
 			(effects
 				(font
@@ -5279,8 +5279,50 @@
 		(instances
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "#PWR0103")
+					(reference "#PWR01")
 					(unit 1)
+				)
+			)
+		)
+	)
+	(sheet
+		(at 61.468 20.066)
+		(size 29.21 9.144)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "1cdc02e1-6811-461b-9924-a84dd9ed5058")
+		(property "Sheetname" "Front outputs"
+			(at 61.468 19.3544 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "mbes_front_outputs.kicad_sch"
+			(at 61.468 29.7946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "main"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
+					(page "3")
 				)
 			)
 		)
@@ -5320,7 +5362,7 @@
 			)
 		)
 		(instances
-			(project "pcb-a"
+			(project "main"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
 					(page "3")
 				)
