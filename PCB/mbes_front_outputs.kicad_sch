@@ -6504,7 +6504,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "120"
+		(property "Value" "33K"
 			(at 64.1858 67.7926 90)
 			(effects
 				(font
@@ -7463,7 +7463,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "120"
+		(property "Value" "33K"
 			(at 67.4878 67.7926 90)
 			(effects
 				(font
