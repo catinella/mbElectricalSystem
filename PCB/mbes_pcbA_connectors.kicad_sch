@@ -3314,6 +3314,12 @@
 		(uuid "5fd311a7-195c-4a9d-8ca2-65b70274cb5c")
 	)
 	(junction
+		(at 162.1028 67.564)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "615f30d9-bfc7-4866-80ab-763ccb4b5e45")
+	)
+	(junction
 		(at 65.532 114.046)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3402,6 +3408,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "bad72dd1-f4e1-4593-8cbf-0b3547180448")
+	)
+	(junction
+		(at 173.99 85.852)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "cc42a5a9-5e37-426e-bb86-53400b6cc443")
 	)
 	(junction
 		(at 203.708 47.752)
@@ -3548,6 +3560,16 @@
 			(type default)
 		)
 		(uuid "0ae9d478-0850-445e-9dd3-aec1d11d9827")
+	)
+	(wire
+		(pts
+			(xy 162.1028 67.564) (xy 173.99 67.564)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0d65384f-6c2f-4fa7-9a24-f34be7cf23f9")
 	)
 	(wire
 		(pts
@@ -4031,7 +4053,7 @@
 	)
 	(wire
 		(pts
-			(xy 162.052 85.852) (xy 203.708 85.852)
+			(xy 162.052 85.852) (xy 173.99 85.852)
 		)
 		(stroke
 			(width 0)
@@ -4181,6 +4203,16 @@
 	)
 	(wire
 		(pts
+			(xy 173.99 85.852) (xy 203.708 85.852)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4e3675c0-6598-49fc-bcc4-8053f84d84bd")
+	)
+	(wire
+		(pts
 			(xy 195.834 35.052) (xy 195.834 42.672)
 		)
 		(stroke
@@ -4288,6 +4320,16 @@
 			(type default)
 		)
 		(uuid "5ab34c88-8b7f-4944-88d2-8261b2092295")
+	)
+	(wire
+		(pts
+			(xy 173.99 75.184) (xy 173.99 67.564)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "5cf1d06e-d078-47fd-a408-6c9cf1b00a9d")
 	)
 	(wire
 		(pts
@@ -5278,6 +5320,16 @@
 			(type default)
 		)
 		(uuid "e3864222-c8d7-44e9-8399-e9fad46fbf79")
+	)
+	(wire
+		(pts
+			(xy 173.99 82.804) (xy 173.99 85.852)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e571ce67-4eb4-43d4-8c4b-e52bf904dad9")
 	)
 	(wire
 		(pts
@@ -8537,6 +8589,74 @@
 			(project "pcb-a"
 				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
 					(reference "D1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R")
+		(at 173.99 78.994 180)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "98bd2045-13c5-4241-b6a1-192f6467267c")
+		(property "Reference" "R13"
+			(at 167.6908 78.994 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "100K"
+			(at 174.0408 79.0448 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_1206_3216Metric"
+			(at 175.768 78.994 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 173.99 78.994 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 173.99 78.994 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "9190758a-82d5-4915-86a3-0130aa4ab984")
+		)
+		(pin "2"
+			(uuid "dde89605-1297-4111-b71f-900d30cc4a43")
+		)
+		(instances
+			(project "main"
+				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb/3216a3d3-5416-4017-b51b-dad2d5be039c"
+					(reference "R13")
 					(unit 1)
 				)
 			)
