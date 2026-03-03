@@ -1,0 +1,52 @@
+#-------------------------------------------------------------------------------------------------------------------------------
+   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+  |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+  | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+  | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+  |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+                                                                                                  |___/                       
+#-------------------------------------------------------------------------------------------------------------------------------
+
+Description:
+	This folder contains all files you need to get you own PCB.
+
+
+Files:
+	LICENSE.txt                 This project is covered by the GPL-3. Please, read that file for further information
+	Makefile                    It allow you to create the files (es. Gebber) needed to produce the PCB (KiCAD-7)
+	kicad_symbols               This folder contains all components definitions not provided by KiCAD by default
+	pcb-a                       All files belong to the PCB-a
+	pcb-b                       All files belong to the PCB-b
+	starter_key_plug            Schema to show the key-plug internals
+
+
+Internals:
+	The power astage was originally implemented with BJT transistors, but as my colleague usually say "we are no more in the
+	90' age".  For this reason I have designed a new PCB-B using MOSfet technology
+
+	+---------+--------------------------------+--------------------------------+
+	| BC817   | VCE=0.2V IC=800mA              | BJT NPN                        |
+	| IRF4905 | RDS=20mOhm ID=50A VGS=[-2..-4] | P-Channel MOSfet enhancement   |
+	+---------+--------------------------------+--------------------------------+
+	
+
+Devices building:
+	About the PCBs creation I have used the MD srl company service. So, in order to create a copy, you can contact the company
+	(https://www.mdsrl.it) and use the following order numbers, it will allow you to save some money.
+		+-----------------+-----------+----------+---------------+
+		|       PCB       |   GIT TAG | MD order |     Price     |
+		+-----------------+-----------+----------+---------------+
+		| pcb-a.kicad_pcb | r-2.2.4-0 |  81552   | 18.9 euro * 2 |
+		+-----------------+-----------+--------------------------+
+		| pcb-b.kicad_pcb | r-2.2.4-b |  882813  | 36.5 euro * 2 |
+		+-----------------+-----------+--------------------------+
+
+	PCB building details:
+	=====================
+	In order to get a more vibrations resistant circuit,  I suggest you to print it on a 3.2mm high plate
+	
+	[!] It you are using Linux, you too, remember that the PCB building company will require you a ZIP file (not GZIP).
+	    So, after the fabric-files generation use the following command to create the zip file:
+	    	zip -r <archive name> <data folder name>
+
+

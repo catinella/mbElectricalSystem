@@ -1,0 +1,46 @@
+#----------------------------------------------------------------------------------------------------------------------------------
+     __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+    |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+    | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+    | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+    |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+                                                                                                    |___/                       
+#----------------------------------------------------------------------------------------------------------------------------------
+0. Files
+	build            Folder for firmware building process
+	CMakeLists.txt   The CMAKE config file to create the required Makefile
+	main             Folder that contains the firmware source code
+	sdkconfig        Project and device configuration
+
+
+1. Description:
+	This folder contains all needed files to build the project firmware
+
+	Environment Configuration:
+	==========================
+	This firmware is based on Espressif's MCU ESP32-S2 and, in order to built it, you have to get and configure the esp-idf
+	building environment. To complete the task, please, read the follow official documentation:
+		https://docs.espressif.com/projects/esp-idf/en/v5.3.1/esp32/get-started/index.html
+	
+	Device Configuration:
+	=====================
+	In order to use the JTAG's pins as normal GPIOs you need to disable the JTAG support on your ESP32-S2 MCU with the
+	following command:
+		espefuse.py --port /dev/ttyUSB0 burn_efuse SOFT_DIS_JTAG
+
+	Firmware Configuration:
+	=======================
+	From the 5.3 release esp-idf uses CMAKE as software building infrastructure (project.mk is no more available).
+	For this rerason all configuration has been set in the CmakeLists.conf file. This file is parsed by the CmakeLists.txt
+	file using the configUtils.cmake library. In order to get the options list, please, read the documentation lines in
+	the CmakeLists.txt file's head.
+
+	Building process:
+	=================
+	To build the firmware use the following idf standard command:
+		idf.py build
+
+	Debug console:
+	==============
+	In order to monitor the pin's status in real-time, you can use the debugConsole software in the <PROJECT HOME>/tool
+	folder

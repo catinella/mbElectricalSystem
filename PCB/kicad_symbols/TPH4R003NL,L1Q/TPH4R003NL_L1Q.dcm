@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP TPH4R003NL,L1Q
+D Trans MOSFET N-CH Si 30V 68A 8-Pin SOP Advance T/R
+K
+F https://toshiba.semicon-storage.com/info/docget.jsp?did=14427&prodName=TPH4R003NL
+$ENDCMP
+#
+#End Doc Library

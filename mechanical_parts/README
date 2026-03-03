@@ -1,0 +1,17 @@
+#-------------------------------------------------------------------------------------------------------------------------------
+   __  __       _             _     _ _          _____ _           _        _           _   ____            _                 
+  |  \/  | ___ | |_ ___  _ __| |__ (_) | _____  | ____| | ___  ___| |_ _ __(_) ___ __ _| | / ___| _   _ ___| |_ ___ _ __ ___  
+  | |\/| |/ _ \| __/ _ \| '__| '_ \| | |/ / _ \ |  _| | |/ _ \/ __| __| '__| |/ __/ _` | | \___ \| | | / __| __/ _ \ '_ ` _ \ 
+  | |  | | (_) | || (_) | |  | |_) | |   <  __/ | |___| |  __/ (__| |_| |  | | (_| (_| | |  ___) | |_| \__ \ ||  __/ | | | | |
+  |_|  |_|\___/ \__\___/|_|  |_.__/|_|_|\_\___| |_____|_|\___|\___|\__|_|  |_|\___\__,_|_| |____/ \__, |___/\__\___|_| |_| |_|
+                                                                                                  |___/                       
+#-------------------------------------------------------------------------------------------------------------------------------
+
+Description:
+	This folder contains all mechanical parts of the project
+	The electrical framework box has been realized in 3mm aluminium
+
+Files:
+	DR350_rally.dxf                           The device's box for Suzuki DR350 with TwalCom motorcycle front fairing.
+	DR350_rally_stainless_steel.dxf           The stainless steel square bars used for the cox's cap
+	Koso_instrumentation_attachment.dxf       The small part used to connect the Koso instrumentation
