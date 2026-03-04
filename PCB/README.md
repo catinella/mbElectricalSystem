@@ -8,17 +8,15 @@
 | create_fabric_files.sh         | Script to create the fabric files    |
 | kicad_symbols                  | Non standard KiCAD symbols libraries |
 | LICENSE.txt                    | The project's licence file (\*)      |
-| main.kicad_pcb                 | The PCB file                         |
-| main.kicad_sch                 | The main electronic circuit schema   |
-| mbes_front_outputs.kicad_sch   | Power stage circuit                  |
-| mbes_pcbA_connectors.kicad_sch | PCB's connectors electronic circuit  |
+| pcb-a                          | Controller stage's PCB               |
+| pcb-b                          | Power stage's PCB                    |
 | starter_key_plug               | The schema of the resistive key      |
 | images                         | The images used by this file         |
 
 (*) This project is covered by the GPL-3. Please, read that file for further information
 
 ## 2.0 Description:
-This folder contains all files you need to get and/or modify your own PCB.
+This folder contains all files you need to get and/or modify your own PCBs.
 To perform these actions you need to install [KiCAD](https://www.kicad.org) software (ver >= 9.0), a free software suite for
 electronic design automation (EDA).
 
@@ -35,6 +33,7 @@ connected to the GND. To achiueve this result and to protect the circuit from un
 used the relay [HK19-DC12V](https://grobotronics.com/images/datasheets/HK19F-12V.pdf) instead of a modern N-Channel MOS.
 
 ## 3.0 Devices building:
-The following images shows you the PCB shape it should be at the end
-![PCB](./images/pcb.png)
+The following images shows you the PCB shapes they should be at the end
+![PCB](./images/pcb-a.png)
+![PCB](./images/pcb-b.png)
 
