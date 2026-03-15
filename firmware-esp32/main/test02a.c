@@ -12,7 +12,7 @@
 // Author: Silvano Catinella <catinella@yahoo.com>
 //
 // Description:
-//	This test used hust to test the used led.
+//	This test is used to test the used led.
 //
 //
 //	This software has been developed for ESP-IDF v5.4 and ESP32-S2-DevKitM-1
