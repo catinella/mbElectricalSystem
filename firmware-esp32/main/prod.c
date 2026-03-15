@@ -374,17 +374,18 @@ int app_main(void) {
 				ravg_update (&ravg_rawY2, &Y2, adc_rawY2) != WERRCODE_SUCCESS
 			) {
 				// ERROR!
-				ESP_LOGE("MAIN", "ERROR! ravg_update() failed");
+				ESP_LOGE("MAIN", "WARNING! filtered values are not available");
 			
 			} else if (KEYSETTING == 1) {
 				ESP_LOGI("MAIN", "Current values: (%d/%d) (%d/%d)", X1, Y1, X2, Y2);
 
-			} if (abs(X1 - Y1) < V_TOLERANCE && abs(X2 - Y2) < V_TOLERANCE) {
+			} else if (abs(X1 - Y1) < V_TOLERANCE && abs(X2 - Y2) < V_TOLERANCE) {
 				// The keyword has been authenicated, you can unplug it
 				keepTrack_setGPIO(o_KEEPALIVE, 1);
 				FSM = MAIN_LOOP;
+				ESP_LOGI("MAIN", "OK: (%d/%d) (%d/%d)", X1, Y1, X2, Y2);
 				ESP_LOGI("MAIN", "[ OK ] key has been accepted");
-			
+
 			} else {
 				// I keep everything OFF!!
 				keepTrack_setGPIO(o_RIGHTARROW,  0);
