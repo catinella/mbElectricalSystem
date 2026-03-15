@@ -35,7 +35,7 @@
 #include <stdbool.h>
 #include <werror.h>
 
-#define RAVG_DEEPLEVEL 4
+#define RAVG_DEEPLEVEL 8
 
 typedef int ravgData_t;
 
