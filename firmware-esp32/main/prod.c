@@ -52,6 +52,8 @@
 #include <mbesPinsMap.h>
 #include <iInputInterface.h>
 #include <debugConsoleAPI.h>
+#include <ravgFilter.h>
+
 
 #define OUTPUTPINS_LIST { \
 	o_KEEPALIVE,        \
@@ -86,6 +88,10 @@
 
 #ifndef NODLSWITCH
 #define NODLSWITCH 0
+#endif
+
+#ifndef KEYSETTING
+#define KEYSETTING 0
 #endif
 
 
@@ -190,14 +196,21 @@ int app_main(void) {
 
 	// --- Resistive key controls ---
 	adc_oneshot_unit_handle_t adc_handle;
-	int                       adc_rawX1, adc_rawX2, adc_rawY1, adc_rawY2;
-
+	ravg_t  ravg_rawX1, ravg_rawX2, ravg_rawY1, ravg_rawY2;
 
 #if DEBUG > 0
 	pkCounter = 10;
 #else
 	pkCounter = 50;
 #endif
+	
+	//
+	// Running Averrage filters initialization...
+	//
+	ravg_init(&ravg_rawX1);
+	ravg_init(&ravg_rawX2);
+	ravg_init(&ravg_rawY1);
+	ravg_init(&ravg_rawY2);
 
 
 	//
@@ -315,6 +328,9 @@ int app_main(void) {
 			ESP_LOGE("MAIN", "WARNING! I cannot create a timer for the arrow led blinking");
 	}
 
+//------------------------------------------------------------------------------------------------------------------------------
+//                                                   M A I N   L O O P
+//------------------------------------------------------------------------------------------------------------------------------
 	while (loop) {
 		if (FSM == HW_FAILURE) {
 			//
@@ -339,14 +355,31 @@ int app_main(void) {
 			//
 			// Resistor keys evaluation
 			//
+			int adc_rawX1,  adc_rawX2,  adc_rawY1,  adc_rawY2;
+			int X1, X2, Y1, Y2;
+			
 			if (
-				adc_oneshot_read(adc_handle, i_VX1, &adc_rawX1) == ESP_OK &&
-				adc_oneshot_read(adc_handle, i_VX2, &adc_rawX2) == ESP_OK &&
-				adc_oneshot_read(adc_handle, i_VY1, &adc_rawY1) == ESP_OK &&
-				adc_oneshot_read(adc_handle, i_VY2, &adc_rawY2) == ESP_OK &&
-				abs(adc_rawX1 - adc_rawY1) < V_TOLERANCE                    &&
-				abs(adc_rawX2 - adc_rawY2) < V_TOLERANCE
+				adc_oneshot_read(adc_handle, i_VX1, &adc_rawX1) != ESP_OK ||
+				adc_oneshot_read(adc_handle, i_VX2, &adc_rawX2) != ESP_OK ||
+				adc_oneshot_read(adc_handle, i_VY1, &adc_rawY1) != ESP_OK ||
+				adc_oneshot_read(adc_handle, i_VY2, &adc_rawY2) != ESP_OK
 			) {
+				// ERROR!
+				ESP_LOGE("MAIN", "ERROR! adc_oneshot_read() failed");
+			
+			} else if (
+				ravg_update (&ravg_rawX1, &X1, adc_rawX1) != WERRCODE_SUCCESS ||
+				ravg_update (&ravg_rawX2, &X2, adc_rawX2) != WERRCODE_SUCCESS ||
+				ravg_update (&ravg_rawY1, &Y1, adc_rawY1) != WERRCODE_SUCCESS ||
+				ravg_update (&ravg_rawY2, &Y2, adc_rawY2) != WERRCODE_SUCCESS
+			) {
+				// ERROR!
+				ESP_LOGE("MAIN", "ERROR! ravg_update() failed");
+			
+			} else if (KEYSETTING == 1) {
+				ESP_LOGI("MAIN", "Current values: (%d/%d) (%d/%d)", X1, Y1, X2, Y2);
+
+			} if (abs(X1 - Y1) < V_TOLERANCE && abs(X2 - Y2) < V_TOLERANCE) {
 				// The keyword has been authenicated, you can unplug it
 				keepTrack_setGPIO(o_KEEPALIVE, 1);
 				FSM = MAIN_LOOP;
@@ -360,7 +393,7 @@ int app_main(void) {
 				keepTrack_setGPIO(o_UPLIGHT,     0);
 				keepTrack_setGPIO(o_ADDLIGHT,    0);
 				
-				ESP_LOGI("MAIN", "Authentication: (%d/%d) (%d/%d)", adc_rawX1, adc_rawY1, adc_rawX2, adc_rawY2);
+				ESP_LOGI("MAIN", "Authentication: (%d/%d) (%d/%d)", X1, Y1, X2, Y2);
 			}
 			
 			// [!] The following delay is used to prevent brutal-force attack (when ready_flag == 0) and to allow
