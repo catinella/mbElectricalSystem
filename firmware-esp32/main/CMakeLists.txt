@@ -26,6 +26,7 @@ idf_component_register(
 		"../components/iInputInterface/include"
 		"../components/werror/include"
 		"../components/debugConsoleAPI/include"
+		"../components/ravgFilter/include"
 	PRIV_REQUIRES
 		esp_driver_gpio
 		esp_adc
@@ -80,6 +81,13 @@ if(DEFINED NODLSWITCH)
 	if(${NODLSWITCH} GREATER 0)
 		message(WARNING "[WARNING!] Firmware for a device without the low beam lights control")
 		target_compile_definitions(${COMPONENT_LIB} PRIVATE NODLSWITCH)
+	endif()
+endif()
+
+if(DEFINED KEYSETTING)
+	if(${KEYSETTING} GREATER 0)
+		message(WARNING "[WARNING!] The firmware is for key setting purpose only")
+		target_compile_definitions(${COMPONENT_LIB} PRIVATE KEYSETTING=1)
 	endif()
 endif()
 
