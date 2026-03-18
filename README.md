@@ -67,6 +67,13 @@ will be smaller because very small electric current will flow inside them.
 ## 3.0 Info about this version:
 This branch is based on ESP32 MCU. This chip is a powerful and very low-price device and it allowed me to reduce the PCB
 size. At the moment, I am using the ESP32 devkit device because welder this chip is a bit difficult operation, for my skills.
+
 In this branch the Electrical System front part, is composed by two PCBs: one is the logic controller (all input are connected to
 this PCB), the other is the electric power stage (all the high current outputs lines are provided by this one).
 Depending by the device's box shape, the dual-pcb solution can requires a bit bigger space.
+
+### 3.1 Electric energy using
+When the system is sleeping it uses **10uA** (I have measured this value in a real case). It means that a normal mororbyke battery
+(8Ah) can stay alive (800K hours) about 91 years, in sleep mode, without recharge.
+
+When the system is active (key has been plugged), the electric current is **25mA**, equal to 5 (5mm) small LEDs
