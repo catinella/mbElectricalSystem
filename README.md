@@ -66,6 +66,7 @@ will be smaller because very small electric current will flow inside them.
 
 ## 3.0 Info about this version:
 This branch is based on ESP32 MCU. This chip is a powerful and very low-price device and it allowed me to reduce the PCB
-size. At the moment, I am using the ESP32 devkit device because welder this chip is a bit difficult operation.
-This branch solution provides just one PCB. It has further reduced the PCB size.
-
+size. At the moment, I am using the ESP32 devkit device because welder this chip is a bit difficult operation, for my skills.
+In this branch the Electrical System front part, is composed by two PCBs: one is the logic controller (all input are connected to
+this PCB), the other is the electric power stage (all the high current outputs lines are provided by this one).
+Depending by the device's box shape, the dual-pcb solution can requires a bit bigger space.
