@@ -4160,7 +4160,7 @@
 	)
 	(wire
 		(pts
-			(xy 196.596 111.76) (xy 218.186 111.76)
+			(xy 196.596 114.046) (xy 217.932 114.046)
 		)
 		(stroke
 			(width 0)
@@ -4310,7 +4310,7 @@
 	)
 	(wire
 		(pts
-			(xy 196.596 111.76) (xy 196.596 120.65)
+			(xy 196.596 114.046) (xy 196.596 120.65)
 		)
 		(stroke
 			(width 0)
@@ -5221,12 +5221,13 @@
 		)
 	)
 	(global_label "c_rightArrow"
-		(shape input)
+		(shape output)
 		(at 218.059 117.0432 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify left)
 		)
@@ -5254,17 +5255,18 @@
 	)
 	(global_label "c_horn"
 		(shape input)
-		(at 218.186 111.76 0)
+		(at 217.932 114.046 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify left)
 		)
 		(uuid "4cb558e3-d82e-4219-aaee-eed11aa86052")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 227.4606 111.76 0)
+			(at 227.2066 114.046 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5274,7 +5276,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 218.186 113.9508 0)
+			(at 217.932 116.2368 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5472,12 +5474,13 @@
 		)
 	)
 	(global_label "c_leftArrow"
-		(shape input)
+		(shape output)
 		(at 218.186 120.142 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify left)
 		)
@@ -6234,7 +6237,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.75sqmm_1x02_P4.8mm_D1.25mm_OD2.3mm"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 			(at 124.968 176.784 0)
 			(effects
 				(font
@@ -7127,7 +7130,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-1.5sqmm_1x02_P6mm_D1.7mm_OD3mm"
+		(property "Footprint" "Connector_Wire:SolderWire-0.75sqmm_1x02_P4.8mm_D1.25mm_OD2.3mm"
 			(at 86.5632 176.1744 0)
 			(effects
 				(font
@@ -7264,7 +7267,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-1.5sqmm_1x02_P6mm_D1.7mm_OD3mm"
+		(property "Footprint" "Connector_Wire:SolderWire-1sqmm_1x02_P5.4mm_D1.4mm_OD2.7mm"
 			(at 202.184 161.036 0)
 			(effects
 				(font
@@ -7334,7 +7337,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-1.5sqmm_1x02_P6mm_D1.7mm_OD3mm"
+		(property "Footprint" "Connector_Wire:SolderWire-1sqmm_1x02_P5.4mm_D1.4mm_OD2.7mm"
 			(at 61.6204 176.1744 0)
 			(effects
 				(font
@@ -9652,7 +9655,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-0.75sqmm_1x02_P4.8mm_D1.25mm_OD2.3mm"
+		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 			(at 114.808 177.038 0)
 			(effects
 				(font
@@ -9722,7 +9725,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-1.5sqmm_1x02_P6mm_D1.7mm_OD3mm"
+		(property "Footprint" "Connector_Wire:SolderWire-0.75sqmm_1x02_P4.8mm_D1.25mm_OD2.3mm"
 			(at 30.5054 176.3522 0)
 			(effects
 				(font

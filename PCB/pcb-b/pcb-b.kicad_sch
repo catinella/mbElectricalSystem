@@ -2770,12 +2770,6 @@
 		(uuid "4fcde26d-2244-48e3-86ee-570049894835")
 	)
 	(junction
-		(at 142.24 62.484)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "56592d5e-75cd-47d3-8ccb-5219aba5ec6b")
-	)
-	(junction
 		(at 45.72 174.244)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -3155,7 +3149,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.414 65.278) (xy 151.13 65.278)
+			(xy 137.414 63.246) (xy 151.13 63.246)
 		)
 		(stroke
 			(width 0)
@@ -3232,16 +3226,6 @@
 			(type default)
 		)
 		(uuid "26b7a744-8e20-4ce1-9add-8ab1e52975f9")
-	)
-	(wire
-		(pts
-			(xy 142.24 62.484) (xy 142.24 158.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "282bed8c-6e03-468f-9ea0-bccc8e6b3731")
 	)
 	(wire
 		(pts
@@ -3765,16 +3749,6 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 62.484) (xy 151.13 62.484)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8655d5ee-0681-4c56-8840-457549d507d7")
-	)
-	(wire
-		(pts
 			(xy 45.7708 171.8564) (xy 45.72 171.8564)
 		)
 		(stroke
@@ -3835,7 +3809,7 @@
 	)
 	(wire
 		(pts
-			(xy 137.414 65.278) (xy 137.414 64.516)
+			(xy 137.414 63.246) (xy 137.414 64.516)
 		)
 		(stroke
 			(width 0)
@@ -4305,7 +4279,7 @@
 	)
 	(wire
 		(pts
-			(xy 142.24 61.976) (xy 142.24 62.484)
+			(xy 142.24 61.976) (xy 142.24 158.75)
 		)
 		(stroke
 			(width 0)
@@ -4603,38 +4577,6 @@
 		)
 		(uuid "fdbf8bf8-6adf-4f91-a8b0-90c8ed4410d6")
 	)
-	(global_label "GND"
-		(shape input)
-		(at 151.13 62.484 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "027bd808-95c8-4658-9cf7-704d6cb37ea4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 157.9857 62.484 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 151.13 64.6748 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "c_rightArrow"
 		(shape input)
 		(at 102.616 74.93 180)
@@ -4642,21 +4584,23 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify right)
 		)
 		(uuid "2d2fe072-0b2c-4b0c-b6c5-68feb8295034")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.616 74.93 0)
+			(at 88.0194 74.93 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 88.5915 75.0094 0)
+			(at 102.616 77.1208 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4761,18 +4705,19 @@
 		)
 	)
 	(global_label "c_horn"
-		(shape input)
-		(at 151.13 65.278 0)
+		(shape output)
+		(at 151.13 63.246 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify left)
 		)
 		(uuid "8488e27d-98e8-46bd-a6a9-c9168f35b825")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 160.4046 65.278 0)
+			(at 160.4046 63.246 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4782,7 +4727,7 @@
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 151.13 67.4688 0)
+			(at 151.13 65.4368 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4856,7 +4801,7 @@
 		)
 	)
 	(global_label "o_keepAlive"
-		(shape input)
+		(shape output)
 		(at 151.13 75.184 0)
 		(fields_autoplaced yes)
 		(effects
@@ -4867,16 +4812,17 @@
 		)
 		(uuid "b5603c7b-1285-49b3-a451-05da48293715")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 151.13 75.184 0)
+			(at 165.0009 75.184 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 164.4288 75.1046 0)
+			(at 151.13 77.3748 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4925,6 +4871,7 @@
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify right)
 		)
@@ -4951,7 +4898,7 @@
 		)
 	)
 	(global_label "o_engineReady"
-		(shape input)
+		(shape output)
 		(at 151.13 77.978 0)
 		(fields_autoplaced yes)
 		(effects
@@ -4962,16 +4909,17 @@
 		)
 		(uuid "b9372712-773c-4a36-8db8-07d9a9238cb5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 151.13 77.978 0)
+			(at 168.085 77.978 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 167.5131 77.8986 0)
+			(at 151.13 80.1688 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4982,18 +4930,19 @@
 		)
 	)
 	(global_label "c_engineOFF"
-		(shape input)
+		(shape bidirectional)
 		(at 151.13 80.772 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify left)
 		)
 		(uuid "b95f1468-e5a3-404d-9c0f-19b429a395e3")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 165.9081 80.772 0)
+			(at 167.0194 80.772 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5014,7 +4963,7 @@
 		)
 	)
 	(global_label "o_neutral"
-		(shape input)
+		(shape output)
 		(at 151.13 72.39 0)
 		(fields_autoplaced yes)
 		(effects
@@ -5046,27 +4995,29 @@
 		)
 	)
 	(global_label "c_engineOFF"
-		(shape input)
+		(shape output)
 		(at 254.508 98.298 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
 				(size 1.27 1.27)
+				(color 221 133 0 1)
 			)
 			(justify left)
 		)
 		(uuid "e7afdc2f-4ea7-4d10-a804-439a94865a60")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 254.508 98.298 0)
+			(at 269.2861 98.298 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify left)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 268.714 98.2186 0)
+			(at 254.508 100.4888 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5139,7 +5090,7 @@
 		)
 	)
 	(global_label "o_engineON"
-		(shape input)
+		(shape output)
 		(at 102.362 80.518 180)
 		(fields_autoplaced yes)
 		(effects
@@ -5150,16 +5101,17 @@
 		)
 		(uuid "f67c588e-0591-474d-858a-f3d9d18f52e0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 102.362 80.518 0)
+			(at 88.3702 80.518 0)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(justify right)
 				(hide yes)
 			)
 		)
 		(property "Riferimenti inter-foglio" "${INTERSHEET_REFS}"
-			(at 88.9422 80.4386 0)
+			(at 102.362 82.7088 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5846,7 +5798,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-1.5sqmm_1x03_P6mm_D1.7mm_OD3mm"
+		(property "Footprint" "Connector_Wire:SolderWire-1sqmm_1x03_P5.4mm_D1.4mm_OD2.7mm"
 			(at 39.116 161.29 0)
 			(effects
 				(font
@@ -6892,7 +6844,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Connector_Wire:SolderWire-1.5sqmm_1x03_P6mm_D1.7mm_OD3mm"
+		(property "Footprint" "Connector_Wire:SolderWire-0.75sqmm_1x03_P4.8mm_D1.25mm_OD2.3mm"
 			(at 39.116 171.704 0)
 			(effects
 				(font
