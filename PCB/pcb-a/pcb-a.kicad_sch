@@ -6,11 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "Motorbike lights and services controller")
-		(date "2022-08-24")
-		(rev "4.0")
-		(company "Panicosoft")
-		(comment 1 "Logic controller unit")
-		(comment 2 "MCU connections")
+		(company "https://github.com/catinella/mbElectricalSystem")
 	)
 	(lib_symbols
 		(symbol "Device:C_Small"

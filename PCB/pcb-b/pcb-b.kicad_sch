@@ -5,10 +5,8 @@
 	(uuid "709d0967-afe5-49d3-92a5-d2bb94550bdb")
 	(paper "A4")
 	(title_block
-		(title "Motorbike lights and services controller")
-		(date "2022-08-24")
-		(rev "4.0")
-		(company "Panicosoft")
+		(title "Power stage")
+		(company "https://github.com/catinella/mbElectricalSystem")
 	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_01x02"

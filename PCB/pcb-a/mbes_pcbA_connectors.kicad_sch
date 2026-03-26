@@ -6,8 +6,7 @@
 	(paper "A4")
 	(title_block
 		(title "All the pcb's connectors")
-		(rev "4.0")
-		(company "Panicosoft")
+		(company "https://github.com/catinella/mbElectricalSystem")
 	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_01x02"
