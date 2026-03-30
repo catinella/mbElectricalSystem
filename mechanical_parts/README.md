@@ -13,6 +13,14 @@ This folder contains all CAD and specifications documents dequired to build the 
 CAD documents are 2D drawings and they show you the flat parts you will have to weller. Anyway, read the README.md file in the
 proper sub-folder for further details.
 
+In order to create all the CAD files I used [LibreCAD](https://librecad.org) 2D software. Anyway, because the files are DXF
+standard ones, you can use your favourire CAD software.
+
+Any CAD document is composed by (at least) three layers:
+- 0        The effective drawing
+- builder  Tracks used to build the drawing (you could set it to hidden layer)
+- sizes    The measures you need to build the pasts hand made, or to check for their correct shapes
+
 ### 2.1 DR350 Rally
 The motorbike I used as first model is a DR350 (1998) modified for off-road using. These changes include a couple of 48mm Showa
 shock absorber and a motorcycle fairing made by [Twalcom](https://www.twalcom.com/en). So the front side box can be compatible
