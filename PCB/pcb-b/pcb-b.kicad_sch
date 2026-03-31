@@ -2708,7 +2708,7 @@
 		(uuid "1d1ea087-ac76-474e-bd6a-12d79a53324f")
 	)
 	(junction
-		(at 45.72 169.164)
+		(at 45.466 158.75)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "047471d2-a68c-416c-9b8e-991eac987d40")
@@ -2744,22 +2744,10 @@
 		(uuid "2b756ab1-2957-4d20-8ce1-6d3117fc1f27")
 	)
 	(junction
-		(at 45.72 161.29)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "3f38abeb-0ab6-4f6d-8543-2e3b1c251283")
-	)
-	(junction
 		(at 197.104 115.316)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "47e62f2c-9703-445f-bda6-2f7443428fa0")
-	)
-	(junction
-		(at 45.72 158.75)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4b205ce0-d921-4ae7-b35d-d598ac4a7e90")
 	)
 	(junction
 		(at 70.5612 100.33)
@@ -2768,7 +2756,7 @@
 		(uuid "4fcde26d-2244-48e3-86ee-570049894835")
 	)
 	(junction
-		(at 45.72 174.244)
+		(at 45.466 163.83)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "5bb05c5a-f287-4156-ae0f-269e24994800")
@@ -2780,7 +2768,7 @@
 		(uuid "635e52ee-42d1-40e6-a21a-7107a1dee939")
 	)
 	(junction
-		(at 45.72 171.704)
+		(at 45.466 161.29)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "690eee87-d193-455f-af30-6c5bb200c47e")
@@ -2820,12 +2808,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "88b992e8-236b-420b-8112-ff23b0004275")
-	)
-	(junction
-		(at 45.72 163.83)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "8ac1f746-2b21-43ed-92f4-626f63376fca")
 	)
 	(junction
 		(at 149.86 135.382)
@@ -3167,16 +3149,6 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 161.29) (xy 45.72 163.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "205b4fab-8f4f-465f-bead-736582da54cc")
-	)
-	(wire
-		(pts
 			(xy 55.118 96.266) (xy 67.056 96.266)
 		)
 		(stroke
@@ -3194,16 +3166,6 @@
 			(type default)
 		)
 		(uuid "211e7ae4-64c3-4d36-8c51-9fd7c355fd33")
-	)
-	(wire
-		(pts
-			(xy 45.72 158.75) (xy 63.5 158.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "24f67e45-7fbe-400a-b791-d2ea64046dc9")
 	)
 	(wire
 		(pts
@@ -3267,7 +3229,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 174.244) (xy 45.7708 174.244)
+			(xy 45.466 163.83) (xy 45.5168 163.83)
 		)
 		(stroke
 			(width 0)
@@ -3327,6 +3289,16 @@
 	)
 	(wire
 		(pts
+			(xy 45.466 158.75) (xy 63.5 158.75)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "36df7e96-865c-432c-9751-59f1437dc526")
+	)
+	(wire
+		(pts
 			(xy 116.1288 59.436) (xy 119.888 59.436)
 		)
 		(stroke
@@ -3364,16 +3336,6 @@
 			(type default)
 		)
 		(uuid "3d27d0cf-34f1-4ca6-b076-34b8c8ad2086")
-	)
-	(wire
-		(pts
-			(xy 45.72 158.75) (xy 45.72 161.29)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "412f90cf-60c4-48a6-be77-44e2fe6ae3db")
 	)
 	(wire
 		(pts
@@ -3417,7 +3379,7 @@
 	)
 	(wire
 		(pts
-			(xy 44.196 174.244) (xy 45.72 174.244)
+			(xy 44.196 163.83) (xy 45.466 163.83)
 		)
 		(stroke
 			(width 0)
@@ -3497,7 +3459,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 169.164) (xy 45.72 171.704)
+			(xy 45.466 158.75) (xy 45.466 161.29)
 		)
 		(stroke
 			(width 0)
@@ -3547,7 +3509,7 @@
 	)
 	(wire
 		(pts
-			(xy 44.196 171.704) (xy 45.72 171.704)
+			(xy 44.196 161.29) (xy 45.466 161.29)
 		)
 		(stroke
 			(width 0)
@@ -3597,7 +3559,7 @@
 	)
 	(wire
 		(pts
-			(xy 97.282 182.372) (xy 43.942 182.372)
+			(xy 97.282 172.72) (xy 44.196 172.72)
 		)
 		(stroke
 			(width 0)
@@ -3627,7 +3589,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 179.832) (xy 45.72 174.244)
+			(xy 45.466 170.18) (xy 45.466 163.83)
 		)
 		(stroke
 			(width 0)
@@ -3747,7 +3709,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.7708 171.8564) (xy 45.72 171.8564)
+			(xy 45.5168 161.4424) (xy 45.466 161.4424)
 		)
 		(stroke
 			(width 0)
@@ -3947,16 +3909,6 @@
 	)
 	(wire
 		(pts
-			(xy 44.196 161.29) (xy 45.72 161.29)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a2fb29d8-a17b-4592-9282-1394ba15349c")
-	)
-	(wire
-		(pts
 			(xy 149.86 75.184) (xy 151.13 75.184)
 		)
 		(stroke
@@ -4027,7 +3979,7 @@
 	)
 	(wire
 		(pts
-			(xy 45.72 171.704) (xy 45.72 171.8564)
+			(xy 45.466 161.29) (xy 45.466 161.4424)
 		)
 		(stroke
 			(width 0)
@@ -4094,16 +4046,6 @@
 			(type default)
 		)
 		(uuid "b4f96f7b-44f7-44af-9889-12eef0e45a31")
-	)
-	(wire
-		(pts
-			(xy 45.72 163.83) (xy 45.72 169.164)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "b640bdac-7901-46e2-b8e1-132824683f45")
 	)
 	(wire
 		(pts
@@ -4387,7 +4329,7 @@
 	)
 	(wire
 		(pts
-			(xy 44.196 169.164) (xy 45.72 169.164)
+			(xy 44.196 158.75) (xy 45.466 158.75)
 		)
 		(stroke
 			(width 0)
@@ -4407,7 +4349,7 @@
 	)
 	(wire
 		(pts
-			(xy 43.942 179.832) (xy 45.72 179.832)
+			(xy 44.196 170.18) (xy 45.466 170.18)
 		)
 		(stroke
 			(width 0)
@@ -4457,23 +4399,13 @@
 	)
 	(wire
 		(pts
-			(xy 97.282 118.11) (xy 97.282 182.372)
+			(xy 97.282 118.11) (xy 97.282 172.72)
 		)
 		(stroke
 			(width 0)
 			(type default)
 		)
 		(uuid "eee0edeb-14e1-41f4-8e96-b2ff15d2baed")
-	)
-	(wire
-		(pts
-			(xy 44.196 158.75) (xy 45.72 158.75)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ef74b02b-21d8-4c4f-97ba-47748db76632")
 	)
 	(wire
 		(pts
@@ -4557,17 +4489,7 @@
 	)
 	(wire
 		(pts
-			(xy 44.196 163.83) (xy 45.72 163.83)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fdbd76c4-90a2-44d9-a075-0cfdc23c7db3")
-	)
-	(wire
-		(pts
-			(xy 45.7708 174.244) (xy 45.7708 171.8564)
+			(xy 45.5168 163.83) (xy 45.5168 161.4424)
 		)
 		(stroke
 			(width 0)
@@ -5771,77 +5693,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic:Conn_01x03")
-		(at 39.116 161.29 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "445dc217-34eb-443b-b3bd-cbde2424d7a1")
-		(property "Reference" "GND-1"
-			(at 38.2524 156.3624 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "~"
-			(at 39.1668 156.4132 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Footprint" "Connector_Wire:SolderWire-1sqmm_1x03_P5.4mm_D1.4mm_OD2.7mm"
-			(at 39.116 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 39.116 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 39.116 161.29 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "e23839ce-922f-464d-a5ad-91f2880bef13")
-		)
-		(pin "1"
-			(uuid "29df47ea-7435-4068-9945-ad325bdf5187")
-		)
-		(pin "3"
-			(uuid "af7d9908-08ae-4a00-9860-6d7fa07f455f")
-		)
-		(instances
-			(project "pcb-b"
-				(path "/709d0967-afe5-49d3-92a5-d2bb94550bdb"
-					(reference "GND-1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 149.86 147.574 180)
 		(unit 1)
@@ -6277,7 +6128,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x02")
-		(at 38.862 179.832 0)
+		(at 39.116 170.18 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -6286,7 +6137,7 @@
 		(dnp no)
 		(uuid "7b7199e2-760c-4892-b012-1e373ba8652b")
 		(property "Reference" "rearDevs1"
-			(at 38.989 176.911 0)
+			(at 39.243 167.259 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6294,7 +6145,7 @@
 			)
 		)
 		(property "Value" "Conn_01x02"
-			(at 38.862 176.276 0)
+			(at 39.116 166.624 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6303,7 +6154,7 @@
 			)
 		)
 		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
-			(at 38.862 179.832 0)
+			(at 39.116 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6312,7 +6163,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 38.862 179.832 0)
+			(at 39.116 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6321,7 +6172,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 38.862 179.832 0)
+			(at 39.116 170.18 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6818,7 +6669,7 @@
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x03")
-		(at 39.116 171.704 180)
+		(at 39.116 161.29 180)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -6826,7 +6677,7 @@
 		(dnp no)
 		(uuid "ab9473cd-a01a-4701-9949-5baf0b22bc4c")
 		(property "Reference" "GND-2"
-			(at 38.1508 166.5732 0)
+			(at 38.1508 156.1592 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6834,7 +6685,7 @@
 			)
 		)
 		(property "Value" "~"
-			(at 39.1668 166.8272 0)
+			(at 39.1668 156.4132 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6843,7 +6694,7 @@
 			)
 		)
 		(property "Footprint" "Connector_Wire:SolderWire-0.75sqmm_1x03_P4.8mm_D1.25mm_OD2.3mm"
-			(at 39.116 171.704 0)
+			(at 39.116 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6852,7 +6703,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 39.116 171.704 0)
+			(at 39.116 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -6861,7 +6712,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 39.116 171.704 0)
+			(at 39.116 161.29 0)
 			(effects
 				(font
 					(size 1.27 1.27)
