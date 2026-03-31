@@ -26,7 +26,7 @@ low Drain-source on-resistance (4mOhm) allows me to avoid to waste electric powe
 with a 60W (5A) light it wase just 20mW!! It can also support 10A current and it is very small.
 
 To reduce the number of fuses, the direction indicator LEDs use a [MSMF050](https://www.bourns.com/docs/product-datasheets/mf-msmf.pdf)
-PTC Resettable Fuse.
+PTC Resettable Fuse. As you can see on the component's datasheet, it can handle up to 500mA current and stop the currents over 1A.
 
 As in all motorbikes, in order to avoid the engine can be started when the motorbike is locked, the proper CDI pin must be
 connected to the GND. To achiueve this result and to protect the circuit from unknown electric voltage from the CDI, I have 
