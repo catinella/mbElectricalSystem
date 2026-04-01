@@ -28,7 +28,7 @@ substance. You should not need to remove these screws, in the future.
 stainless steel metal.
 
 #### 2.1.2 How to attach the box to the motorbyke framework?
-In order to link the box to the motorbike's framework you should weld four 5MA bolts to the (2mm) plate described in the 
+In order to link the box to the motorbike's framework you should weld four 6MA bolts to the (2mm) plate described in the 
 **motorbikeFrame_attachment_system.dxf** drawing. The plate should be placed inside the lid, on the box's bottom side. the
 protruding bolts will be used to link the device to the franework in stable way.
 The plate and the bolts should be built in stainless steel metal.
