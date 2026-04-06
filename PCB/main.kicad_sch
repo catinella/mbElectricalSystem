@@ -5,12 +5,8 @@
 	(uuid "709d0967-afe5-49d3-92a5-d2bb94550bdb")
 	(paper "A4")
 	(title_block
-		(title "Motorbike lights and services controller")
-		(date "2022-08-24")
-		(rev "4.0")
-		(company "Panicosoft")
-		(comment 1 "Logic controller unit")
-		(comment 2 "MCU connections")
+		(title "(front side) Motorbike Electrical System")
+		(company "https://github.com/catinella/mbElectricalSystem")
 	)
 	(lib_symbols
 		(symbol "Device:C_Small"

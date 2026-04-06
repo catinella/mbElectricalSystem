@@ -5,9 +5,9 @@
 	(uuid "d8160f5e-653b-45f3-bbd4-0524d164749a")
 	(paper "A4")
 	(title_block
-		(title "All the pcb's connectors")
+		(title "(front side) Motorbike Electrical System")
 		(rev "4.0")
-		(company "Panicosoft")
+		(company "https://github.com/catinella/mbElectricalSystem")
 	)
 	(lib_symbols
 		(symbol "Connector_Generic:Conn_01x01"
