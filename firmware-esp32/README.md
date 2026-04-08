@@ -26,9 +26,9 @@ building environment. To complete the task, please, read the
 	
 ### 2.2 Device Configuration
 Because the JTAG's pins has used as normal GPIOs you need to disable the JTAG support on your ESP32-S2 MCU with the following
-command:
+command with the proper serial port character device (eg. /dev/ttyUSB0):
 
-	espefuse.py --port /dev/ttyUSB0 burn_efuse SOFT_DIS_JTAG
+	espefuse.py --port <serial-port> burn_efuse SOFT_DIS_JTAG
 
 ### 2.3 Firmware Configuration
 From the 5.3 version, esp-idf uses CMAKE as software building infrastructure (project.mk is no more available).
