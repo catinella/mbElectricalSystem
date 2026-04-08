@@ -7211,7 +7211,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "D_Small"
+		(property "Value" "M7"
 			(at 132.588 177.7999 90)
 			(effects
 				(font
