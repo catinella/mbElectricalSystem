@@ -26,7 +26,7 @@ building environment. To complete the task, please, read the
 	
 ### 2.2 Device Configuration
 Because the JTAG's pins has used as normal GPIOs you need to disable the JTAG support on your ESP32-S2 MCU with the following
-command with the proper serial port character device (eg. /dev/ttyUSB0):
+command and the proper serial port character device (eg. /dev/ttyUSB0):
 
 	espefuse.py --port <serial-port> burn_efuse SOFT_DIS_JTAG
 
