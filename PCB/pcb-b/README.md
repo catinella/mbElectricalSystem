@@ -44,5 +44,6 @@ With this solution, only 3 external (5A) fuses are needed over then the (20A) ge
 As in all motorbikes, in order to avoid the engine can be started when the motorbike is locked, the proper CDI pin must be
 connected to the GND. To achieve this result and to protect the circuit from unknown electric voltage from the CDI, I have 
 used the relay [HK19-DC12V](https://grobotronics.com/images/datasheets/HK19F-12V.pdf) instead of a modern N-Channel MOS.
+
 In order to manage the concurrency events of powe-off button and the engine electronic management, I have used the
 [PMEG40T30ER](https://assets.nexperia.com/documents/data-sheet/PMEG40T30ER.pdf) low Trench MEGA Schottky barrier rectifier.
