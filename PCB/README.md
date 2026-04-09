@@ -21,7 +21,7 @@ This folder contains all files you need to get and/or modify your own PCBs.
 To perform these actions you need to install [KiCAD](https://www.kicad.org) software (ver >= 9.0), a free software suite for
 electronic design automation (EDA).
 
-The solution impolemented in this branch (ESP32__dualPCB) is composed by three PCBs. The followin table shows you their functions
+The solution implemented in this branch (ESP32__dualPCB) is composed by three PCBs. The following table shows you their functions
 and the connected devices
 
 |         Function         |                                  Devices                                       |
