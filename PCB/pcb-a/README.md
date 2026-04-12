@@ -65,15 +65,9 @@ These connectors are widely used in automotive applications; for this reason, yo
 You can easily buy them as kits, even on Amazon.  
 Each (2.8 mm) pin of this type can handle 10 A without problems.
 
-	      +---+
-	+-----+---+-----+
-	| +-+  +-+  +-+ |
-	| |4|  |5|  |6| |
-	| +-+  +-+  +-+ |
-	| +-+  +-+  +-+ |
-	| |1|  |2|  |3| |
-	| +-+  +-+  +-+ |
-	+---------------+
+In the following picture you can see the 6-ways connector diagram used for the left/right hand-bar's controls
+
+![Female 6-pins connector scheme](../images/connector_2_8mm_6pins.png)
 
 **Left connector pin map:**
 
