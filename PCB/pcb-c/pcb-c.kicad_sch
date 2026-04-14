@@ -5914,7 +5914,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "15K"
 			(at 154.178 82.804 90)
 			(effects
 				(font
@@ -6316,7 +6316,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "15K"
 			(at 46.228 39.878 90)
 			(effects
 				(font
@@ -6614,7 +6614,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "15K"
 			(at 44.958 126.238 90)
 			(effects
 				(font
@@ -7232,7 +7232,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "15K"
 			(at 151.638 41.148 90)
 			(effects
 				(font
@@ -8480,7 +8480,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "10K"
+		(property "Value" "15K"
 			(at 45.72 82.804 90)
 			(effects
 				(font
