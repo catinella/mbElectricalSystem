@@ -8857,7 +8857,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "D_Small"
+		(property "Value" "PMEG40T30ER"
 			(at 206.0448 115.824 0)
 			(effects
 				(font
@@ -8866,7 +8866,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_1210_3225Metric_Pad1.42x2.65mm_HandSolder"
+		(property "Footprint" "Diode_SMD:Nexperia_CFP3_SOD-123W"
 			(at 202.692 115.824 90)
 			(effects
 				(font
@@ -9287,15 +9287,16 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "M7"
+		(property "Value" "PMEG40T30ER"
 			(at 175.768 133.604 90)
 			(effects
 				(font
 					(size 1.27 1.27)
 				)
+				(hide yes)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_2114_3652Metric_Pad1.85x3.75mm_HandSolder"
+		(property "Footprint" "Diode_SMD:Nexperia_CFP3_SOD-123W"
 			(at 178.562 133.604 90)
 			(effects
 				(font
@@ -9889,7 +9890,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "D_Small"
+		(property "Value" "PMEG40T30ER"
 			(at 170.434 59.1312 0)
 			(effects
 				(font
@@ -9898,7 +9899,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_1210_3225Metric_Pad1.42x2.65mm_HandSolder"
+		(property "Footprint" "Diode_SMD:Nexperia_CFP3_SOD-123W"
 			(at 170.434 62.484 90)
 			(effects
 				(font
@@ -10723,7 +10724,7 @@
 				(hide yes)
 			)
 		)
-		(property "Value" "D_Small"
+		(property "Value" "PMEG40T30ER"
 			(at 199.136 130.2512 0)
 			(effects
 				(font
@@ -10732,7 +10733,7 @@
 				(hide yes)
 			)
 		)
-		(property "Footprint" "Diode_SMD:D_1210_3225Metric_Pad1.42x2.65mm_HandSolder"
+		(property "Footprint" "Diode_SMD:Nexperia_CFP3_SOD-123W"
 			(at 199.136 133.604 90)
 			(effects
 				(font
