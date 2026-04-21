@@ -65,8 +65,8 @@ monitor (idf.py monitor) you will be able to read the two voltage values on your
 You have to create a CSV file respecting the following syntax, and with the values you got at step 2
 
 	key,type,encoding,value
-	refVal_A,u32,decimal,<first-value>
-	refVal_B,u32,decimal,<second-value>
+	refVal_A,u16,decimal,<first-value>
+	refVal_B,u16,decimal,<second-value>
 
 **[4]**
 Use the proper tool provided by the ESP-IDF framework, respecting the following syntax:
