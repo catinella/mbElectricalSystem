@@ -37,7 +37,7 @@
 
 #define RAVG_DEEPLEVEL 8
 
-typedef int ravgData_t;
+typedef uint16_t ravgData_t;
 
 typedef struct {
 	ravgData_t buffer[RAVG_DEEPLEVEL];	
