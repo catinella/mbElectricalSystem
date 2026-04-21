@@ -84,11 +84,3 @@ if(DEFINED NODLSWITCH)
 	endif()
 endif()
 
-if(DEFINED KEYSETTING)
-	if(${KEYSETTING} GREATER 0)
-		message(WARNING "[WARNING!] The firmware is for key setting purpose only")
-		target_compile_definitions(${COMPONENT_LIB} PRIVATE KEYSETTING=1)
-	endif()
-endif()
-
-

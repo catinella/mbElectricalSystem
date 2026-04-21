@@ -23,7 +23,6 @@
 #		DEBUG=<n>                  It sets the debug level (1 = main-loop delay and info messages; 2 = messages from libs)
 #		NOAUTH={0|1}               It allows you to disable the authebtication proicess (just for debug purpose)
 #		NODLSWITCH={0|1}           Set to 1 to get a firmware for a device without low beam lights control
-#		KEYSETTING={0!1}           It allows you to enable the key setting mode
 #
 #	Configuration data propagation:
 #	===============================
