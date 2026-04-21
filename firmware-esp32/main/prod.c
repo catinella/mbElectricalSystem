@@ -15,7 +15,6 @@
 //	This file contains all software needed by the ESP32 to manage your motorbike's services (eg. start, stop, lights...)
 //
 //	Configurable parameters:
-//		V_TOLERANCE  <n> // Tollerance in key authentication
 //		DEBUG        <n> // Debug level (0 = no-messages)
 //		NOAUTH           // Define this symbol to skip the key authentication step
 //
@@ -52,7 +51,7 @@
 #include <mbesPinsMap.h>
 #include <iInputInterface.h>
 #include <debugConsoleAPI.h>
-#include <ravgFilter.h>
+#include <authKey.h>
 
 
 #define OUTPUTPINS_LIST { \
@@ -74,10 +73,6 @@
 // Configurable parameters
 //
 
-#ifndef V_TOLERANCE
-#define V_TOLERANCE 100
-#endif
-
 #ifndef DEBUG
 #define DEBUG 0
 #endif
@@ -88,10 +83,6 @@
 
 #ifndef NODLSWITCH
 #define NODLSWITCH 0
-#endif
-
-#ifndef KEYSETTING
-#define KEYSETTING 0
 #endif
 
 
@@ -195,8 +186,8 @@ int app_main(void) {
 	unsigned int  pkCounter = 0;
 
 	// --- Resistive key controls ---
+	authKey_t                 myKey;
 	adc_oneshot_unit_handle_t adc_handle;
-	ravg_t  ravg_rawX1, ravg_rawX2, ravg_rawY1, ravg_rawY2;
 
 #if DEBUG > 0
 	pkCounter = 10;
@@ -204,15 +195,6 @@ int app_main(void) {
 	pkCounter = 50;
 #endif
 	
-	//
-	// Running Averrage filters initialization...
-	//
-	ravg_init(&ravg_rawX1);
-	ravg_init(&ravg_rawX2);
-	ravg_init(&ravg_rawY1);
-	ravg_init(&ravg_rawY2);
-
-
 	//
 	// A/D converter configuration
 	//
@@ -235,9 +217,7 @@ int app_main(void) {
 		// Channel configuration
 		} else if (
 			adc_oneshot_config_channel(adc_handle, i_VX1, &config) != ESP_OK ||
-			adc_oneshot_config_channel(adc_handle, i_VX2, &config) != ESP_OK ||
-			adc_oneshot_config_channel(adc_handle, i_VY1, &config) != ESP_OK ||
-			adc_oneshot_config_channel(adc_handle, i_VY2, &config) != ESP_OK
+			adc_oneshot_config_channel(adc_handle, i_VX2, &config) != ESP_OK 
 		) {
 			ESP_LOGE("MAIN", "A/D channel configuration failed");
 			FSM = HW_FAILURE;
@@ -355,50 +335,45 @@ int app_main(void) {
 			//
 			// Resistor keys evaluation
 			//
-			int adc_rawX1,  adc_rawX2,  adc_rawY1,  adc_rawY2;
-			int X1, X2, Y1, Y2;
+			int    tmp0, tmp1;
+			werror err = WERRCODE_SUCCESS;
+			
+			// I keep everything OFF!!
+			keepTrack_setGPIO(o_RIGHTARROW,  0);
+			keepTrack_setGPIO(o_LEFTARROW,   0);
+			keepTrack_setGPIO(o_DOWNLIGHT,   0);
+			keepTrack_setGPIO(o_UPLIGHT,     0);
+			keepTrack_setGPIO(o_ADDLIGHT,    0);
+			keepTrack_setGPIO(o_KEEPALIVE,   0);
 			
 			if (
-				adc_oneshot_read(adc_handle, i_VX1, &adc_rawX1) != ESP_OK ||
-				adc_oneshot_read(adc_handle, i_VX2, &adc_rawX2) != ESP_OK ||
-				adc_oneshot_read(adc_handle, i_VY1, &adc_rawY1) != ESP_OK ||
-				adc_oneshot_read(adc_handle, i_VY2, &adc_rawY2) != ESP_OK
+				adc_oneshot_read(adc_handle, i_VX1, &tmp0) != ESP_OK ||
+				adc_oneshot_read(adc_handle, i_VX2, &tmp1) != ESP_OK 
 			) {
 				// ERROR!
 				ESP_LOGE("MAIN", "ERROR! adc_oneshot_read() failed");
 			
-			} else if (
-				ravg_update (&ravg_rawX1, &X1, adc_rawX1) != WERRCODE_SUCCESS ||
-				ravg_update (&ravg_rawX2, &X2, adc_rawX2) != WERRCODE_SUCCESS ||
-				ravg_update (&ravg_rawY1, &Y1, adc_rawY1) != WERRCODE_SUCCESS ||
-				ravg_update (&ravg_rawY2, &Y2, adc_rawY2) != WERRCODE_SUCCESS
-			) {
-				// ERROR!
-				ESP_LOGE("MAIN", "WARNING! filtered values are not available");
-			
-			} else if (KEYSETTING == 1) {
-				ESP_LOGI("MAIN", "Current values: (%d/%d) (%d/%d)", X1, Y1, X2, Y2);
-
-			} else if (abs(X1 - Y1) < V_TOLERANCE && abs(X2 - Y2) < V_TOLERANCE) {
-				// The keyword has been authenicated, you can unplug it
-				keepTrack_setGPIO(o_KEEPALIVE, 1);
-				FSM = MAIN_LOOP;
-				ESP_LOGI("MAIN", "OK: (%d/%d) (%d/%d)", X1, Y1, X2, Y2);
-				ESP_LOGI("MAIN", "[ OK ] key has been accepted");
-
 			} else {
-				// I keep everything OFF!!
-				keepTrack_setGPIO(o_RIGHTARROW,  0);
-				keepTrack_setGPIO(o_LEFTARROW,   0);
-				keepTrack_setGPIO(o_DOWNLIGHT,   0);
-				keepTrack_setGPIO(o_UPLIGHT,     0);
-				keepTrack_setGPIO(o_ADDLIGHT,    0);
+				myKey[0] = (uint16_t)tmp0;
+				myKey[1] = (uint16_t)tmp1;
+			
+				// Checking for the key
+				err = authKey_check(myKey);
 				
-				ESP_LOGI("MAIN", "Authentication: (%d/%d) (%d/%d)", X1, Y1, X2, Y2);
+				if (wErrCode_isError(err)) {
+					// ERROR!
+					ESP_LOGE("MAIN", "ERROR! Key authentication process failed");
+					FSM = HW_FAILURE;
+				
+				} else if (wErrCode_isSuccess(err)) {
+					// The keyword has been authenicated, you can unplug it
+					keepTrack_setGPIO(o_KEEPALIVE, 1);
+					FSM = MAIN_LOOP;
+					ESP_LOGI("MAIN", "[ OK ] key has been accepted");
+				}
 			}
 			
-			// [!] The following delay is used to prevent brutal-force attack (when ready_flag == 0) and to allow
-			//    the MCP23008 to boot
+			// [!] The following delay is used to prevent brutal-force attack 
 			vTaskDelay(100 / portTICK_PERIOD_MS);
 		
 			
