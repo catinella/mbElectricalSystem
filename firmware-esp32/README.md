@@ -36,6 +36,11 @@ For this reason all firmware's customization has been set in the CMakeLists.conf
 file using the configUtils.cmake library. In order to get the options list, please, read the documentation lines in the
 [CMakeLists.txt](./CMakeLists.txt) file header.
 
+**[WARNING!]** After every configuration setting "FIRMWARETEST=\<source file\>" change you need to remove the last building files
+using the following command. Without this full-cleaning the next building process will return an error.
+
+	idf.py fullclean
+
 #### 2.3.1 Authentication resistive key setting
 In the original version the resistive key accepted value was set using two multiround-trimmer. The setting process was fast and easy.
 But because this electric-system has been planned mainly for off-road motorcycles that solution was not adequate. In fact frequent
@@ -56,10 +61,10 @@ The key is a 8-pin connector with two resistors, mainly. In order to build a new
 README.md file stored in the **<PROJECT-HOME>/PCB/starter_key_plug**
 
 **[2]**
-The two resistors in the key create two voltage reference values. These values are evaluated in the authentication
-process. For this reason it is necessary to read these reference values and to make this step easier I wrote a dedicated
-firmware <.....>. So, build it and upload it in your device. At this point plugging the key, and using the ESP-IDF
-monitor (idf.py monitor) you will be able to read the two voltage values on your display.
+The two resistors in the key create two voltage reference values. These values are evaluated in the authentication process. For
+this reason it is necessary to read these reference values and to make this step easier I wrote a dedicated firmware
+**keyAuth_seting.c**. So, build it (setting the FIRMWARETEST keyword) and upload it in your device. At this point plugging the key,
+and using the ESP-IDF monitor (idf.py monitor) you will be able to read the two voltage values on your display.
 
 **[3]**
 You have to create a CSV file respecting the following syntax, and with the values you got at step 2
