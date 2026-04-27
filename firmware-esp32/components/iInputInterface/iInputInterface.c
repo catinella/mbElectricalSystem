@@ -230,10 +230,13 @@ static void _iInputInterface_update(iInputItem_t *item) {
 			item->FSM = 1;
 			item->timerOffset = 0;
 			
-		} else 
-			wESPLOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", item->pinID,
-				(long unsigned int)(myTimer - item->timerOffset), (long unsigned int)IINPUTIF_DEBOUNCETIME
+		} else {
+			wESPLOGI(__FUNCTION__, "inputInterface-%d temporary unavailable (%ld/%ld)", 
+				item->pinID,
+				(long unsigned int)(myTimer - item->timerOffset),
+				(long unsigned int)IINPUTIF_DEBOUNCETIME
 			);
+		}
 	}
 		
 	myTimer++;
