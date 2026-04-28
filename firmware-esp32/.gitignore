@@ -1,2 +1,3 @@
 CMakeLists.conf
 build
+*.bin
