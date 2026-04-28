@@ -30,3 +30,89 @@
 //		<https://www.gnu.org/licenses/gpl-3.0.txt>.
 //
 ------------------------------------------------------------------------------------------------------------------------------*/
+
+// Platform dependent libraries
+#include "esp_timer.h"
+#include "hal/adc_types.h"
+#include "esp_adc/adc_oneshot.h"
+
+// Higher level libraries
+#include "esp_log.h"
+#include "esp_err.h"
+#include <freertos/FreeRTOS.h>
+#include <freertos/portmacro.h>
+#include <freertos/task.h>
+
+// Project's libraries
+#include <werror.h>
+#include <ravgFilter.h>
+#include <mbesPinsMap.h>
+
+
+int app_main(void) {
+	ravg_t     X1_obj,     X2_obj;
+	ravgData_t X1_val = 0, X2_val = 0;
+	int        X1_tmp = 0, X2_tmp = 0;
+	werror     X1_err,     X2_err;
+	
+	adc_oneshot_unit_handle_t adc_handle;
+	
+	//
+	// Running averrage initialization
+	//
+	ravg_init(&X1_obj);
+	ravg_init(&X2_obj);
+	
+	//
+	// A/D converter configuration
+	//
+	{
+		adc_oneshot_chan_cfg_t config = {
+			.bitwidth = ADC_BITWIDTH_DEFAULT,
+			.atten    = ADC_ATTEN_DB_12
+		};
+		adc_oneshot_unit_init_cfg_t init_config1 = {
+			.unit_id  = ADC_UNIT_1,               // ADC unit selection
+			.clk_src  = ADC_DIGI_CLK_SRC_DEFAULT, // Clock's source
+			.ulp_mode = ADC_ULP_MODE_DISABLE      // Ultra Low Power FSM coprocessor
+		};
+
+		// A/D converter initialization
+		if (adc_oneshot_new_unit(&init_config1, &adc_handle) != ESP_OK) {
+			ESP_LOGE("MAIN", "A/D converter initialization failed");
+	
+		// Channel configuration
+		} else if (
+			adc_oneshot_config_channel(adc_handle, i_VX1, &config) != ESP_OK ||
+			adc_oneshot_config_channel(adc_handle, i_VX2, &config) != ESP_OK 
+		) {
+			ESP_LOGE("MAIN", "A/D channel configuration failed");
+		}
+	}
+
+	while (1) {
+
+		if (
+			adc_oneshot_read(adc_handle, i_VX1, &X1_tmp) != ESP_OK ||
+			adc_oneshot_read(adc_handle, i_VX2, &X2_tmp) != ESP_OK 
+		) {
+			// ERROR!
+			ESP_LOGE("MAIN", "ERROR! adc_oneshot_read() failed");
+			
+		} else {
+			X1_err = ravg_update (&X1_obj, &X1_val, X1_tmp);
+			X2_err = ravg_update (&X2_obj, &X2_val, X2_tmp);
+			
+			if (wErrCode_isSuccess(X1_err) && wErrCode_isSuccess(X2_err))
+				ESP_LOGI(__FILE__, "X1 = %d; X2 = %d", X1_val, X2_val);
+				
+			else if (wErrCode_isWarning(X1_err) || wErrCode_isWarning(X2_err))
+				ESP_LOGW(__FILE__, "The filtered values are not yet avasilable");
+				
+			else
+				ESP_LOGE(__FILE__, "ravg_update() call failed");
+		}
+		
+		vTaskDelay(200 / portTICK_PERIOD_MS);
+	}
+}
