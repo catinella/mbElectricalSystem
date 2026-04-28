@@ -42,16 +42,22 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/portmacro.h>
 #include <freertos/task.h>
+#include <math.h>
 
 // Project's libraries
 #include <werror.h>
 #include <ravgFilter.h>
 #include <mbesPinsMap.h>
 
+uint16_t errCalcule (ravgData_t min, ravgData_t max) {
+	return(abs((max - min)));
+};
 
 int app_main(void) {
 	ravg_t     X1_obj,     X2_obj;
 	ravgData_t X1_val = 0, X2_val = 0;
+	ravgData_t X1_max = 0, X1_min = 0;
+	ravgData_t X2_max = 0, X2_min = 0;
 	int        X1_tmp = 0, X2_tmp = 0;
 	werror     X1_err,     X2_err;
 	
@@ -103,10 +109,23 @@ int app_main(void) {
 			X1_err = ravg_update (&X1_obj, &X1_val, X1_tmp);
 			X2_err = ravg_update (&X2_obj, &X2_val, X2_tmp);
 			
-			if (wErrCode_isSuccess(X1_err) && wErrCode_isSuccess(X2_err))
-				ESP_LOGI(__FILE__, "X1 = %d; X2 = %d", X1_val, X2_val);
+			if (wErrCode_isSuccess(X1_err) && wErrCode_isSuccess(X2_err)) {
+				if (X1_max < X1_val)                 X1_max = X1_val;
+				if (X1_min > X1_val || X1_min == 0)  X1_min = X1_val;
+				if (X2_max < X2_val)                 X2_max = X2_val;
+				if (X2_min > X2_val || X2_min == 0)  X2_min = X2_val;
+
+				ESP_LOGI(__FILE__, "-----------------------------------------");
+				ESP_LOGI(
+					__FILE__, "X1 = %d -- (%d) -- %d \t Err = %d",
+					X1_max, X1_val, X1_min, errCalcule(X1_max, X1_min)
+				);
+				ESP_LOGI(
+					__FILE__, "X2 = %d -- (%d) -- %d \t Err = %d",
+					X2_max, X2_val, X2_min, errCalcule(X2_max, X2_min)
+				);
 				
-			else if (wErrCode_isWarning(X1_err) || wErrCode_isWarning(X2_err))
+			} else if (wErrCode_isWarning(X1_err) || wErrCode_isWarning(X2_err))
 				ESP_LOGW(__FILE__, "The filtered values are not yet avasilable");
 				
 			else
@@ -115,4 +134,6 @@ int app_main(void) {
 		
 		vTaskDelay(200 / portTICK_PERIOD_MS);
 	}
+
+	return(0);
 }
