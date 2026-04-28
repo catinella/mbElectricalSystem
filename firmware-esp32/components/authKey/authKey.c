@@ -49,7 +49,10 @@ werror _authKey_init() {
 	//
 	werror err = WERRCODE_SUCCESS;
 
-	if (nvs_open("storage", NVS_READWRITE, &nvsHandle) != ESP_OK)
+	if (
+		nvs_flash_init()                               != ESP_OK ||
+		nvs_open("authKey", NVS_READWRITE, &nvsHandle) != ESP_OK
+	)
 		// ERROR!
 		err = WERRCODE_ERROR_INITFAILED;
 	else {
@@ -94,16 +97,13 @@ werror authKey_read (authKey_t value) {
 	//	WERRCODE_ERROR_INITFAILED
 	//
 	werror   err = WERRCODE_SUCCESS;
-	uint32_t tmp = 0;
-	
+
 	// NVS initialization
-	if (initFlag == false) err = nvs_flash_init();
+	if (initFlag == false) err = _authKey_init();
 	
 	if (wErrCode_isSuccess(err)) {
 		for (uint8_t t=0; t<AUTHKEY_DEEPLEV; t++) {
-			if (nvs_get_u32(nvsHandle, authKey_labelsList[t], &tmp) == ESP_OK)
-				value[t] = (uint16_t)tmp;
-			else {
+			if (nvs_get_u16(nvsHandle, authKey_labelsList[t], &(value[t])) != ESP_OK) {
 				// ERROR!
 				err = WERRCODE_ERROR_NVSIOFAILED;
 				break;
@@ -130,6 +130,7 @@ werror authKey_check (const authKey_t value) {
 	authKey_t filteredValue, storedValue;
 	
 	err = authKey_read(storedValue);
+	//ESP_LOGI(__FUNCTION__, "Reference values = %d:%d", storedValue[0], storedValue[1]);
 	
 	if (wErrCode_isError(err) == false) {
 		//
@@ -139,7 +140,7 @@ werror authKey_check (const authKey_t value) {
 			*(filteredValue+t) = 0;
 			if (ravg_update((ravgPool+t), (filteredValue+t), value[t]) != WERRCODE_SUCCESS) {
 				// WARNING!
-				ESP_LOGE(__FUNCTION__, "WARNING! filtered values are not yet available");
+				ESP_LOGW(__FUNCTION__, "WARNING! filtered values are not yet available");
 				err = WERRCODE_WARNING_RESNOTAV;
 			}
 		}
