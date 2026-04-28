@@ -27,6 +27,7 @@ idf_component_register(
 		"../components/werror/include"
 		"../components/debugConsoleAPI/include"
 		"../components/authKey/include"
+		"../components/ravgFilter/include"
 	PRIV_REQUIRES
 		esp_driver_gpio
 		esp_adc
