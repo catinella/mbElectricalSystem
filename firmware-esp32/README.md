@@ -70,8 +70,9 @@ and using the ESP-IDF monitor (idf.py monitor) you will be able to read the two 
 You have to create a CSV file respecting the following syntax, and with the values you got at step 2
 
 	key,type,encoding,value
-	refVal_A,u16,decimal,<first-value>
-	refVal_B,u16,decimal,<second-value>
+	authKey,namespace,,
+	refVal_A,data,u16,<first-value>
+	refVal_B,data,u16,<second-value>
 
 **[4]**
 Use the proper tool provided by the ESP-IDF framework, respecting the following syntax:
@@ -87,6 +88,16 @@ Use the proper tool provided by the ESP-IDF framework, respecting the following 
 The following command erase the memory content: the installed firmware and the key's reference values too.
 
 	idf.py erase-flash
+
+#### 2.3.2 Old authentication resistive-key's values retriving
+In some case, (for debug purposes often) you need to read the currently registrered values. To achieve this result you have to
+dump the NVS data on a bin file, using the following command:
+
+	esptool.py --chip esp32-s2 read_flash 0x9000 0x6000 <tmp-file.bin>
+
+Then, you can read the just created bin-file with an exhadecimal editor. Eg.
+
+	xxd <tmp-file.bin>
 
 ### 2.4 Building and firmware updating process
 In order to build the firmware use the following idf standard command:
