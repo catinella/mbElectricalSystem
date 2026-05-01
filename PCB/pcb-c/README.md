@@ -25,5 +25,7 @@ be a big one, often. So, a fly-back diode is very important. For this reason I h
 
 ## 3.0 Devices building:
 The following images shows you the PCB shape it should be at the end
-![PCB](../images/pcb-c.png)
+![PCB](./images/pcb-c.png)
 
+## 4.0 Connections
+![Connectors-diagram](./images/connectors.svg)

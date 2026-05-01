@@ -1,0 +1,30 @@
+
+	                  +-----------+                +-----------------------+
+	                  |           |                |                       |
+	12v ---[1.5mmq] --+           +----[1.5mmq] ---+                       +----[1.5mmq] ---@ positive battery pin
+	                  |           |                |                       +----[1.5mmq] ---@ negative battery pin
+	GND ---[1.5mmq] --+  3 ways   +----[1.5mmq] ---+                       |
+	                  | connector |                |                       |                +-----------+
+	12v* ---[1mmq] ---+           +----[AWG24] ----+                       +----[AWG24] ----+ 2 ways    | Direction indicator
+	                  |           +----[AWG24] ----+                       +----[AWG24] ----+ connector |
+	                  +-----------+                |                       |                +-----------+
+	                                               |                       |
+	                                               |                       |                +-----------+
+	                   +-----------+               |                       +----[AWG24] ----+ 2 ways    | Direction indicator 
+	                   |           |               |                       +----[AWG24] ----+ connector |
+	data1 --[AWG24] ---+           +---[AWG24] ----+   Rear power stage    |                +-----------+
+	                   |           |               |                       |
+	data2 --[AWG24] ---+           +---[AWG24] ----+                       |                +-----------+
+	                   |           |               |                       +----[AWG24] ----+ 2 ways    | Rear light
+	data3 --[AWG24] ---+           +---[AWG24] ----+                       +----[AWG24] ----+ connector |  ( 70mA )
+	                   |  6 ways   |               |                       |                +-----------+
+	data4 --[AWG24] ---+ connector +---[AWG24] ----+                       |
+	                   |           |               |                       +----[AWG24] ----@ Engine start relay [pin 1] 
+	data5 --[AWG24] ---+           +---[AWG24] ----+                       +----[AWG24] ----@ Engine start relay [pin 2] 
+	                   |           |               |                       |
+	data6 --[AWG24] ---+           +---[AWG24] ----+                       |                +-----------+
+	                   |           |               |                       +----[AWG24] ----+ 2 ways    | Stop light
+	                   +-----------+               |                       +----[AWG24] ----+ connector |  ( 370mA )
+	                                               |                       |                +-----------+
+	                                               |                       |
+	                                               +-----------------------+
