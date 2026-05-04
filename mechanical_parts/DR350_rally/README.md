@@ -11,3 +11,6 @@
 
 ## 2.0 Description:
 Mechanical parts for Suzuki DR350 motorbike with rally components made by [Twalcom](https://www.twalcom.com/en) company.
+
+## 3.0 Arrangement of project components
+![Components arrangement on DR350](./images/DR350_2.png)
