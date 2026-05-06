@@ -9,10 +9,9 @@
 | electricSystemBox.dxf                     | The box that will contain the PCB-C          |
 
 ## 2.0 Description:
-The CAD drawings belong to this folder are what you need to produce a strange shape box for PCB-C that fits in a Suzuki
-DR350 motorcycle. 
+The CAD drawings in this folder describe a custom-shaped box for PCB-C designed for a Suzuki DR350 motorcycle.
 The "electricSystemBox.dxf" file contains two 2D parts that they must be realized starting from a 2mm steel metal sheet.
-The largest one must be folded where the bend-layer shows, the other is the box lid.
+The larger part must be bent where the "bend" layer lines indicate.
 
 ### 2.1 Welding
 To complete the box, consider the following steps:
@@ -28,7 +27,9 @@ To complete the box, consider the following steps:
 ![Box](./images/gucview-6.jpg)
 
 ### Motorbike framework modification
-In order to lock the box on the framework you have to modify the lower threaded hole used to lock the battery support to the
-framework. Using a drill, turn it in a through hole.
+In order to lock the box on the framework you have to modify the DR350's framework performing the following steps:
 
+- Use a drill on the lower threaded hole used to lock the battery support. You have to turn it in a through hole.
+- Remove the original fuse support. It is attached with a single spot weld, so, you can remove it with pilers.
+  Remove any metal parts still attached to the frame with a rotary tool
 
