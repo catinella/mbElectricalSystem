@@ -15,20 +15,20 @@ This circuit is a small power stage for the rear turn indicators, brake light, a
 are available in LED format, the power stage is set to provide maximum 500mA (6W) per device.
 
 ## 2.1 Internals:
-In order to fit this device in the DR350 rear size, I have tried to reduce the required space as much as possible. Also
-for this reason, normal fuses have been replaced by [MSMF050](https://www.bourns.com/docs/product-datasheets/mf-msmf.pdf)
+In order to fit this device into the rear section of the DR350, I tried to reduce the required space as much as possible.
+For this reason, conventional fuses have been replaced by [MSMF050](https://www.bourns.com/docs/product-datasheets/mf-msmf.pdf)
 PTC Resettable Fuses.
 
-All the power stage's outputs are equivalent but one is dedicated to the motorbike's starter relay. This relay type can
-be a big one, often. So, a fly-back diode is very important. For this reason I have used a 
-[M7 Rectifiers Diode](https://diotec.com/request/datasheet/m1.pdf).
+All the power-stage outputs are equivalent, but one of them is dedicated to the motorbike's starter relay. This type of relay
+can have a relatively large coil and may generate a significant voltage spike when switched off. For this reason, I added a
+[M7 Rectifiers Diode](https://diotec.com/request/datasheet/m1.pdf) as a flyback diode.
 
 ## 3.0 PCB Layout
-The following images shows you the PCB shape it should be at the end
+The following image shows the intended final PCB layout.
 ![PCB](./images/pcb-c.png)
 
 ## 4.0 Connections
-The following scheme shows you how to build the cables to connect the PCB to the other motorbike components.
+The following diagram shows how to build the cables used to connect the PCB to the other motorbike components.
 ![Connectors-diagram](./images/connectors.svg)
 
 ### 4.1 External connectors
