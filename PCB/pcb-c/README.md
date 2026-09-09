@@ -31,6 +31,7 @@ The following images shows you the PCB shape it should be at the end
 The following scheme shows you how to build the cables to connect the PCB to the other motorbike components.
 ![Connectors-diagram](./images/connectors.svg)
 
+### 4.1 External connectors
 In the left side of the scheme you can see the cables you have to connect with the PCB (pcb-b) in the front side of the
 motorcycle. The 3-ways cable of them is used to provide the battery energy to main controller device (in the front-side),
 for this reason the selected connector is a 
@@ -43,3 +44,11 @@ It has to support a very low current. So, I selected a
 They are very common in automotive applications, you can find all the series producted by other vendors. To get a clear
 idea of them I post here a drawing of the cables.
 ![288/100 cables](images/img-288_connectors.png)
+
+### 4.2 Internal connectors
+The main internal connector is a typical [10-pin dual-row connector](https://www.molex.com/en-us/products/part-detail/702461004)
+PCB-side one, but the associated plug is not the one that is typically one used for the flat cables. In fact, its wires are not
+connected to the same port: 5 pins are connected to the 6-ways external connector, and 4 are connected to the power 3-ways cable.
+For this reason you need a different connector where you can crimp every pin to a single wires. Te follow math with the requirements:
+[MOLEX 10pin plug](https://www.molex.com/en-us/products/part-detail/22552101?display=pdf&utm_source=M2X&utm_medium=api&utm_campaign=api&utm_id=M2X_API?utm_source=M2X&utm_medium=api&utm_campaign=api&utm_id=M2X_API)
+[MOLEX contacts](https://www.molex.com/en-us/products/part-detail/16020102?display=pdf&utm_source=M2X&utm_medium=api&utm_campaign=api&utm_id=M2X_API?utm_source=M2X&utm_medium=api&utm_campaign=api&utm_id=M2X_API)
