@@ -86,3 +86,6 @@ In the following picture you can see the 6-ways connector diagram used for the l
 4) Engine START button
 5) Engine OFF
 6) Engine ON
+
+### 2.5 How to connect the front-side device with the rear-side one
+![overview scheme](./images/connectors.svg)
