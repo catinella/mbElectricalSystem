@@ -1,364 +1,225 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1152" height="608" class="svgbob">
-  <style>.svgbob line, .svgbob path, .svgbob circle, .svgbob rect, .svgbob polygon {
-  stroke: black;
-  stroke-width: 2;
-  stroke-opacity: 1;
-  fill-opacity: 1;
-  stroke-linecap: round;
-  stroke-linejoin: miter;
-}
-
-.svgbob text {
-  white-space: pre;
-  fill: black;
-  font-family: Iosevka Fixed, monospace;
-  font-size: 14px;
-}
-
-.svgbob rect.backdrop {
-  stroke: none;
-  fill: white;
-}
-
-.svgbob .broken {
-  stroke-dasharray: 8;
-}
-
-.svgbob .filled {
-  fill: black;
-}
-
-.svgbob .bg_filled {
-  fill: white;
-  stroke-width: 1;
-}
-
-.svgbob .nofill {
-  fill: white;
-}
-
-.svgbob .end_marked_arrow {
-  marker-end: url(#arrow);
-}
-
-.svgbob .start_marked_arrow {
-  marker-start: url(#arrow);
-}
-
-.svgbob .end_marked_diamond {
-  marker-end: url(#diamond);
-}
-
-.svgbob .start_marked_diamond {
-  marker-start: url(#diamond);
-}
-
-.svgbob .end_marked_circle {
-  marker-end: url(#circle);
-}
-
-.svgbob .start_marked_circle {
-  marker-start: url(#circle);
-}
-
-.svgbob .end_marked_open_circle {
-  marker-end: url(#open_circle);
-}
-
-.svgbob .start_marked_open_circle {
-  marker-start: url(#open_circle);
-}
-
-.svgbob .end_marked_big_open_circle {
-  marker-end: url(#big_open_circle);
-}
-
-.svgbob .start_marked_big_open_circle {
-  marker-start: url(#big_open_circle);
-}
-
-</style>
-  <defs>
-    <marker id="arrow" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <polygon points="0,0 0,4 4,2 0,0"></polygon>
-    </marker>
-    <marker id="diamond" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <polygon points="0,2 2,0 4,2 2,4 0,2"></polygon>
-    </marker>
-    <marker id="circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <circle cx="4" cy="4" r="2" class="filled"></circle>
-    </marker>
-    <marker id="open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <circle cx="4" cy="4" r="2" class="bg_filled"></circle>
-    </marker>
-    <marker id="big_open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <circle cx="4" cy="4" r="3" class="bg_filled"></circle>
-    </marker>
-  </defs>
-  <rect class="backdrop" x="0" y="0" width="1152" height="608"></rect>
-  <rect x="860" y="104" width="120" height="48" class="solid nofill" rx="0"></rect>
-  <text x="874" y="124" >2</text>
-  <text x="890" y="124" >ways</text>
-  <path d="M 936,112 A 16,16 0,0,0 936,128" class="nofill"></path>
-  <text x="946" y="124" >A</text>
-  <text x="874" y="140" >connector</text>
-  <path d="M 960,112 A 16,16 0,0,1 960,128" class="nofill"></path>
-  <rect x="860" y="184" width="120" height="48" class="solid nofill" rx="0"></rect>
-  <text x="874" y="204" >2</text>
-  <text x="890" y="204" >ways</text>
-  <path d="M 936,192 A 16,16 0,0,0 936,208" class="nofill"></path>
-  <text x="946" y="204" >A</text>
-  <text x="874" y="220" >connector</text>
-  <path d="M 960,192 A 16,16 0,0,1 960,208" class="nofill"></path>
-  <rect x="860" y="264" width="120" height="48" class="solid nofill" rx="0"></rect>
-  <text x="874" y="284" >2</text>
-  <text x="890" y="284" >ways</text>
-  <path d="M 936,272 A 16,16 0,0,0 936,288" class="nofill"></path>
-  <text x="946" y="284" >A</text>
-  <text x="874" y="300" >connector</text>
-  <path d="M 960,272 A 16,16 0,0,1 960,288" class="nofill"></path>
-  <rect x="860" y="392" width="120" height="48" class="solid nofill" rx="0"></rect>
-  <text x="874" y="412" >2</text>
-  <text x="890" y="412" >ways</text>
-  <path d="M 936,400 A 16,16 0,0,0 936,416" class="nofill"></path>
-  <text x="946" y="412" >A</text>
-  <text x="874" y="428" >connector</text>
-  <path d="M 960,400 A 16,16 0,0,1 960,416" class="nofill"></path>
-  <text x="354" y="60" >[1.5mmq]</text>
-  <text x="354" y="92" >[1.5mmq]</text>
-  <line x1="144" y1="120" x2="176" y2="120" class="solid"></line>
-  <polygon points="176,116 184,120 176,124" class="filled"></polygon>
-  <text x="354" y="124" >[AWG24]</text>
-  <text x="354" y="140" >[AWG24]</text>
-  <text x="730" y="60" >[1.5mmq]</text>
-  <text x="730" y="76" >[1.5mmq]</text>
-  <text x="730" y="124" >[AWG24]</text>
-  <text x="730" y="140" >[AWG24]</text>
-  <text x="730" y="204" >[AWG24]</text>
-  <text x="730" y="220" >[AWG24]</text>
-  <text x="730" y="284" >[AWG24]</text>
-  <text x="730" y="300" >[AWG24]</text>
-  <text x="730" y="348" >[AWG24]</text>
-  <text x="730" y="364" >[AWG24]</text>
-  <text x="730" y="412" >[AWG24]</text>
-  <text x="730" y="428" >[AWG24]</text>
-  <text x="10" y="60" >12v</text>
-  <polygon points="48,52 40,56 48,60" class="filled"></polygon>
-  <line x1="48" y1="56" x2="80" y2="56" class="solid"></line>
-  <text x="82" y="60" >[1.5mmq]</text>
-  <line x1="800" y1="56" x2="840" y2="56" class="solid"></line>
-  <polygon points="840,52 848,56 840,60" class="filled"></polygon>
-  <text x="850" y="60" >@</text>
-  <line x1="800" y1="72" x2="840" y2="72" class="solid"></line>
-  <polygon points="840,68 848,72 840,76" class="filled"></polygon>
-  <text x="850" y="76" >@</text>
-  <text x="866" y="60" >positive</text>
-  <text x="866" y="76" >negative</text>
-  <text x="938" y="60" >battery</text>
-  <text x="938" y="76" >battery</text>
-  <text x="1002" y="60" >pin</text>
-  <text x="1002" y="76" >pin</text>
-  <text x="210" y="76" >3</text>
-  <text x="226" y="76" >ways</text>
-  <text x="210" y="92" >B</text>
-  <text x="226" y="92" >type</text>
-  <text x="202" y="108" >connector</text>
-  <text x="10" y="92" >GND</text>
-  <line x1="40" y1="88" x2="80" y2="88" class="solid"></line>
-  <text x="82" y="92" >[1.5mmq]</text>
-  <line x1="792" y1="120" x2="848" y2="120" class="solid"></line>
-  <polygon points="848,116 856,120 848,124" class="filled"></polygon>
-  <line x1="792" y1="136" x2="848" y2="136" class="solid"></line>
-  <polygon points="848,132 856,136 848,140" class="filled"></polygon>
-  <text x="10" y="124" >12v*</text>
-  <line x1="48" y1="120" x2="88" y2="120" class="solid"></line>
-  <text x="90" y="124" >[1mmq]</text>
-  <text x="994" y="124" >Direction</text>
-  <text x="1074" y="124" >indicator</text>
-  <line x1="792" y1="200" x2="848" y2="200" class="solid"></line>
-  <polygon points="848,196 856,200 848,204" class="filled"></polygon>
-  <line x1="792" y1="216" x2="848" y2="216" class="solid"></line>
-  <polygon points="848,212 856,216 848,220" class="filled"></polygon>
-  <line x1="152" y1="232" x2="184" y2="232" class="solid"></line>
-  <polygon points="184,228 192,232 184,236" class="filled"></polygon>
-  <text x="338" y="236" >[AWG24]</text>
-  <line x1="152" y1="264" x2="184" y2="264" class="solid"></line>
-  <polygon points="184,260 192,264 184,268" class="filled"></polygon>
-  <text x="338" y="268" >[AWG24]</text>
-  <line x1="152" y1="296" x2="184" y2="296" class="solid"></line>
-  <polygon points="184,292 192,296 184,300" class="filled"></polygon>
-  <text x="338" y="300" >[AWG24]</text>
-  <line x1="152" y1="328" x2="184" y2="328" class="solid"></line>
-  <polygon points="184,324 192,328 184,332" class="filled"></polygon>
-  <text x="338" y="332" >[AWG24]</text>
-  <line x1="152" y1="360" x2="184" y2="360" class="solid"></line>
-  <polygon points="184,356 192,360 184,364" class="filled"></polygon>
-  <text x="338" y="364" >[AWG24]</text>
-  <text x="338" y="396" >[AWG24]</text>
-  <text x="994" y="204" >Direction</text>
-  <text x="1074" y="204" >indicator</text>
-  <text x="10" y="236" >data1</text>
-  <line x1="56" y1="232" x2="88" y2="232" class="solid"></line>
-  <text x="90" y="236" >[AWG24]</text>
-  <text x="498" y="236" >Rear</text>
-  <text x="538" y="236" >power</text>
-  <text x="586" y="236" >stage</text>
-  <text x="10" y="268" >data2</text>
-  <line x1="56" y1="264" x2="88" y2="264" class="solid"></line>
-  <text x="90" y="268" >[AWG24]</text>
-  <line x1="792" y1="280" x2="848" y2="280" class="solid"></line>
-  <polygon points="848,276 856,280 848,284" class="filled"></polygon>
-  <line x1="792" y1="296" x2="848" y2="296" class="solid"></line>
-  <polygon points="848,292 856,296 848,300" class="filled"></polygon>
-  <text x="994" y="284" >Rear</text>
-  <text x="1034" y="284" >light</text>
-  <path d="M 1008,288 A 16,16 0,0,0 1008,304" class="nofill"></path>
-  <text x="1018" y="300" >70mA</text>
-  <path d="M 1056,288 A 16,16 0,0,1 1056,304" class="nofill"></path>
-  <text x="10" y="300" >data3</text>
-  <line x1="56" y1="296" x2="88" y2="296" class="solid"></line>
-  <text x="90" y="300" >[AWG24]</text>
-  <text x="218" y="316" >6</text>
-  <text x="234" y="316" >ways</text>
-  <text x="218" y="332" >A</text>
-  <text x="234" y="332" >type</text>
-  <text x="210" y="348" >connector</text>
-  <text x="10" y="332" >data4</text>
-  <line x1="56" y1="328" x2="88" y2="328" class="solid"></line>
-  <text x="90" y="332" >[AWG24]</text>
-  <line x1="792" y1="344" x2="848" y2="344" class="solid"></line>
-  <polygon points="848,340 856,344 848,348" class="filled"></polygon>
-  <text x="858" y="348" >@</text>
-  <line x1="792" y1="360" x2="848" y2="360" class="solid"></line>
-  <polygon points="848,356 856,360 848,364" class="filled"></polygon>
-  <text x="858" y="364" >@</text>
-  <text x="874" y="348" >Engine</text>
-  <text x="874" y="364" >Engine</text>
-  <text x="930" y="348" >start</text>
-  <text x="930" y="364" >start</text>
-  <text x="978" y="348" >relay</text>
-  <text x="978" y="364" >relay</text>
-  <text x="1026" y="348" >[pin</text>
-  <text x="1026" y="364" >[pin</text>
-  <text x="1066" y="348" >1]</text>
-  <text x="1066" y="364" >2]</text>
-  <text x="10" y="364" >data5</text>
-  <line x1="56" y1="360" x2="88" y2="360" class="solid"></line>
-  <text x="90" y="364" >[AWG24]</text>
-  <line x1="792" y1="408" x2="848" y2="408" class="solid"></line>
-  <polygon points="848,404 856,408 848,412" class="filled"></polygon>
-  <line x1="792" y1="424" x2="848" y2="424" class="solid"></line>
-  <polygon points="848,420 856,424 848,428" class="filled"></polygon>
-  <text x="994" y="412" >Stop</text>
-  <text x="1034" y="412" >light</text>
-  <path d="M 1008,416 A 16,16 0,0,0 1008,432" class="nofill"></path>
-  <text x="1018" y="428" >370mA</text>
-  <path d="M 1064,416 A 16,16 0,0,1 1064,432" class="nofill"></path>
-  <text x="10" y="508" >data1</text>
-  <text x="10" y="524" >data2</text>
-  <text x="10" y="540" >data3</text>
-  <text x="10" y="556" >data4</text>
-  <text x="10" y="572" >data5</text>
-  <text x="10" y="588" >data6</text>
-  <line x1="56" y1="502" x2="64" y2="502" class="solid"></line>
-  <line x1="56" y1="506" x2="64" y2="506" class="solid"></line>
-  <line x1="56" y1="518" x2="64" y2="518" class="solid"></line>
-  <line x1="56" y1="522" x2="64" y2="522" class="solid"></line>
-  <line x1="56" y1="534" x2="64" y2="534" class="solid"></line>
-  <line x1="56" y1="538" x2="64" y2="538" class="solid"></line>
-  <line x1="56" y1="550" x2="64" y2="550" class="solid"></line>
-  <line x1="56" y1="554" x2="64" y2="554" class="solid"></line>
-  <line x1="56" y1="566" x2="64" y2="566" class="solid"></line>
-  <line x1="56" y1="570" x2="64" y2="570" class="solid"></line>
-  <line x1="56" y1="582" x2="64" y2="582" class="solid"></line>
-  <line x1="56" y1="586" x2="64" y2="586" class="solid"></line>
-  <text x="74" y="508" >Brake</text>
-  <text x="122" y="508" >switch</text>
-  <text x="74" y="524" >Start</text>
-  <text x="122" y="524" >engine</text>
-  <text x="74" y="540" >Turn</text>
-  <text x="114" y="540" >left</text>
-  <text x="154" y="540" >ind.</text>
-  <text x="74" y="556" >Turn</text>
-  <text x="114" y="556" >right</text>
-  <text x="162" y="556" >ind.</text>
-  <text x="74" y="572" >Tear</text>
-  <text x="114" y="572" >light</text>
-  <text x="74" y="588" >[not</text>
-  <text x="114" y="588" >used]</text>
-  <text x="282" y="508" >A</text>
-  <text x="282" y="524" >B</text>
-  <text x="282" y="540" >@</text>
-  <line x1="296" y1="504" x2="304" y2="504" class="solid"></line>
-  <line x1="296" y1="520" x2="304" y2="520" class="solid"></line>
-  <line x1="296" y1="536" x2="304" y2="536" class="solid"></line>
-  <text x="314" y="508" >2.88mm</text>
-  <path d="M 376,496 A 16,16 0,0,0 376,512" class="nofill"></path>
-  <text x="386" y="508" >mod:100</text>
-  <path d="M 448,496 A 16,16 0,0,1 448,512" class="nofill"></path>
-  <text x="466" y="508" >connectors</text>
-  <text x="314" y="524" >Receptacle</text>
-  <text x="402" y="524" >Terminal</text>
-  <text x="474" y="524" >Housing,</text>
-  <text x="546" y="524" >3</text>
-  <text x="314" y="540" >Ring</text>
-  <text x="354" y="540" >terminal</text>
-  <text x="426" y="540" >of</text>
-  <text x="450" y="540" >Faston</text>
-  <text x="562" y="524" >Position,</text>
-  <text x="642" y="524" >6.3</text>
-  <text x="674" y="524" >mm</text>
-  <g>
-    <line x1="188" y1="24" x2="284" y2="24" class="solid"></line>
-    <line x1="188" y1="24" x2="188" y2="152" class="solid"></line>
-    <line x1="284" y1="24" x2="284" y2="152" class="solid"></line>
-    <line x1="152" y1="56" x2="188" y2="56" class="solid"></line>
-    <line x1="284" y1="56" x2="352" y2="56" class="solid"></line>
-    <line x1="152" y1="88" x2="188" y2="88" class="solid"></line>
-    <line x1="284" y1="88" x2="352" y2="88" class="solid"></line>
-    <line x1="284" y1="120" x2="352" y2="120" class="solid"></line>
-    <line x1="284" y1="136" x2="352" y2="136" class="solid"></line>
-    <line x1="188" y1="152" x2="284" y2="152" class="solid"></line>
-  </g>
-  <g>
-    <line x1="468" y1="24" x2="660" y2="24" class="solid"></line>
-    <line x1="468" y1="24" x2="468" y2="472" class="solid"></line>
-    <line x1="660" y1="24" x2="660" y2="472" class="solid"></line>
-    <line x1="424" y1="56" x2="468" y2="56" class="solid"></line>
-    <line x1="660" y1="56" x2="728" y2="56" class="solid"></line>
-    <line x1="660" y1="72" x2="728" y2="72" class="solid"></line>
-    <line x1="424" y1="88" x2="468" y2="88" class="solid"></line>
-    <line x1="416" y1="120" x2="468" y2="120" class="solid"></line>
-    <line x1="660" y1="120" x2="728" y2="120" class="solid"></line>
-    <line x1="416" y1="136" x2="468" y2="136" class="solid"></line>
-    <line x1="660" y1="136" x2="728" y2="136" class="solid"></line>
-    <line x1="660" y1="200" x2="728" y2="200" class="solid"></line>
-    <line x1="660" y1="216" x2="728" y2="216" class="solid"></line>
-    <line x1="400" y1="232" x2="468" y2="232" class="solid"></line>
-    <line x1="400" y1="264" x2="468" y2="264" class="solid"></line>
-    <line x1="660" y1="280" x2="728" y2="280" class="solid"></line>
-    <line x1="400" y1="296" x2="468" y2="296" class="solid"></line>
-    <line x1="660" y1="296" x2="728" y2="296" class="solid"></line>
-    <line x1="400" y1="328" x2="468" y2="328" class="solid"></line>
-    <line x1="660" y1="344" x2="728" y2="344" class="solid"></line>
-    <line x1="400" y1="360" x2="468" y2="360" class="solid"></line>
-    <line x1="660" y1="360" x2="728" y2="360" class="solid"></line>
-    <line x1="400" y1="392" x2="468" y2="392" class="solid"></line>
-    <line x1="660" y1="408" x2="728" y2="408" class="solid"></line>
-    <line x1="660" y1="424" x2="728" y2="424" class="solid"></line>
-    <line x1="468" y1="472" x2="660" y2="472" class="solid"></line>
-  </g>
-  <g>
-    <line x1="196" y1="200" x2="292" y2="200" class="solid"></line>
-    <line x1="196" y1="200" x2="196" y2="424" class="solid"></line>
-    <line x1="292" y1="200" x2="292" y2="424" class="solid"></line>
-    <line x1="292" y1="232" x2="336" y2="232" class="solid"></line>
-    <line x1="292" y1="264" x2="336" y2="264" class="solid"></line>
-    <line x1="292" y1="296" x2="336" y2="296" class="solid"></line>
-    <line x1="292" y1="328" x2="336" y2="328" class="solid"></line>
-    <line x1="292" y1="360" x2="336" y2="360" class="solid"></line>
-    <line x1="172" y1="392" x2="196" y2="392" class="solid"></line>
-    <line x1="292" y1="392" x2="336" y2="392" class="solid"></line>
-    <line x1="196" y1="424" x2="292" y2="424" class="solid"></line>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="624" width="1224" viewBox="0 0 1224 624" class="diagram" text-anchor="middle" font-family="monospace" font-size="13px">
+<path d="M 184,32 L 184,160" fill="none" stroke="black"/>
+<path d="M 192,208 L 192,432" fill="none" stroke="black"/>
+<path d="M 280,32 L 280,160" fill="none" stroke="black"/>
+<path d="M 288,208 L 288,432" fill="none" stroke="black"/>
+<path d="M 464,32 L 464,480" fill="none" stroke="black"/>
+<path d="M 656,32 L 656,480" fill="none" stroke="black"/>
+<path d="M 816,112 L 816,160" fill="none" stroke="black"/>
+<path d="M 816,192 L 816,240" fill="none" stroke="black"/>
+<path d="M 816,272 L 816,320" fill="none" stroke="black"/>
+<path d="M 816,400 L 816,448" fill="none" stroke="black"/>
+<path d="M 920,112 L 920,160" fill="none" stroke="black"/>
+<path d="M 920,192 L 920,240" fill="none" stroke="black"/>
+<path d="M 920,272 L 920,320" fill="none" stroke="black"/>
+<path d="M 920,400 L 920,448" fill="none" stroke="black"/>
+<path d="M 960,112 L 960,160" fill="none" stroke="black"/>
+<path d="M 960,192 L 960,240" fill="none" stroke="black"/>
+<path d="M 960,272 L 960,320" fill="none" stroke="black"/>
+<path d="M 960,400 L 960,448" fill="none" stroke="black"/>
+<path d="M 1064,272 L 1064,320" fill="none" stroke="black"/>
+<path d="M 1064,400 L 1064,448" fill="none" stroke="black"/>
+<path d="M 1096,112 L 1096,160" fill="none" stroke="black"/>
+<path d="M 1096,192 L 1096,240" fill="none" stroke="black"/>
+<path d="M 184,32 L 280,32" fill="none" stroke="black"/>
+<path d="M 464,32 L 656,32" fill="none" stroke="black"/>
+<path d="M 40,64 L 72,64" fill="none" stroke="black"/>
+<path d="M 144,64 L 184,64" fill="none" stroke="black"/>
+<path d="M 280,64 L 344,64" fill="none" stroke="black"/>
+<path d="M 416,64 L 464,64" fill="none" stroke="black"/>
+<path d="M 656,64 L 688,64" fill="none" stroke="black"/>
+<path d="M 760,64 L 912,64" fill="none" stroke="black"/>
+<path d="M 936,64 L 960,64" fill="none" stroke="black"/>
+<path d="M 984,64 L 1000,64" fill="none" stroke="black"/>
+<path d="M 656,80 L 688,80" fill="none" stroke="black"/>
+<path d="M 760,80 L 912,80" fill="none" stroke="black"/>
+<path d="M 936,80 L 960,80" fill="none" stroke="black"/>
+<path d="M 984,80 L 1000,80" fill="none" stroke="black"/>
+<path d="M 40,96 L 72,96" fill="none" stroke="black"/>
+<path d="M 144,96 L 184,96" fill="none" stroke="black"/>
+<path d="M 280,96 L 344,96" fill="none" stroke="black"/>
+<path d="M 416,96 L 464,96" fill="none" stroke="black"/>
+<path d="M 816,112 L 920,112" fill="none" stroke="black"/>
+<path d="M 960,112 L 1096,112" fill="none" stroke="black"/>
+<path d="M 64,128 L 80,128" fill="none" stroke="black"/>
+<path d="M 136,128 L 176,128" fill="none" stroke="black"/>
+<path d="M 280,128 L 344,128" fill="none" stroke="black"/>
+<path d="M 408,128 L 464,128" fill="none" stroke="black"/>
+<path d="M 656,128 L 688,128" fill="none" stroke="black"/>
+<path d="M 752,128 L 816,128" fill="none" stroke="black"/>
+<path d="M 928,128 L 952,128" fill="none" stroke="black"/>
+<path d="M 280,144 L 344,144" fill="none" stroke="black"/>
+<path d="M 408,144 L 464,144" fill="none" stroke="black"/>
+<path d="M 656,144 L 688,144" fill="none" stroke="black"/>
+<path d="M 752,144 L 816,144" fill="none" stroke="black"/>
+<path d="M 928,144 L 952,144" fill="none" stroke="black"/>
+<path d="M 184,160 L 280,160" fill="none" stroke="black"/>
+<path d="M 816,160 L 920,160" fill="none" stroke="black"/>
+<path d="M 960,160 L 1096,160" fill="none" stroke="black"/>
+<path d="M 816,192 L 920,192" fill="none" stroke="black"/>
+<path d="M 960,192 L 1096,192" fill="none" stroke="black"/>
+<path d="M 192,208 L 288,208" fill="none" stroke="black"/>
+<path d="M 656,208 L 688,208" fill="none" stroke="black"/>
+<path d="M 752,208 L 816,208" fill="none" stroke="black"/>
+<path d="M 928,208 L 952,208" fill="none" stroke="black"/>
+<path d="M 656,224 L 688,224" fill="none" stroke="black"/>
+<path d="M 752,224 L 816,224" fill="none" stroke="black"/>
+<path d="M 928,224 L 952,224" fill="none" stroke="black"/>
+<path d="M 56,240 L 80,240" fill="none" stroke="black"/>
+<path d="M 144,240 L 184,240" fill="none" stroke="black"/>
+<path d="M 288,240 L 328,240" fill="none" stroke="black"/>
+<path d="M 392,240 L 464,240" fill="none" stroke="black"/>
+<path d="M 816,240 L 920,240" fill="none" stroke="black"/>
+<path d="M 960,240 L 1096,240" fill="none" stroke="black"/>
+<path d="M 56,272 L 80,272" fill="none" stroke="black"/>
+<path d="M 144,272 L 184,272" fill="none" stroke="black"/>
+<path d="M 288,272 L 328,272" fill="none" stroke="black"/>
+<path d="M 392,272 L 464,272" fill="none" stroke="black"/>
+<path d="M 816,272 L 920,272" fill="none" stroke="black"/>
+<path d="M 960,272 L 1064,272" fill="none" stroke="black"/>
+<path d="M 656,288 L 688,288" fill="none" stroke="black"/>
+<path d="M 752,288 L 816,288" fill="none" stroke="black"/>
+<path d="M 928,288 L 952,288" fill="none" stroke="black"/>
+<path d="M 56,304 L 80,304" fill="none" stroke="black"/>
+<path d="M 144,304 L 184,304" fill="none" stroke="black"/>
+<path d="M 288,304 L 328,304" fill="none" stroke="black"/>
+<path d="M 392,304 L 464,304" fill="none" stroke="black"/>
+<path d="M 656,304 L 688,304" fill="none" stroke="black"/>
+<path d="M 752,304 L 816,304" fill="none" stroke="black"/>
+<path d="M 928,304 L 952,304" fill="none" stroke="black"/>
+<path d="M 816,320 L 920,320" fill="none" stroke="black"/>
+<path d="M 960,320 L 1064,320" fill="none" stroke="black"/>
+<path d="M 56,336 L 80,336" fill="none" stroke="black"/>
+<path d="M 144,336 L 184,336" fill="none" stroke="black"/>
+<path d="M 288,336 L 328,336" fill="none" stroke="black"/>
+<path d="M 392,336 L 464,336" fill="none" stroke="black"/>
+<path d="M 656,352 L 688,352" fill="none" stroke="black"/>
+<path d="M 752,352 L 912,352" fill="none" stroke="black"/>
+<path d="M 936,352 L 960,352" fill="none" stroke="black"/>
+<path d="M 984,352 L 1000,352" fill="none" stroke="black"/>
+<path d="M 56,368 L 80,368" fill="none" stroke="black"/>
+<path d="M 144,368 L 184,368" fill="none" stroke="black"/>
+<path d="M 288,368 L 328,368" fill="none" stroke="black"/>
+<path d="M 392,368 L 464,368" fill="none" stroke="black"/>
+<path d="M 656,368 L 688,368" fill="none" stroke="black"/>
+<path d="M 752,368 L 912,368" fill="none" stroke="black"/>
+<path d="M 936,368 L 960,368" fill="none" stroke="black"/>
+<path d="M 984,368 L 1000,368" fill="none" stroke="black"/>
+<path d="M 176,400 L 192,400" fill="none" stroke="black"/>
+<path d="M 288,400 L 328,400" fill="none" stroke="black"/>
+<path d="M 392,400 L 464,400" fill="none" stroke="black"/>
+<path d="M 816,400 L 920,400" fill="none" stroke="black"/>
+<path d="M 960,400 L 1064,400" fill="none" stroke="black"/>
+<path d="M 656,416 L 688,416" fill="none" stroke="black"/>
+<path d="M 752,416 L 816,416" fill="none" stroke="black"/>
+<path d="M 928,416 L 952,416" fill="none" stroke="black"/>
+<path d="M 192,432 L 288,432" fill="none" stroke="black"/>
+<path d="M 656,432 L 688,432" fill="none" stroke="black"/>
+<path d="M 752,432 L 816,432" fill="none" stroke="black"/>
+<path d="M 928,432 L 952,432" fill="none" stroke="black"/>
+<path d="M 816,448 L 920,448" fill="none" stroke="black"/>
+<path d="M 960,448 L 1064,448" fill="none" stroke="black"/>
+<path d="M 464,480 L 656,480" fill="none" stroke="black"/>
+<polygon class="arrowhead" points="968,368 956,362.4 956,373.6" fill="black" transform="rotate(0,960,368)"/>
+<polygon class="arrowhead" points="968,352 956,346.4 956,357.6" fill="black" transform="rotate(0,960,352)"/>
+<polygon class="arrowhead" points="960,432 948,426.4 948,437.6" fill="black" transform="rotate(0,952,432)"/>
+<polygon class="arrowhead" points="960,416 948,410.4 948,421.6" fill="black" transform="rotate(0,952,416)"/>
+<polygon class="arrowhead" points="960,304 948,298.4 948,309.6" fill="black" transform="rotate(0,952,304)"/>
+<polygon class="arrowhead" points="960,288 948,282.4 948,293.6" fill="black" transform="rotate(0,952,288)"/>
+<polygon class="arrowhead" points="960,224 948,218.4 948,229.6" fill="black" transform="rotate(0,952,224)"/>
+<polygon class="arrowhead" points="960,208 948,202.4 948,213.6" fill="black" transform="rotate(0,952,208)"/>
+<polygon class="arrowhead" points="960,144 948,138.4 948,149.6" fill="black" transform="rotate(0,952,144)"/>
+<polygon class="arrowhead" points="960,128 948,122.4 948,133.6" fill="black" transform="rotate(0,952,128)"/>
+<polygon class="arrowhead" points="944,80 932,74.4 932,85.6" fill="black" transform="rotate(180,936,80)"/>
+<polygon class="arrowhead" points="944,64 932,58.4 932,69.6" fill="black" transform="rotate(180,936,64)"/>
+<polygon class="arrowhead" points="192,368 180,362.4 180,373.6" fill="black" transform="rotate(0,184,368)"/>
+<polygon class="arrowhead" points="192,336 180,330.4 180,341.6" fill="black" transform="rotate(0,184,336)"/>
+<polygon class="arrowhead" points="192,304 180,298.4 180,309.6" fill="black" transform="rotate(0,184,304)"/>
+<polygon class="arrowhead" points="192,272 180,266.4 180,277.6" fill="black" transform="rotate(0,184,272)"/>
+<polygon class="arrowhead" points="192,240 180,234.4 180,245.6" fill="black" transform="rotate(0,184,240)"/>
+<polygon class="arrowhead" points="184,128 172,122.4 172,133.6" fill="black" transform="rotate(0,176,128)"/>
+<polygon class="arrowhead" points="48,64 36,58.4 36,69.6" fill="black" transform="rotate(180,40,64)"/>
+<g class="text">
+<text x="16" y="68">12v</text>
+<text x="108" y="68">[1.5mmq]</text>
+<text x="380" y="68">[1.5mmq]</text>
+<text x="724" y="68">[1.5mmq]</text>
+<text x="920" y="68">@</text>
+<text x="976" y="68">@</text>
+<text x="1084" y="68">positive battery pin</text>
+<text x="228" y="84">3 ways</text>
+<text x="724" y="84">[1.5mmq]</text>
+<text x="920" y="84">@</text>
+<text x="976" y="84">@</text>
+<text x="1084" y="84">negative battery pin</text>
+<text x="16" y="100">GND</text>
+<text x="108" y="100">[1.5mmq]</text>
+<text x="228" y="100">B type</text>
+<text x="380" y="100">[1.5mmq]</text>
+<text x="232" y="116">connector</text>
+<text x="28" y="132">12v(r)</text>
+<text x="108" y="132">[1mmq]</text>
+<text x="376" y="132">[AWG24]</text>
+<text x="720" y="132">[AWG24]</text>
+<text x="868" y="132">2 ways (A)</text>
+<text x="1028" y="132">Turn indicator</text>
+<text x="376" y="148">[AWG24]</text>
+<text x="720" y="148">[AWG24]</text>
+<text x="864" y="148">connector</text>
+<text x="720" y="212">[AWG24]</text>
+<text x="868" y="212">2 ways (A)</text>
+<text x="1028" y="212">Turn indicator</text>
+<text x="720" y="228">[AWG24]</text>
+<text x="864" y="228">connector</text>
+<text x="24" y="244">data1</text>
+<text x="112" y="244">[AWG24]</text>
+<text x="360" y="244">[AWG24]</text>
+<text x="556" y="244">Rear power stage</text>
+<text x="24" y="276">data2</text>
+<text x="112" y="276">[AWG24]</text>
+<text x="360" y="276">[AWG24]</text>
+<text x="720" y="292">[AWG24]</text>
+<text x="868" y="292">2 ways (A)</text>
+<text x="1012" y="292">Rear light</text>
+<text x="24" y="308">data3</text>
+<text x="112" y="308">[AWG24]</text>
+<text x="360" y="308">[AWG24]</text>
+<text x="720" y="308">[AWG24]</text>
+<text x="864" y="308">connector</text>
+<text x="1012" y="308">( 70mA )</text>
+<text x="236" y="324">6 ways</text>
+<text x="24" y="340">data4</text>
+<text x="112" y="340">[AWG24]</text>
+<text x="236" y="340">A type</text>
+<text x="360" y="340">[AWG24]</text>
+<text x="240" y="356">connector</text>
+<text x="720" y="356">[AWG24]</text>
+<text x="920" y="356">@</text>
+<text x="976" y="356">@</text>
+<text x="1108" y="356">Engine start relay [pin 1]</text>
+<text x="24" y="372">data5</text>
+<text x="112" y="372">[AWG24]</text>
+<text x="360" y="372">[AWG24]</text>
+<text x="720" y="372">[AWG24]</text>
+<text x="920" y="372">@</text>
+<text x="976" y="372">@</text>
+<text x="1108" y="372">Engine start relay [pin 2]</text>
+<text x="168" y="404">X</text>
+<text x="360" y="404">[AWG24]</text>
+<text x="720" y="420">[AWG24]</text>
+<text x="868" y="420">2 ways (A)</text>
+<text x="1012" y="420">Stop light</text>
+<text x="720" y="436">[AWG24]</text>
+<text x="864" y="436">connector</text>
+<text x="1016" y="436">( 370mA )</text>
+<text x="84" y="516">data1 = Brake switch</text>
+<text x="408" y="516">A - 2.88mm ( mod:100 ) connectors</text>
+<text x="84" y="532">data2 = Start engine</text>
+<text x="480" y="532">B - Receptacle Terminal Housing, 3 Position, 6.3 mm</text>
+<text x="92" y="548">data3 = Turn left ind.</text>
+<text x="384" y="548">@ - Ring terminal of Faston</text>
+<text x="96" y="564">data4 = Turn right ind.</text>
+<text x="76" y="580">data5 = Tear light</text>
+<text x="76" y="596">data6 = [not used]</text>
+</g>
 </svg>

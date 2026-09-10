@@ -14,27 +14,22 @@
 # Description:
 #	This makefile allows you to produce all image files starting by their ascii definitions
 #
-#	SVGBOB (https://lib.rs/crates/svgbob_cli):
-#		Svgbob can create a nice graphical representation of your text diagrams. It provides a CLI which takes text as input
-#		and creates an svg image as an output.
+#	AASVG (https://github.com/martinthomson/aasvg)
+#		It can create a nice graphical representation of your text diagrams.
 #
 #
 #-----------------------------------------------------------------------------------------------------------------------------------
 
-#
-# If you installed Rust locally, don't forget to load the environment
-# source "$HOME/.cargo/env"
-#
 
-SRCs   := $(shell ls *.asciiDiag)
-TGTs   := $(SRCs:.asciiDiag=.svg)
-SVGBOB  = svgbob_cli
+SRCs := $(shell ls *.asciiDiag)
+TGTs := $(SRCs:.asciiDiag=.svg)
+TOOL ?= aasvg
 
 all:		$(TGTs)
 
 %.svg:	%.asciiDiag
 		@echo "[GEN] $@"
-		@$(SVGBOB) $< > $@
+		@$(TOOL) < $< > $@
 
 clean:
 		@rm -fv $(TGTs)

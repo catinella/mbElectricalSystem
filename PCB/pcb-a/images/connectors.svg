@@ -1,335 +1,173 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1072" height="496" class="svgbob">
-  <style>.svgbob line, .svgbob path, .svgbob circle, .svgbob rect, .svgbob polygon {
-  stroke: black;
-  stroke-width: 2;
-  stroke-opacity: 1;
-  fill-opacity: 1;
-  stroke-linecap: round;
-  stroke-linejoin: miter;
-}
-
-.svgbob text {
-  white-space: pre;
-  fill: black;
-  font-family: Iosevka Fixed, monospace;
-  font-size: 14px;
-}
-
-.svgbob rect.backdrop {
-  stroke: none;
-  fill: white;
-}
-
-.svgbob .broken {
-  stroke-dasharray: 8;
-}
-
-.svgbob .filled {
-  fill: black;
-}
-
-.svgbob .bg_filled {
-  fill: white;
-  stroke-width: 1;
-}
-
-.svgbob .nofill {
-  fill: white;
-}
-
-.svgbob .end_marked_arrow {
-  marker-end: url(#arrow);
-}
-
-.svgbob .start_marked_arrow {
-  marker-start: url(#arrow);
-}
-
-.svgbob .end_marked_diamond {
-  marker-end: url(#diamond);
-}
-
-.svgbob .start_marked_diamond {
-  marker-start: url(#diamond);
-}
-
-.svgbob .end_marked_circle {
-  marker-end: url(#circle);
-}
-
-.svgbob .start_marked_circle {
-  marker-start: url(#circle);
-}
-
-.svgbob .end_marked_open_circle {
-  marker-end: url(#open_circle);
-}
-
-.svgbob .start_marked_open_circle {
-  marker-start: url(#open_circle);
-}
-
-.svgbob .end_marked_big_open_circle {
-  marker-end: url(#big_open_circle);
-}
-
-.svgbob .start_marked_big_open_circle {
-  marker-start: url(#big_open_circle);
-}
-
-</style>
-  <defs>
-    <marker id="arrow" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <polygon points="0,0 0,4 4,2 0,0"></polygon>
-    </marker>
-    <marker id="diamond" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <polygon points="0,2 2,0 4,2 2,4 0,2"></polygon>
-    </marker>
-    <marker id="circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <circle cx="4" cy="4" r="2" class="filled"></circle>
-    </marker>
-    <marker id="open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <circle cx="4" cy="4" r="2" class="bg_filled"></circle>
-    </marker>
-    <marker id="big_open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <circle cx="4" cy="4" r="3" class="bg_filled"></circle>
-    </marker>
-  </defs>
-  <rect class="backdrop" x="0" y="0" width="1072" height="496"></rect>
-  <text x="42" y="92" >Front</text>
-  <text x="90" y="92" >side</text>
-  <text x="130" y="92" >device</text>
-  <text x="210" y="156" >[AWG24]</text>
-  <polygon points="520,148 528,152 520,156" class="filled"></polygon>
-  <text x="210" y="172" >[AWG24]</text>
-  <polygon points="520,164 528,168 520,172" class="filled"></polygon>
-  <line x1="1032" y1="160" x2="1024" y2="176" class="solid"></line>
-  <line x1="1040" y1="160" x2="1024" y2="192" class="solid"></line>
-  <line x1="1048" y1="160" x2="1024" y2="208" class="solid"></line>
-  <text x="210" y="188" >[AWG24]</text>
-  <polygon points="520,180 528,184 520,188" class="filled"></polygon>
-  <text x="1018" y="188" >|</text>
-  <text x="210" y="204" >[AWG24]</text>
-  <polygon points="520,196 528,200 520,204" class="filled"></polygon>
-  <text x="1018" y="204" >|</text>
-  <text x="210" y="220" >[AWG24]</text>
-  <polygon points="520,212 528,216 520,220" class="filled"></polygon>
-  <text x="1018" y="220" >|</text>
-  <text x="210" y="236" >[AWG24]</text>
-  <text x="1018" y="236" >|</text>
-  <text x="210" y="252" >[AWG24]</text>
-  <text x="1018" y="252" >|</text>
-  <text x="210" y="268" >[AWG24]</text>
-  <text x="1018" y="268" >|</text>
-  <text x="1018" y="284" >|</text>
-  <text x="1018" y="300" >|</text>
-  <text x="1018" y="316" >|</text>
-  <polygon points="520,324 528,328 520,332" class="filled"></polygon>
-  <text x="1018" y="332" >|</text>
-  <polygon points="520,340 528,344 520,348" class="filled"></polygon>
-  <polygon points="520,356 528,360 520,364" class="filled"></polygon>
-  <text x="746" y="396" >CDI</text>
-  <text x="810" y="396" >neutral</text>
-  <text x="906" y="396" >bike</text>
-  <line x1="936" y1="400" x2="944" y2="400" class="solid"></line>
-  <text x="946" y="396" >stand</text>
-  <text x="810" y="412" >swutch</text>
-  <text x="922" y="412" >switch</text>
-  <text x="154" y="156" >0</text>
-  <text x="154" y="172" >1</text>
-  <text x="154" y="188" >2</text>
-  <text x="154" y="204" >3</text>
-  <text x="154" y="220" >4</text>
-  <text x="154" y="236" >5</text>
-  <text x="154" y="252" >6</text>
-  <text x="154" y="268" >7</text>
-  <text x="418" y="172" >6</text>
-  <text x="434" y="172" >ways</text>
-  <text x="418" y="188" >A</text>
-  <text x="434" y="188" >type</text>
-  <text x="410" y="204" >connector</text>
-  <text x="66" y="220" >PCB</text>
-  <line x1="96" y1="216" x2="104" y2="216" class="solid"></line>
-  <text x="114" y="220" >A</text>
-  <text x="418" y="332" >3</text>
-  <text x="434" y="332" >ways</text>
-  <text x="418" y="348" >A</text>
-  <text x="434" y="348" >type</text>
-  <text x="410" y="364" >connector</text>
-  <text x="674" y="460" >GND</text>
-  <text x="10" y="476" >A</text>
-  <line x1="24" y1="472" x2="32" y2="472" class="solid"></line>
-  <text x="42" y="476" >2.88mm</text>
-  <path d="M 104,464 A 16,16 0,0,0 104,480" class="nofill"></path>
-  <text x="114" y="476" >mod:100</text>
-  <path d="M 176,464 A 16,16 0,0,1 176,480" class="nofill"></path>
-  <text x="194" y="476" >connectors</text>
-  <g>
-    <line x1="12" y1="72" x2="196" y2="72" class="solid"></line>
-    <line x1="12" y1="72" x2="12" y2="376" class="solid"></line>
-    <line x1="196" y1="72" x2="196" y2="144" class="solid"></line>
-    <line x1="196" y1="272" x2="196" y2="376" class="solid"></line>
-    <line x1="12" y1="376" x2="196" y2="376" class="solid"></line>
-  </g>
-  <g>
-    <line x1="36" y1="104" x2="172" y2="104" class="solid"></line>
-    <line x1="36" y1="104" x2="36" y2="344" class="solid"></line>
-    <line x1="172" y1="104" x2="172" y2="344" class="solid"></line>
-    <line x1="140" y1="120" x2="172" y2="120" class="solid"></line>
-    <line x1="140" y1="120" x2="140" y2="296" class="solid"></line>
-    <line x1="172" y1="152" x2="208" y2="152" class="solid"></line>
-    <line x1="172" y1="168" x2="208" y2="168" class="solid"></line>
-    <line x1="172" y1="184" x2="208" y2="184" class="solid"></line>
-    <line x1="172" y1="200" x2="208" y2="200" class="solid"></line>
-    <line x1="172" y1="216" x2="208" y2="216" class="solid"></line>
-    <line x1="172" y1="232" x2="208" y2="232" class="solid"></line>
-    <line x1="172" y1="248" x2="208" y2="248" class="solid"></line>
-    <line x1="172" y1="264" x2="208" y2="264" class="solid"></line>
-    <line x1="140" y1="296" x2="172" y2="296" class="solid"></line>
-    <line x1="36" y1="344" x2="172" y2="344" class="solid"></line>
-  </g>
-  <g>
-    <line x1="396" y1="120" x2="492" y2="120" class="solid"></line>
-    <line x1="396" y1="120" x2="396" y2="264" class="solid"></line>
-    <line x1="492" y1="120" x2="492" y2="264" class="solid"></line>
-    <line x1="264" y1="152" x2="396" y2="152" class="solid"></line>
-    <line x1="492" y1="152" x2="520" y2="152" class="solid"></line>
-    <line x1="264" y1="168" x2="396" y2="168" class="solid"></line>
-    <line x1="492" y1="168" x2="520" y2="168" class="solid"></line>
-    <line x1="264" y1="184" x2="396" y2="184" class="solid"></line>
-    <line x1="492" y1="184" x2="520" y2="184" class="solid"></line>
-    <line x1="332" y1="200" x2="396" y2="200" class="solid"></line>
-    <line x1="332" y1="200" x2="332" y2="216" class="solid"></line>
-    <line x1="492" y1="200" x2="520" y2="200" class="solid"></line>
-    <line x1="264" y1="216" x2="332" y2="216" class="solid"></line>
-    <line x1="356" y1="216" x2="396" y2="216" class="solid"></line>
-    <line x1="356" y1="216" x2="356" y2="232" class="solid"></line>
-    <line x1="492" y1="216" x2="520" y2="216" class="solid"></line>
-    <line x1="264" y1="232" x2="356" y2="232" class="solid"></line>
-    <line x1="396" y1="264" x2="492" y2="264" class="solid"></line>
-  </g>
-  <g>
-    <line x1="532" y1="120" x2="588" y2="120" class="solid"></line>
-    <line x1="532" y1="120" x2="532" y2="264" class="solid"></line>
-    <line x1="588" y1="120" x2="588" y2="264" class="solid"></line>
-    <line x1="588" y1="152" x2="692" y2="152" class="solid"></line>
-    <line x1="692" y1="152" x2="692" y2="184" class="solid"></line>
-    <line x1="588" y1="168" x2="676" y2="168" class="solid"></line>
-    <line x1="676" y1="168" x2="676" y2="200" class="solid"></line>
-    <line x1="588" y1="184" x2="660" y2="184" class="solid"></line>
-    <line x1="660" y1="184" x2="660" y2="216" class="solid"></line>
-    <line x1="588" y1="200" x2="644" y2="200" class="solid"></line>
-    <line x1="644" y1="200" x2="644" y2="232" class="solid"></line>
-    <line x1="588" y1="216" x2="628" y2="216" class="solid"></line>
-    <line x1="628" y1="216" x2="628" y2="248" class="solid"></line>
-    <line x1="588" y1="232" x2="612" y2="232" class="solid"></line>
-    <line x1="612" y1="232" x2="612" y2="264" class="solid"></line>
-    <line x1="532" y1="264" x2="588" y2="264" class="solid"></line>
-    <line x1="724" y1="152" x2="1060" y2="152" class="solid"></line>
-    <line x1="724" y1="152" x2="724" y2="344" class="solid"></line>
-    <line x1="1020" y1="152" x2="1020" y2="176" class="solid"></line>
-    <line x1="1060" y1="152" x2="1024" y2="224" class="solid"></line>
-    <line x1="1060" y1="152" x2="1060" y2="168" class="solid"></line>
-    <line x1="1060" y1="168" x2="1024" y2="240" class="solid"></line>
-    <line x1="692" y1="184" x2="724" y2="184" class="solid"></line>
-    <line x1="676" y1="200" x2="724" y2="200" class="solid"></line>
-    <line x1="660" y1="216" x2="724" y2="216" class="solid"></line>
-    <line x1="644" y1="232" x2="724" y2="232" class="solid"></line>
-    <line x1="628" y1="248" x2="724" y2="248" class="solid"></line>
-    <line x1="612" y1="264" x2="724" y2="264" class="solid"></line>
-    <line x1="1060" y1="256" x2="1060" y2="264" class="solid"></line>
-    <line x1="1060" y1="264" x2="1020" y2="344" class="solid"></line>
-    <line x1="1060" y1="320" x2="1060" y2="344" class="solid"></line>
-    <line x1="724" y1="344" x2="1060" y2="344" class="solid"></line>
-    <line x1="1020" y1="336" x2="1020" y2="344" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="176" x2="1060" y2="184" class="solid"></line>
-    <line x1="1060" y1="184" x2="1024" y2="256" class="solid"></line>
-  </g>
-  <g>
-    <line x1="264" y1="200" x2="300" y2="200" class="solid"></line>
-    <line x1="300" y1="200" x2="300" y2="328" class="solid"></line>
-    <line x1="264" y1="248" x2="292" y2="248" class="solid"></line>
-    <line x1="292" y1="248" x2="292" y2="344" class="solid"></line>
-    <line x1="264" y1="264" x2="284" y2="264" class="solid"></line>
-    <line x1="284" y1="264" x2="284" y2="360" class="solid"></line>
-    <line x1="396" y1="296" x2="492" y2="296" class="solid"></line>
-    <line x1="396" y1="296" x2="396" y2="392" class="solid"></line>
-    <line x1="492" y1="296" x2="492" y2="392" class="solid"></line>
-    <line x1="300" y1="328" x2="396" y2="328" class="solid"></line>
-    <line x1="492" y1="328" x2="520" y2="328" class="solid"></line>
-    <line x1="292" y1="344" x2="396" y2="344" class="solid"></line>
-    <line x1="492" y1="344" x2="520" y2="344" class="solid"></line>
-    <line x1="284" y1="360" x2="396" y2="360" class="solid"></line>
-    <line x1="492" y1="360" x2="520" y2="360" class="solid"></line>
-    <line x1="396" y1="392" x2="492" y2="392" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="192" x2="1060" y2="200" class="solid"></line>
-    <line x1="1060" y1="200" x2="1024" y2="272" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="208" x2="1060" y2="216" class="solid"></line>
-    <line x1="1060" y1="216" x2="1024" y2="288" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="224" x2="1060" y2="232" class="solid"></line>
-    <line x1="1060" y1="232" x2="1024" y2="304" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="240" x2="1060" y2="248" class="solid"></line>
-    <line x1="1060" y1="248" x2="1024" y2="320" class="solid"></line>
-  </g>
-  <g>
-    <line x1="628" y1="280" x2="932" y2="280" class="solid"></line>
-    <line x1="628" y1="280" x2="628" y2="328" class="solid"></line>
-    <line x1="932" y1="280" x2="932" y2="336" class="solid"></line>
-    <line x1="532" y1="296" x2="588" y2="296" class="solid"></line>
-    <line x1="532" y1="296" x2="532" y2="392" class="solid"></line>
-    <line x1="588" y1="296" x2="588" y2="392" class="solid"></line>
-    <line x1="588" y1="328" x2="628" y2="328" class="solid"></line>
-    <line x1="532" y1="392" x2="588" y2="392" class="solid"></line>
-    <line x1="644" y1="296" x2="836" y2="296" class="solid"></line>
-    <line x1="644" y1="296" x2="644" y2="344" class="solid"></line>
-    <line x1="836" y1="296" x2="836" y2="336" class="solid"></line>
-    <line x1="588" y1="344" x2="644" y2="344" class="solid"></line>
-    <line x1="660" y1="312" x2="756" y2="312" class="solid"></line>
-    <line x1="660" y1="312" x2="660" y2="360" class="solid"></line>
-    <line x1="756" y1="312" x2="756" y2="336" class="solid"></line>
-    <line x1="588" y1="360" x2="660" y2="360" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="272" x2="1060" y2="280" class="solid"></line>
-    <line x1="1060" y1="280" x2="1032" y2="336" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="288" x2="1060" y2="296" class="solid"></line>
-    <line x1="1060" y1="296" x2="1040" y2="336" class="solid"></line>
-  </g>
-  <g>
-    <line x1="1060" y1="304" x2="1060" y2="312" class="solid"></line>
-    <line x1="1060" y1="312" x2="1048" y2="336" class="solid"></line>
-  </g>
-  <g>
-    <line x1="756" y1="352" x2="756" y2="376" class="solid"></line>
-    <line x1="732" y1="376" x2="780" y2="376" class="solid"></line>
-    <line x1="732" y1="376" x2="732" y2="424" class="solid"></line>
-    <line x1="780" y1="376" x2="780" y2="424" class="solid"></line>
-    <line x1="732" y1="424" x2="780" y2="424" class="solid"></line>
-    <line x1="756" y1="424" x2="756" y2="456" class="solid"></line>
-    <line x1="836" y1="352" x2="836" y2="376" class="solid"></line>
-    <line x1="796" y1="376" x2="876" y2="376" class="solid"></line>
-    <line x1="796" y1="376" x2="796" y2="424" class="solid"></line>
-    <line x1="876" y1="376" x2="876" y2="424" class="solid"></line>
-    <line x1="796" y1="424" x2="876" y2="424" class="solid"></line>
-    <line x1="836" y1="424" x2="836" y2="456" class="solid"></line>
-    <line x1="932" y1="352" x2="932" y2="376" class="solid"></line>
-    <line x1="892" y1="376" x2="996" y2="376" class="solid"></line>
-    <line x1="892" y1="376" x2="892" y2="424" class="solid"></line>
-    <line x1="996" y1="376" x2="996" y2="424" class="solid"></line>
-    <line x1="892" y1="424" x2="996" y2="424" class="solid"></line>
-    <line x1="932" y1="424" x2="932" y2="456" class="solid"></line>
-    <line x1="704" y1="456" x2="932" y2="456" class="solid"></line>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="512" width="1152" viewBox="0 0 1152 512" class="diagram" text-anchor="middle" font-family="monospace" font-size="13px">
+<path d="M 8,80 L 8,384" fill="none" stroke="black"/>
+<path d="M 32,112 L 32,352" fill="none" stroke="black"/>
+<path d="M 136,128 L 136,304" fill="none" stroke="black"/>
+<path d="M 168,112 L 168,352" fill="none" stroke="black"/>
+<path d="M 192,80 L 192,152" fill="none" stroke="black"/>
+<path d="M 192,280 L 192,384" fill="none" stroke="black"/>
+<path d="M 280,272 L 280,368" fill="none" stroke="black"/>
+<path d="M 296,256 L 296,352" fill="none" stroke="black"/>
+<path d="M 312,208 L 312,336" fill="none" stroke="black"/>
+<path d="M 344,208 L 344,224" fill="none" stroke="black"/>
+<path d="M 368,224 L 368,240" fill="none" stroke="black"/>
+<path d="M 416,128 L 416,272" fill="none" stroke="black"/>
+<path d="M 416,304 L 416,400" fill="none" stroke="black"/>
+<path d="M 512,128 L 512,272" fill="none" stroke="black"/>
+<path d="M 512,304 L 512,400" fill="none" stroke="black"/>
+<path d="M 552,128 L 552,272" fill="none" stroke="black"/>
+<path d="M 552,304 L 552,400" fill="none" stroke="black"/>
+<path d="M 608,128 L 608,272" fill="none" stroke="black"/>
+<path d="M 608,304 L 608,400" fill="none" stroke="black"/>
+<path d="M 656,224 L 656,256" fill="none" stroke="black"/>
+<path d="M 656,288 L 656,336" fill="none" stroke="black"/>
+<path d="M 672,208 L 672,240" fill="none" stroke="black"/>
+<path d="M 672,304 L 672,352" fill="none" stroke="black"/>
+<path d="M 688,192 L 688,224" fill="none" stroke="black"/>
+<path d="M 688,320 L 688,368" fill="none" stroke="black"/>
+<path d="M 704,176 L 704,208" fill="none" stroke="black"/>
+<path d="M 720,160 L 720,192" fill="none" stroke="black"/>
+<path d="M 752,160 L 752,352" fill="none" stroke="black"/>
+<path d="M 760,384 L 760,432" fill="none" stroke="black"/>
+<path d="M 784,320 L 784,384" fill="none" stroke="black"/>
+<path d="M 784,432 L 784,464" fill="none" stroke="black"/>
+<path d="M 808,384 L 808,432" fill="none" stroke="black"/>
+<path d="M 824,384 L 824,432" fill="none" stroke="black"/>
+<path d="M 864,304 L 864,384" fill="none" stroke="black"/>
+<path d="M 864,432 L 864,464" fill="none" stroke="black"/>
+<path d="M 904,384 L 904,432" fill="none" stroke="black"/>
+<path d="M 920,384 L 920,432" fill="none" stroke="black"/>
+<path d="M 960,288 L 960,384" fill="none" stroke="black"/>
+<path d="M 960,432 L 960,464" fill="none" stroke="black"/>
+<path d="M 1024,384 L 1024,432" fill="none" stroke="black"/>
+<path d="M 1048,160 L 1048,352" fill="none" stroke="black"/>
+<path d="M 1088,160 L 1088,352" fill="none" stroke="black"/>
+<path d="M 8,80 L 192,80" fill="none" stroke="black"/>
+<path d="M 32,112 L 168,112" fill="none" stroke="black"/>
+<path d="M 136,128 L 168,128" fill="none" stroke="black"/>
+<path d="M 416,128 L 512,128" fill="none" stroke="black"/>
+<path d="M 552,128 L 608,128" fill="none" stroke="black"/>
+<path d="M 168,160 L 200,160" fill="none" stroke="black"/>
+<path d="M 264,160 L 416,160" fill="none" stroke="black"/>
+<path d="M 520,160 L 544,160" fill="none" stroke="black"/>
+<path d="M 608,160 L 720,160" fill="none" stroke="black"/>
+<path d="M 752,160 L 1112,160" fill="none" stroke="black"/>
+<path d="M 168,176 L 200,176" fill="none" stroke="black"/>
+<path d="M 264,176 L 416,176" fill="none" stroke="black"/>
+<path d="M 520,176 L 544,176" fill="none" stroke="black"/>
+<path d="M 608,176 L 704,176" fill="none" stroke="black"/>
+<path d="M 168,192 L 200,192" fill="none" stroke="black"/>
+<path d="M 264,192 L 416,192" fill="none" stroke="black"/>
+<path d="M 520,192 L 544,192" fill="none" stroke="black"/>
+<path d="M 608,192 L 688,192" fill="none" stroke="black"/>
+<path d="M 720,192 L 752,192" fill="none" stroke="black"/>
+<path d="M 168,208 L 200,208" fill="none" stroke="black"/>
+<path d="M 264,208 L 312,208" fill="none" stroke="black"/>
+<path d="M 344,208 L 416,208" fill="none" stroke="black"/>
+<path d="M 520,208 L 544,208" fill="none" stroke="black"/>
+<path d="M 608,208 L 672,208" fill="none" stroke="black"/>
+<path d="M 704,208 L 752,208" fill="none" stroke="black"/>
+<path d="M 168,224 L 200,224" fill="none" stroke="black"/>
+<path d="M 264,224 L 304,224" fill="none" stroke="black"/>
+<path d="M 320,224 L 344,224" fill="none" stroke="black"/>
+<path d="M 368,224 L 416,224" fill="none" stroke="black"/>
+<path d="M 520,224 L 544,224" fill="none" stroke="black"/>
+<path d="M 608,224 L 656,224" fill="none" stroke="black"/>
+<path d="M 688,224 L 752,224" fill="none" stroke="black"/>
+<path d="M 168,240 L 200,240" fill="none" stroke="black"/>
+<path d="M 264,240 L 304,240" fill="none" stroke="black"/>
+<path d="M 320,240 L 368,240" fill="none" stroke="black"/>
+<path d="M 400,240 L 416,240" fill="none" stroke="black"/>
+<path d="M 608,240 L 624,240" fill="none" stroke="black"/>
+<path d="M 672,240 L 752,240" fill="none" stroke="black"/>
+<path d="M 168,256 L 200,256" fill="none" stroke="black"/>
+<path d="M 264,256 L 296,256" fill="none" stroke="black"/>
+<path d="M 656,256 L 752,256" fill="none" stroke="black"/>
+<path d="M 168,272 L 200,272" fill="none" stroke="black"/>
+<path d="M 264,272 L 280,272" fill="none" stroke="black"/>
+<path d="M 416,272 L 512,272" fill="none" stroke="black"/>
+<path d="M 552,272 L 608,272" fill="none" stroke="black"/>
+<path d="M 656,288 L 960,288" fill="none" stroke="black"/>
+<path d="M 136,304 L 168,304" fill="none" stroke="black"/>
+<path d="M 416,304 L 512,304" fill="none" stroke="black"/>
+<path d="M 552,304 L 608,304" fill="none" stroke="black"/>
+<path d="M 672,304 L 864,304" fill="none" stroke="black"/>
+<path d="M 688,320 L 784,320" fill="none" stroke="black"/>
+<path d="M 312,336 L 416,336" fill="none" stroke="black"/>
+<path d="M 520,336 L 544,336" fill="none" stroke="black"/>
+<path d="M 608,336 L 656,336" fill="none" stroke="black"/>
+<path d="M 32,352 L 168,352" fill="none" stroke="black"/>
+<path d="M 296,352 L 416,352" fill="none" stroke="black"/>
+<path d="M 520,352 L 544,352" fill="none" stroke="black"/>
+<path d="M 608,352 L 672,352" fill="none" stroke="black"/>
+<path d="M 752,352 L 1112,352" fill="none" stroke="black"/>
+<path d="M 280,368 L 416,368" fill="none" stroke="black"/>
+<path d="M 520,368 L 544,368" fill="none" stroke="black"/>
+<path d="M 608,368 L 688,368" fill="none" stroke="black"/>
+<path d="M 8,384 L 192,384" fill="none" stroke="black"/>
+<path d="M 760,384 L 808,384" fill="none" stroke="black"/>
+<path d="M 824,384 L 904,384" fill="none" stroke="black"/>
+<path d="M 920,384 L 1024,384" fill="none" stroke="black"/>
+<path d="M 416,400 L 512,400" fill="none" stroke="black"/>
+<path d="M 552,400 L 608,400" fill="none" stroke="black"/>
+<path d="M 760,432 L 808,432" fill="none" stroke="black"/>
+<path d="M 824,432 L 904,432" fill="none" stroke="black"/>
+<path d="M 920,432 L 1024,432" fill="none" stroke="black"/>
+<path d="M 736,464 L 960,464" fill="none" stroke="black"/>
+<path d="M 1048,208 L 1068,168" fill="none" stroke="black"/>
+<path d="M 1048,224 L 1076,168" fill="none" stroke="black"/>
+<path d="M 1048,240 L 1088,160" fill="none" stroke="black"/>
+<path d="M 1048,256 L 1092,168" fill="none" stroke="black"/>
+<path d="M 1048,272 L 1088,192" fill="none" stroke="black"/>
+<path d="M 1048,288 L 1088,208" fill="none" stroke="black"/>
+<path d="M 1048,304 L 1088,224" fill="none" stroke="black"/>
+<path d="M 1048,320 L 1088,240" fill="none" stroke="black"/>
+<path d="M 1044,344 L 1088,256" fill="none" stroke="black"/>
+<path d="M 1048,352 L 1088,272" fill="none" stroke="black"/>
+<path d="M 1060,344 L 1088,288" fill="none" stroke="black"/>
+<path d="M 1068,344 L 1088,304" fill="none" stroke="black"/>
+<polygon class="arrowhead" points="552,368 540,362.4 540,373.6" fill="black" transform="rotate(0,544,368)"/>
+<polygon class="arrowhead" points="552,352 540,346.4 540,357.6" fill="black" transform="rotate(0,544,352)"/>
+<polygon class="arrowhead" points="552,336 540,330.4 540,341.6" fill="black" transform="rotate(0,544,336)"/>
+<polygon class="arrowhead" points="552,224 540,218.4 540,229.6" fill="black" transform="rotate(0,544,224)"/>
+<polygon class="arrowhead" points="552,208 540,202.4 540,213.6" fill="black" transform="rotate(0,544,208)"/>
+<polygon class="arrowhead" points="552,192 540,186.4 540,197.6" fill="black" transform="rotate(0,544,192)"/>
+<polygon class="arrowhead" points="552,176 540,170.4 540,181.6" fill="black" transform="rotate(0,544,176)"/>
+<polygon class="arrowhead" points="552,160 540,154.4 540,165.6" fill="black" transform="rotate(0,544,160)"/>
+<g class="text">
+<text x="104" y="100">Front side device</text>
+<text x="152" y="164">1</text>
+<text x="232" y="164">[AWG24]</text>
+<text x="152" y="180">2</text>
+<text x="232" y="180">[AWG24]</text>
+<text x="460" y="180">6 ways</text>
+<text x="1056" y="180">/</text>
+<text x="152" y="196">3</text>
+<text x="232" y="196">[AWG24]</text>
+<text x="460" y="196">A type</text>
+<text x="152" y="212">4</text>
+<text x="232" y="212">[AWG24]</text>
+<text x="464" y="212">connector</text>
+<text x="88" y="228">PCB-A</text>
+<text x="152" y="228">5</text>
+<text x="232" y="228">[AWG24]</text>
+<text x="152" y="244">6</text>
+<text x="232" y="244">[AWG24]</text>
+<text x="388" y="244">NC</text>
+<text x="636" y="244">NC</text>
+<text x="152" y="260">7</text>
+<text x="232" y="260">[AWG24]</text>
+<text x="152" y="276">8</text>
+<text x="232" y="276">[AWG24]</text>
+<text x="460" y="340">3 ways</text>
+<text x="1080" y="340">/</text>
+<text x="460" y="356">A type</text>
+<text x="464" y="372">connector</text>
+<text x="784" y="404">CDI</text>
+<text x="864" y="404">neutral</text>
+<text x="972" y="404">bike_stand</text>
+<text x="860" y="420">swutch</text>
+<text x="972" y="420">switch</text>
+<text x="712" y="468">GND</text>
+<text x="136" y="484">A - 2.88mm ( mod:100 ) connectors</text>
+</g>
 </svg>
